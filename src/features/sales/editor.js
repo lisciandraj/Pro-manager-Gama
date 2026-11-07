@@ -27,7 +27,7 @@ function quoteAutosave({form,read,write,isCurrent,valid,pricing,onSaved,canAuto=
   pending=(async()=>{
    try{
     const result=await write(payload);if(!current())return null;
-    if(!result?.id||(!Number.isInteger(result.revision)&&!result.existing))throw Error('INVALID_SAVE_RESPONSE');
+    if(!result?.id||(!Number.isInteger(result.revision)&&(canAuto||result.existing!==true)))throw Error('INVALID_SAVE_RESPONSE');
     onSaved(result);lastResult=result;saved=sent;paused=false;show('saved');
     return result;
    }catch(error){if(current()){paused=true;show('failed');form.querySelector('#gqMessage').textContent=message(error);}throw error;}

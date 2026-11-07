@@ -1616,7 +1616,13 @@
       "name": "agent_approval_queue",
       "file": "20261020195939_agent_approval_queue.sql",
       "sha256": "7e55293892c85c302ca3028f5ba11bfbc233bdbb3585248b1b947c3731db9c41"
+    },
+    {
+      "version": "20261107191544",
+      "name": "consolidated_collection_preview",
+      "file": "20261107170411_consolidated_collection_preview.sql",
+      "sha256": "44a1a4647cbc9010fd5f3e2498d0482b013dd49bb9b4886176ee4f5d0cdf9054"
     }
   ],
-  "lastVerifiedAddition": "20261020201200"
+  "lastVerifiedAddition": "20261107191544"
 }

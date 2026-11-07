@@ -21,7 +21,7 @@ const decorated=locator=>locator.evaluateAll((tabs,src)=>{const re=new RegExp(sr
 test('les onglets RH n’ont plus d’icône, côté RH',async({page})=>{
  await boot(page);await page.evaluate(()=>ArcRouter.open('hr'));
  const tabs=page.locator('#hr .hrTabs button');
- await expect(tabs).toHaveText(['Employés','Absences','Planification','Règles de congés','Documents et historique','Paie et coûts','Organigramme']);
+ await expect(tabs).toHaveText(['Employés','Absences','Planification','Règles de congés','Documents et historique','Paie et coûts','Validations de l’équipe','Organigramme']);
  expect(await decorated(tabs)).toEqual([]);
 });
 

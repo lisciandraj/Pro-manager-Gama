@@ -11,8 +11,12 @@ async function boot(page,{isNew=false,request=false}={}){
   window.__epoch=0;window.__calls=[];window.__requestCalls=[];window.__views=[];window.__changes=0;window.__server={id:'q1',revision:1};window.addEventListener('gama:sales-change',()=>__changes++);
   window.CocoSalesWorkspace={attachSearch:()=>{},lookup:async kind=>kind==='customers'?[{id:'c1',name:'Andes',identification:'RUC',address:'Quito',active:true}]:[{id:'p1',name:'Papel',reference:'PAPEL',base_unit:'Unidad',active:true,tax_rate:15}],rpc:async()=>[]};
   window.ArcLoadScript=async()=>{};window.CocoModuleHistory={open:()=>{}};window.ArcRouter=(await import('/src/app/router.js')).router;ArcRouter.show('quotes');
-  window.__context={rows:async()=>[],rpc:async(name,args)=>{if(name==='gama_quote_from_request'){__requestCalls.push(args);return {id:'request-q',revision:1};}return [];},action:async(action,payload)=>{
-   __calls.push(structuredClone(payload));if(window.__hold)await new Promise(resolve=>window.__release=resolve);if(window.__fail)throw Error(__fail);if(payload.id&&payload.revision!==__server.revision)throw Error('QUOTE_CHANGED');if(!payload.id)__server.id='created-q';__server.revision++;return {...__server};
+  window.__context={rows:async()=>[],rpc:async(name,args)=>{if(name==='gama_quote_from_request'){__requestCalls.push(args);return window.__requestResult||{id:'request-q',revision:1,state:'draft',request_id:args.p_request_id,existing:false};}return [];},action:async(action,payload)=>{
+   __calls.push(structuredClone(payload));if(window.__hold)await new Promise(resolve=>window.__release=resolve);if(window.__fail)throw Error(__fail);
+   // The server receipt returns its original revision on an identical create retry.
+   if(!payload.id&&window.__createReceipt){if(JSON.stringify(__createReceipt.payload)!==JSON.stringify(payload))throw Error('REQUEST_KEY_REUSED');return structuredClone(__createReceipt.result);}
+   if(payload.id&&payload.revision!==__server.revision)throw Error('QUOTE_CHANGED');if(!payload.id)__server.id='created-q';__server.revision++;const result=window.__saveResult||{...__server};
+   if(!payload.id){window.__createReceipt={payload:structuredClone(payload),result:structuredClone(result)};if(window.__loseSaveResponse){window.__loseSaveResponse=false;throw Error('response lost after commit');}}return result;
   },run:async(button,fn)=>{button.disabled=true;try{await fn();}catch(error){document.getElementById('gqMessage').textContent=error.message;}finally{button.disabled=false;}},fail:(host,error)=>{throw error;},view:async id=>__views.push(id),open:()=>__views.push('list'),openRequests:()=>__views.push('requests'),getAddressEpoch:()=>__epoch};
  });
  await page.addScriptTag({path:path.join(__dirname,'../src/features/sales/editor.js')});
@@ -40,6 +44,12 @@ test('new valid drafts are created once and edits made while saving are sent as 
  expect(await page.evaluate(()=>new Set(__calls.map(call=>call.request_key)).size)).toBe(1);
 });
 
+test('a lost creation response can be retried with the same request key and the original revision',async({page})=>{
+ await boot(page,{isNew:true});await page.evaluate(()=>window.__loseSaveResponse=true);await page.locator('#gqSave').click();await expect(page.locator('#gqMessage')).toHaveText('response lost after commit');await expect(page.locator('#gqForm')).toBeVisible();
+ await page.locator('#gqSave').click();await expect.poll(()=>page.evaluate(()=>__views)).toEqual(['created-q']);
+ expect(await page.evaluate(()=>__calls.length)).toBe(2);expect(await page.evaluate(()=>__calls[0])).toEqual(await page.evaluate(()=>__calls[1]));expect(await page.evaluate(()=>__server.revision)).toBe(2);expect(await page.evaluate(()=>__changes)).toBe(1);
+});
+
 test('a conflict pauses automatic saves, retains typed values and asks before abandoning changes',async({page})=>{
  await boot(page);await page.evaluate(()=>__fail='QUOTE_CHANGED');await page.locator('#gqd_notes').fill('À conserver');await expect.poll(()=>page.evaluate(()=>__calls.length)).toBe(1);
  await expect(page.locator('#gqAutosave')).toContainText('no se ha guardado');await page.locator('#gqd_notes').fill('Toujours à conserver');
@@ -59,6 +69,11 @@ test('customer requests keep explicit conversion and a late response after logou
  await boot(page);await page.evaluate(()=>__hold=true);await page.locator('#gqd_notes').fill('Ancienne session');await expect.poll(()=>page.evaluate(()=>__calls.length)).toBe(1);
  await page.evaluate(()=>{__epoch++;window.dispatchEvent(new CustomEvent('gama:auth-change',{detail:{event:'SIGNED_OUT'}}));__hold=false;__release();});
  await page.waitForTimeout(100);expect(await page.evaluate(()=>__changes)).toBe(0);expect(await page.evaluate(()=>__views)).toEqual([]);
+});
+
+for(const result of [{id:'q1'},{id:'q1',existing:true},{id:'q1',existing:'true'}])test('normal quote saves reject missing revisions '+JSON.stringify(result),async({page})=>{
+ await boot(page);await page.evaluate(result=>window.__saveResult=result,result);await page.locator('#gqd_notes').fill('Conservar los cambios');await page.locator('#gqSave').click();
+ await expect(page.locator('#gqMessage')).toHaveText('INVALID_SAVE_RESPONSE');await expect(page.locator('#gqAutosave')).toContainText('no se ha guardado');await expect(page.locator('#gqd_notes')).toHaveValue('Conservar los cambios');expect(await page.evaluate(()=>__views)).toEqual([]);expect(await page.evaluate(()=>__changes)).toBe(0);
 });
 
 test('programmatic and global-search route requests warn before destroying an incomplete editor',async({page})=>{

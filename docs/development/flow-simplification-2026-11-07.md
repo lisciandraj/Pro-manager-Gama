@@ -89,9 +89,12 @@ retour à une liste générale entre deux opérations successives.
 
 1. Construire et valider les sources, puis pousser la branche de travail et
    conserver les contrôles CI avant la fusion/publication.
-2. Comparer le registre distant avant d'appliquer uniquement la nouvelle migration
-   `20261107170411_consolidated_collection_preview.sql`. Elle ajoute une lecture
-   contrôlée, sans mise à jour des factures ni des préférences de relance.
+2. La migration `20261107170411_consolidated_collection_preview.sql` a été appliquée
+   sur `mknsaibrewksgomuslev` sous la version distante `20261107191544`. Son empreinte
+   est enregistrée dans `supabase/migration-history.json`. Les trois signatures,
+   droits et gardes ont passé le [contrôle des métadonnées](../../scripts/verify-collection-preview.sql).
+   Elle ajoute une lecture contrôlée, sans mise à jour des factures ni des
+   préférences de relance. Ne pas rejouer les autres migrations historiques.
 3. Publier l'artefact ERP validé selon la [procédure Pages](pages-publication.md).
    Un commit sur la branche de travail ne prouve pas une mise en production.
 4. Pour revenir en arrière, republier le précédent artefact. La nouvelle lecture

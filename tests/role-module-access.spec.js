@@ -108,6 +108,34 @@ test('the access page fits a phone and follows the language',async({page})=>{
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
 });
 
+test('role templates preview navigation without changing any account or permission',async({page})=>{
+ await boot(page);await page.addScriptTag({url:'/gama-cloud-users.js'});await page.evaluate(()=>ArcRouter.open('users'));
+ await page.locator('[data-cu-models]').click();
+ const preview=page.locator('[data-cu-role-preview]');
+ await preview.locator('[name=preview_role]').selectOption('rh');
+ await expect(preview.locator('[data-cu-preview-module="hr"]')).toBeVisible();
+ await expect(preview.locator('[data-cu-preview-module="crm"]')).toHaveCount(0);
+ expect(await page.evaluate(()=>JSON.parse(localStorage.getItem('gama_session_v1')).role)).toBe('admin');
+ expect(await allowed(page,['crm','users'])).toEqual([true,true]);
+ await page.evaluate(()=>GamaModules.setEnabled('crm',false));
+ await preview.locator('[name=preview_role]').selectOption('commercial');
+ await expect(preview.locator('[data-cu-preview-module="crm"]')).toContainText('Desactivado para la empresa');
+ await preview.locator('[name=preview_role]').press('Enter');
+ await expect(preview).toBeVisible();
+ await preview.locator('h2').click();
+ await page.keyboard.press('Escape');await expect(preview).toHaveCount(0);
+});
+
+test('role templates follow language and refuse to open without users access',async({page})=>{
+ await page.setViewportSize({width:390,height:844});await boot(page);
+ await page.addScriptTag({url:'/gama-cloud-users.js'});await page.evaluate(()=>ArcRouter.open('users'));
+ await page.evaluate(()=>GamaI18n.setLanguage('fr'));await page.locator('[data-cu-models]').click();
+ const preview=page.locator('[data-cu-role-preview]');await expect(preview.locator('h2')).toHaveText('Profils et modules');
+ expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
+ await page.evaluate(()=>{localStorage.setItem('gama_session_v1',JSON.stringify({role:'commercial',name:'QA'}));window.dispatchEvent(new CustomEvent('gama:auth-change',{detail:{event:'SIGNED_OUT'}}));GamaCloudUsers.previewRole()});
+ await expect(preview).toHaveCount(0);
+});
+
 for(const role of ['commercial','magasinier','rh','client'])test(`the access page stays closed to ${role}`,async({page})=>{
  await boot(page,{role});
  expect(await allowed(page,['access-settings'])).toEqual([false]);

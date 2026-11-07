@@ -170,3 +170,20 @@ test('Ecuador payroll reviews server amounts and invalidates the preview when in
 test('an employee acknowledges their payslip on mobile and the PDF includes the signed receipt',async({page})=>{
  await page.setViewportSize({width:390,height:844});const period=new Date().toISOString().slice(0,7)+'-01';await boot(page,'magasinier',{_hr_ec:{calculation:EC_CALC},hr_payroll:[{id:'ec-owned',employee_id:'e1',period,erp_reference:'DOC-00000020',source_ref:'EC-PRIVATE',status:'validated',gross:1000,net:1112.3,employer_cost:1318.3,ec_calculation:EC_CALC}]});await page.evaluate(()=>{const original=GamaCloud.db;GamaCloud.db=async()=>{const db=await original();return {...db,rpc:async(fn,args)=>{if(fn==='gama_hr_ec_action'&&args.p_action==='list')await new Promise(resolve=>{window.__releasePayrollList=resolve});return db.rpc(fn,args)}}}});await tab(page,'nomina');await page.waitForFunction(()=>typeof window.__releasePayrollList==='function');await expect(page.locator('[data-ec-slip="ec-owned"]')).toBeDisabled();await page.evaluate(()=>window.__releasePayrollList());await expect(page.locator('#hpEcPayroll [data-ec="preview"]')).toHaveCount(0);await page.locator('[data-ec-slip="ec-owned"]').click();await page.locator('dialog [data-ec="signature"]').click();const sign=page.locator('dialog').last(),canvas=sign.locator('canvas'),rect=await canvas.boundingBox();await page.mouse.move(rect.x+30,rect.y+70);await page.mouse.down();await page.mouse.move(rect.x+90,rect.y+110,{steps:8});await page.mouse.move(rect.x+150,rect.y+50,{steps:8});await page.mouse.up();await sign.locator('[name=ack]').check();await page.screenshot({path:'test-results/gama-ecuador-payroll-mobile-signature.png',fullPage:true});await sign.locator('button[type=submit]').click();await expect(page.locator('dialog')).toContainText('Firmado el');expect(await page.evaluate(()=>window.__DB._hr_ec.signature.signature_png)).toMatch(/^data:image\/png;base64,/);const download=page.waitForEvent('download');await page.locator('dialog [data-ec="pdf"]').click();expect((await download).suggestedFilename()).toBe('ROL-DOC-00000020.pdf');
 });
+
+
+test('HR and managers share a pending-only approval queue with leave context',async({page})=>{
+ await page.route('**/gama-hr-p1.js*',r=>r.fulfill({contentType:'text/javascript',body:fs.readFileSync(path.join(__dirname,'../src/features/hr/operations.js'),'utf8')}));
+ await boot(page,'admin',{hr_absences:[
+  {id:'pending',employee_id:'e1',start_date:'2026-12-31',end_date:'2027-01-01',start_fraction:.5,end_fraction:1,kind:'vacaciones',status:'pendiente'},
+  {id:'approved',employee_id:'e1',start_date:'2026-11-02',end_date:'2026-11-02',kind:'vacaciones',status:'aprobada'},
+  {id:'other',employee_id:'e2',start_date:'2026-12-30',end_date:'2026-12-30',kind:'enfermedad',status:'pendiente'}
+ ]});
+ await tab(page,'validaciones');
+ const rows=page.locator('#hr .hpBox tbody tr');await expect(rows).toHaveCount(2);
+ const request=rows.filter({hasText:'Marie'});await expect(request).toContainText('1.5');await expect(request).toContainText('2026: 14');await expect(request).toContainText('2027: 15');
+ await request.locator('[data-absence-status=aprobada]').click();
+ await expect.poll(()=>page.evaluate(()=>window.__DB.hr_absences.find(a=>a.id==='pending').status)).toBe('aprobada');
+ await expect(page.locator('[data-absence-id=pending]')).toHaveCount(0);
+ expect(await page.evaluate(()=>window.__DB.hr_absences.find(a=>a.id==='approved').status)).toBe('aprobada');
+});

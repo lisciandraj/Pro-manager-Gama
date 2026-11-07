@@ -161,6 +161,7 @@ function restoreSearchFocus(input,key){
  searchFocus=null;
 }
 function standardizeSearch(input,t){
+ input.setAttribute('aria-keyshortcuts','/');
  if(input.hasAttribute('data-coco-preserve-search')){input.setAttribute('aria-label',sw().label);return}
  const key=preferenceKey(t);let box=input.closest('.gamaTableSearch');
  if(!box){
@@ -209,7 +210,7 @@ function search(t,state){
  const key=preferenceKey(t),source=sources.get(t)?.search,paged=paginationKey(t),value=source?source.get():paged?window.GamaPage.query(paged):searchTerms.get(key)||'';
  if(!state.searchBox){
   const box=document.createElement('label');box.className='gamaTableSearch';box.dataset.giIgnore='';box.setAttribute('translate','no');
-  const label=document.createElement('span'),input=document.createElement('input'),status=document.createElement('small');input.type='search';input.autocomplete='off';input.dataset.tableSearch='';status.setAttribute('role','status');
+  const label=document.createElement('span'),input=document.createElement('input'),status=document.createElement('small');input.type='search';input.autocomplete='off';input.dataset.tableSearch='';input.setAttribute('aria-keyshortcuts','/');status.setAttribute('role','status');
   if(!t.id)t.id='gama-search-table-'+(++searchUid);input.setAttribute('aria-controls',t.id);box.append(label,input,status);state.searchBox=box;state.searchInput=input;state.searchStatus=status;
   input.addEventListener('input',()=>{
    searchTerms.set(key,input.value);const currentSource=sources.get(t)?.search,currentPage=paginationKey(t);clearTimeout(state.searchTimer);
@@ -455,6 +456,14 @@ function css(){ /* Styles are compiled in architect-components.css. */ }
 
 function boot(){
  css();scan();
+ document.addEventListener('keydown',event=>{
+  if(event.defaultPrevented||event.isComposing||event.repeat||event.key!=='/'||event.ctrlKey||event.metaKey||event.altKey)return;
+  const target=event.target;if(target?.isContentEditable||target?.closest('input,textarea,select,[contenteditable=true]'))return;
+  const scope=[...document.querySelectorAll('dialog[open]')].at(-1)||document.querySelector('section.active');
+  if(!scope||scope.id==='mainmenu')return;
+  const input=[...scope.querySelectorAll('[data-table-search]')].find(node=>!node.disabled&&node.getClientRects().length&&!node.closest('[hidden],[inert]'));
+  if(input){event.preventDefault();input.focus();input.select();}
+ });
  window.addEventListener('arc:route-change',()=>scan(document.querySelector('section.active')||document));
  const refresh=()=>document.querySelectorAll('table').forEach(t=>{const state=layouts.get(t);if(state){if(state.bar){if(!t.closest('[data-arc-table]'))etiquetar(t);refreshLayout(t,state);controls(t,state)}search(t,state)}});
  window.addEventListener('resize',refresh);window.addEventListener('gama:language-change',refresh);window.addEventListener('gama:auth-change',refresh);

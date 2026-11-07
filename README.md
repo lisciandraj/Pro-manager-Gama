@@ -7,6 +7,7 @@ ERP de gestion pour PME, en français, espagnol et anglais. L’application cons
 - [Architecture et organisation des sources](docs/architecture.md)
 - [Navigation et modules actuels](docs/modules/navigation.md)
 - [Guide de développement](docs/development/README.md)
+- [Simplification des 30 parcours — livraison du 7 novembre](docs/development/flow-simplification-2026-11-07.md)
 - [Charte graphique actuelle](docs/design-system.md)
 - [Audit technique et organisation](docs/audits/2026-09-30.md)
 - [Audit complémentaire : chargement, dépendances et maintenance](docs/audits/2026-09-30-runtime.md)

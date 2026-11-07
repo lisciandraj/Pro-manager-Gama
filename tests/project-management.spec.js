@@ -66,3 +66,31 @@ test('delete item confirmation, dependency guidance, translations and refreshed 
  expect((await rpc('detail',{project_id:pid})).items.some(i=>i.id===task)).toBe(false);
  }finally{await db.close()}
 });
+
+
+test('task time is recorded from its row and stale totals never overwrite concurrent work',async({page})=>{
+ test.setTimeout(90000);
+ for(const [output,source] of [['gama-projects.js','src/features/projects/projects.js'],['gama-projects-i18n.js','src/features/projects/projects-i18n.js']])await page.route('**/'+output+'*',r=>r.fulfill({contentType:'text/javascript',body:fs.readFileSync(path.join(__dirname,'..',source),'utf8')}));
+ const {db,call,rpc}=await boot(page);try{
+  const pid=(await call('create_project',{name:'Contextual hours',start_date:'2026-11-01',due_date:'2026-12-01'})).project_id;
+  const task=(await call('save_item',{project_id:pid,kind:'task',title:'Work already selected',owner_id:uid,data:{spent_hours:2,estimated_hours:10,checklist:[{text:'Keep this',done:false}]}})).id;
+  await page.evaluate(pid=>GamaProjects.open({projectId:pid,tab:'tasks'}),pid);
+  await page.locator(`[data-pm-action=task_time][data-id="${task}"]`).click();
+  await expect(field(page,'hours_to_add')).toBeFocused();
+  await expect(page.locator('.pmDialog [name=title]')).toHaveCount(0);
+  await field(page,'hours_to_add').fill('1.125');
+  await expect(page.locator('[data-pm-time-total]')).toHaveText('3,125');
+  await page.locator('.pmDialog [type=submit]').click();
+  await expect(page.locator('.pmDialog')).toHaveCount(0);
+  const current=(await rpc('detail',{project_id:pid})).items.find(x=>x.id===task);
+  expect(current.data.spent_hours).toBe(3.125);expect(current.data.estimated_hours).toBe(10);expect(current.data.checklist[0].text).toBe('Keep this');
+  await page.locator(`[data-pm-action=task_time][data-id="${task}"]`).click();
+  await call('save_item',{project_id:pid,id:task,version:current.version,data:{spent_hours:7}});
+  await field(page,'hours_to_add').fill('1');await page.locator('.pmDialog [type=submit]').click();
+  await expect(page.locator('#pmDialogError')).toBeVisible();
+  await expect(field(page,'hours_to_add')).toHaveValue('1');
+  expect((await rpc('detail',{project_id:pid})).items.find(x=>x.id===task).data.spent_hours).toBe(7);
+  await page.evaluate(()=>window.dispatchEvent(new CustomEvent('gama:auth-change',{detail:{event:'SIGNED_OUT'}})));
+  await expect(page.locator('.pmDialog')).toHaveCount(0);
+ }finally{await db.close()}
+});

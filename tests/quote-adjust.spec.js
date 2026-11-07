@@ -71,7 +71,11 @@ for(const mode of ['mouse','touch'])test('product search uses one selector and s
   await boot(page);
   if(mode==='touch')await page.evaluate(()=>GamaI18n.setLanguage('fr'));
   await page.evaluate(()=>{for(let i=3;i<=12;i++)__DB.products.push({id:'p'+i,name:'Producto '+i,reference:'REF-'+i,sale_price:10,tax_rate:15,active:true})});
-  await page.locator('#gqDiscard').click();await page.locator('#gqNew').click();
+  // The populated draft is deliberately abandoned here; the navigation guard
+  // must ask before the product-picker scenario starts with a fresh quote.
+  const confirmation=page.waitForEvent('dialog'),discard=page.locator('#gqDiscard').click();
+  const dialog=await confirmation;expect(dialog.type()).toBe('confirm');expect(dialog.message()).toMatch(/cambios sin guardar|modifications ne sont pas enregistrées/i);await dialog.accept();await discard;
+  await page.locator('#gqNew').click();
   await page.locator('#gqCustomer').selectOption('c1');await page.locator('#gqAdd').click();
   await expect(page.locator('#gqLines .gqLine')).toHaveCount(0);
   const label=page.locator('.gqProductPicker .arcField').first(),input=label.locator('.gamaFindBox');

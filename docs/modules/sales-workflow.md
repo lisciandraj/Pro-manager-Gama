@@ -121,3 +121,21 @@ Les options et leurs conditions utilisent l'index d'historique expurgé existant
 avec la provenance Agent Coco lorsque le contexte d'exécution la fournit.
 
 Contrats et limites : [architecture du lot distribution](../../replica/distribution-2026-10-23/remaining-architecture.md).
+
+## Réclamation depuis une ligne de commande
+
+Sur une commande confirmée, les profils autorisés au SAV peuvent ouvrir une
+réclamation depuis la ligne du produit, sans rechercher à nouveau le client ou
+la commande. Le SAV relit la ligne dans la commande autorisée avant de proposer
+le formulaire : client et commande sont liés ; produit, référence et quantité
+commandée préremplissent la description. La quantité commandée n’est pas
+présentée comme une preuve de livraison. Aucun ticket n’est créé avant
+l’enregistrement explicite du formulaire. Le lien structurel existant porte sur
+la commande ; le produit reste décrit dans le ticket, sans nouvelle table.
+
+Le parcours de retour physique depuis la livraison et celui de création d’un
+retour depuis une réclamation restent les moteurs existants, avec leurs
+contrôles de quantité, stock et remboursement. Ce raccourci ne crée ni retour,
+ni avoir, ni remboursement automatiquement. La suite
+`tests/simplified-sales-contacts.spec.js` vérifie préremplissage, absence d’écriture
+avant validation et rejet d’une ligne absente du dossier.

@@ -11,7 +11,7 @@ function wait(){
   if(!window.GamaCloud||!window.GamaCloudReady)return setTimeout(wait,250);
   window.GamaCloudReady.then(init).catch(e=>console.warn('[GAMA Cloud Users]',e));
 }
-window.addEventListener('gama:auth-change',event=>{if(event.detail?.event==='TOKEN_REFRESHED')return;authEpoch++;generation++;document.getElementById('cuRows')?.replaceChildren();selfId=null;booted=false;initialization=null;if(isOpen())mount()});
+window.addEventListener('gama:auth-change',event=>{if(event.detail?.event==='TOKEN_REFRESHED')return;authEpoch++;generation++;document.querySelectorAll('[data-cu-role-preview]').forEach(d=>d.close());document.getElementById('cuRows')?.replaceChildren();selfId=null;booted=false;initialization=null;if(isOpen())mount()});
 window.addEventListener('gama:access-profiles-change',()=>{if(isOpen())load()});
 window.addEventListener('gama:language-change',()=>{if(isOpen())load()});
 function init(){
@@ -42,13 +42,25 @@ function patch(){
   if(s.querySelector('.cloudUsersV17'))return;
   window.ArcUI.render(s,`<div class="arcPanel card cloudUsersV17"><div class="cuBar"><h3 data-gi=a1a13eae50f0>Usuarios cloud</h3><span class="cuOnline"><i></i> <span data-gi=f0c9e4e7c1ee>Cloud conectado</span></span></div><div id="cuPending" class="cuPending" data-gi-live hidden></div><div id="cuStatus" class="cuStatus" data-gi=633d7ba5f776>Cargando usuarios…</div><div class="cuTable"><table class="arcTable"><thead><tr><th data-gi=562bb15757a8>Nombre</th><th data-gi=969ccbd3cf63>Email</th><th data-gi=fb9f51fe9250>Rol</th><th data-gi=98e5acddb6c4>Estado</th><th data-gi=1bba71a51144>Creado</th><th data-gi=fb89a30ba7f6>Acciones</th></tr></thead><tbody id="cuRows"></tbody></table></div><div class="cuFoot"><span id="cuCount">0 usuarios</span><span data-gi=49469fa2cf35>● Actualización automática activa</span></div></div>`);
   window.GamaUI.bindBack(s);
+  const models=document.createElement('button');models.type='button';models.className='arcButton secondary';models.dataset.cuModels='';models.dataset.giIgnore='';models.textContent=t('Perfiles y módulos','Profils et modules','Roles and modules');models.onclick=()=>previewRole();s.querySelector('.cuBar').append(models);
   if(!document.getElementById('cuStyle')){const st=document.createElement('style');st.id='cuStyle';document.head.appendChild(st)}
+}
+function roleSummary(role){
+ const model=window.GamaRoleAccess.preview(role);if(!model)return '';
+ return `<ul>${model.modules.map(m=>`<li data-cu-preview-module="${esc(m.id)}">${esc(window.GamaI18n?.t?.(m.label)||m.label)}${m.enabled?'':` — ${esc(t('Desactivado para la empresa','Désactivé pour l’entreprise','Disabled for the company'))}`}</li>`).join('')}</ul>`;
+}
+function previewRole(role='commercial'){
+ if(!window.gamaAccessAllowed?.('users'))return;
+ const d=window.ArcUI.dialog({title:t('Perfiles y módulos','Profils et modules','Roles and modules'),saveLabel:t('Cerrar','Fermer','Close'),body:window.ArcUI.field({key:'preview_role',label:t('Modelo de rol','Modèle de rôle','Role template'),type:'select',value:role,options:window.GamaRoleAccess.options().map(r=>({id:r.id,name:window.GamaI18n?.t?.(r.label)||r.label}))})+`<p>${t('Estos modelos se aplican al elegir el rol de una cuenta. La vista muestra los módulos de navegación; los permisos sobre cada operación y registro se verifican al abrirlos.','Ces modèles s’appliquent au choix du rôle d’un compte. L’aperçu montre les modules de navigation ; les droits sur chaque opération et dossier sont vérifiés à leur ouverture.','These templates apply when choosing an account’s role. This preview shows navigation modules; access to each operation and record is checked when opened.')}</p><div data-cu-model-preview aria-live="polite"></div>`});
+ d.dataset.cuRolePreview='';d.dataset.giIgnore='';
+ const select=d.querySelector('[name=preview_role]'),render=()=>window.ArcUI.render(d.querySelector('[data-cu-model-preview]'),roleSummary(select.value));select.addEventListener('change',render);render();return d;
 }
 async function load(){
   const token=++generation;
   const s=document.getElementById('users');
   if(!s)return;
   if(!s.querySelector('.cloudUsersV17'))patch();
+  const models=s.querySelector('[data-cu-models]');if(models)models.textContent=t('Perfiles y módulos','Profils et modules','Roles and modules');
   const status=document.getElementById('cuStatus'),body=document.getElementById('cuRows');
   if(!status||!body)return;
   try{
@@ -126,7 +138,7 @@ function deleteAccount(user){
  d.dataset.identity='';d.dataset.giIgnore='';d.querySelector('[name=confirmation_email]').autocomplete='off';
 }
 async function mount(){await window.GamaCloudReady;await init();if(selfId&&window.gamaAccessAllowed?.('users')){patch();window.ArchitectIdentity?.mount(document.getElementById('users'));await load()}}
-window.GamaCloudUsers={mount};
+window.GamaCloudUsers={mount,previewRole,roleSummary};
 window.ArcRouter.onEnter('users',mount);
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',wait,{once:true});else wait();
 })();

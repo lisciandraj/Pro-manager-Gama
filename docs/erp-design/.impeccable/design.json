@@ -1,119 +1,119 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-11-04T00:00:00Z",
-  "title": "Design System: Coco ERP — GAMA",
+  "generatedAt": "2026-11-07T00:00:00Z",
+  "title": "Design System: Coco ERP — référence claire",
   "extensions": {
     "colorMeta": {
       "petrol": {
         "role": "primary",
-        "displayName": "Pétrole atténué",
+        "displayName": "Violet partagé (alias petrol)",
         "tonalRamp": [
-          "oklch(15.00% 0.0701 215.09)",
-          "oklch(26.43% 0.0701 215.09)",
-          "oklch(37.86% 0.0701 215.09)",
-          "oklch(49.29% 0.0701 215.09)",
-          "oklch(60.71% 0.0701 215.09)",
-          "oklch(72.14% 0.0701 215.09)",
-          "oklch(83.57% 0.0701 215.09)",
-          "oklch(95.00% 0.0701 215.09)"
+          "oklch(15.00% 0.1967 286.63)",
+          "oklch(26.43% 0.1967 286.63)",
+          "oklch(37.86% 0.1967 286.63)",
+          "oklch(49.29% 0.1967 286.63)",
+          "oklch(60.71% 0.1967 286.63)",
+          "oklch(72.14% 0.1967 286.63)",
+          "oklch(83.57% 0.1967 286.63)",
+          "oklch(95.00% 0.1967 286.63)"
         ]
       },
       "petrol-deep": {
         "role": "primary",
-        "displayName": "Pétrole profond",
+        "displayName": "Violet de survol (alias petrol-deep)",
         "tonalRamp": [
-          "oklch(15.00% 0.0616 215.58)",
-          "oklch(26.43% 0.0616 215.58)",
-          "oklch(37.86% 0.0616 215.58)",
-          "oklch(49.29% 0.0616 215.58)",
-          "oklch(60.71% 0.0616 215.58)",
-          "oklch(72.14% 0.0616 215.58)",
-          "oklch(83.57% 0.0616 215.58)",
-          "oklch(95.00% 0.0616 215.58)"
+          "oklch(15.00% 0.1924 285.79)",
+          "oklch(26.43% 0.1924 285.79)",
+          "oklch(37.86% 0.1924 285.79)",
+          "oklch(49.29% 0.1924 285.79)",
+          "oklch(60.71% 0.1924 285.79)",
+          "oklch(72.14% 0.1924 285.79)",
+          "oklch(83.57% 0.1924 285.79)",
+          "oklch(95.00% 0.1924 285.79)"
         ]
       },
       "brand-blue": {
         "role": "primary",
-        "displayName": "Bleu de marque GAMA",
+        "displayName": "Violet partagé (alias brand-blue)",
         "tonalRamp": [
-          "oklch(15.00% 0.0952 219.07)",
-          "oklch(26.43% 0.0952 219.07)",
-          "oklch(37.86% 0.0952 219.07)",
-          "oklch(49.29% 0.0952 219.07)",
-          "oklch(60.71% 0.0952 219.07)",
-          "oklch(72.14% 0.0952 219.07)",
-          "oklch(83.57% 0.0952 219.07)",
-          "oklch(95.00% 0.0952 219.07)"
+          "oklch(15.00% 0.1967 286.63)",
+          "oklch(26.43% 0.1967 286.63)",
+          "oklch(37.86% 0.1967 286.63)",
+          "oklch(49.29% 0.1967 286.63)",
+          "oklch(60.71% 0.1967 286.63)",
+          "oklch(72.14% 0.1967 286.63)",
+          "oklch(83.57% 0.1967 286.63)",
+          "oklch(95.00% 0.1967 286.63)"
         ]
       },
       "action": {
         "role": "secondary",
-        "displayName": "Orange cuivré d’action",
+        "displayName": "Violet partagé (alias action)",
         "tonalRamp": [
-          "oklch(15.00% 0.1204 44.59)",
-          "oklch(26.43% 0.1204 44.59)",
-          "oklch(37.86% 0.1204 44.59)",
-          "oklch(49.29% 0.1204 44.59)",
-          "oklch(60.71% 0.1204 44.59)",
-          "oklch(72.14% 0.1204 44.59)",
-          "oklch(83.57% 0.1204 44.59)",
-          "oklch(95.00% 0.1204 44.59)"
+          "oklch(15.00% 0.1967 286.63)",
+          "oklch(26.43% 0.1967 286.63)",
+          "oklch(37.86% 0.1967 286.63)",
+          "oklch(49.29% 0.1967 286.63)",
+          "oklch(60.71% 0.1967 286.63)",
+          "oklch(72.14% 0.1967 286.63)",
+          "oklch(83.57% 0.1967 286.63)",
+          "oklch(95.00% 0.1967 286.63)"
         ]
       },
       "action-hover": {
         "role": "secondary",
-        "displayName": "Orange cuivré de survol",
+        "displayName": "Violet de survol (alias action-hover)",
         "tonalRamp": [
-          "oklch(15.00% 0.1120 42.97)",
-          "oklch(26.43% 0.1120 42.97)",
-          "oklch(37.86% 0.1120 42.97)",
-          "oklch(49.29% 0.1120 42.97)",
-          "oklch(60.71% 0.1120 42.97)",
-          "oklch(72.14% 0.1120 42.97)",
-          "oklch(83.57% 0.1120 42.97)",
-          "oklch(95.00% 0.1120 42.97)"
+          "oklch(15.00% 0.1924 285.79)",
+          "oklch(26.43% 0.1924 285.79)",
+          "oklch(37.86% 0.1924 285.79)",
+          "oklch(49.29% 0.1924 285.79)",
+          "oklch(60.71% 0.1924 285.79)",
+          "oklch(72.14% 0.1924 285.79)",
+          "oklch(83.57% 0.1924 285.79)",
+          "oklch(95.00% 0.1924 285.79)"
         ]
       },
       "brand-orange": {
         "role": "secondary",
-        "displayName": "Orange de marque GAMA",
+        "displayName": "Violet partagé (alias brand-orange)",
         "tonalRamp": [
-          "oklch(15.00% 0.1791 47.91)",
-          "oklch(26.43% 0.1791 47.91)",
-          "oklch(37.86% 0.1791 47.91)",
-          "oklch(49.29% 0.1791 47.91)",
-          "oklch(60.71% 0.1791 47.91)",
-          "oklch(72.14% 0.1791 47.91)",
-          "oklch(83.57% 0.1791 47.91)",
-          "oklch(95.00% 0.1791 47.91)"
+          "oklch(15.00% 0.1967 286.63)",
+          "oklch(26.43% 0.1967 286.63)",
+          "oklch(37.86% 0.1967 286.63)",
+          "oklch(49.29% 0.1967 286.63)",
+          "oklch(60.71% 0.1967 286.63)",
+          "oklch(72.14% 0.1967 286.63)",
+          "oklch(83.57% 0.1967 286.63)",
+          "oklch(95.00% 0.1967 286.63)"
         ]
       },
       "ink": {
         "role": "neutral",
         "displayName": "Encre de travail",
         "tonalRamp": [
-          "oklch(15.00% 0.0272 222.79)",
-          "oklch(26.43% 0.0272 222.79)",
-          "oklch(37.86% 0.0272 222.79)",
-          "oklch(49.29% 0.0272 222.79)",
-          "oklch(60.71% 0.0272 222.79)",
-          "oklch(72.14% 0.0272 222.79)",
-          "oklch(83.57% 0.0272 222.79)",
-          "oklch(95.00% 0.0272 222.79)"
+          "oklch(15.00% 0.0261 294.38)",
+          "oklch(26.43% 0.0261 294.38)",
+          "oklch(37.86% 0.0261 294.38)",
+          "oklch(49.29% 0.0261 294.38)",
+          "oklch(60.71% 0.0261 294.38)",
+          "oklch(72.14% 0.0261 294.38)",
+          "oklch(83.57% 0.0261 294.38)",
+          "oklch(95.00% 0.0261 294.38)"
         ]
       },
       "muted": {
         "role": "neutral",
         "displayName": "Texte secondaire",
         "tonalRamp": [
-          "oklch(15.00% 0.0241 223.32)",
-          "oklch(26.43% 0.0241 223.32)",
-          "oklch(37.86% 0.0241 223.32)",
-          "oklch(49.29% 0.0241 223.32)",
-          "oklch(60.71% 0.0241 223.32)",
-          "oklch(72.14% 0.0241 223.32)",
-          "oklch(83.57% 0.0241 223.32)",
-          "oklch(95.00% 0.0241 223.32)"
+          "oklch(15.00% 0.0237 294.72)",
+          "oklch(26.43% 0.0237 294.72)",
+          "oklch(37.86% 0.0237 294.72)",
+          "oklch(49.29% 0.0237 294.72)",
+          "oklch(60.71% 0.0237 294.72)",
+          "oklch(72.14% 0.0237 294.72)",
+          "oklch(83.57% 0.0237 294.72)",
+          "oklch(95.00% 0.0237 294.72)"
         ]
       },
       "surface": {
@@ -134,197 +134,197 @@
         "role": "neutral",
         "displayName": "Fond en retrait",
         "tonalRamp": [
-          "oklch(15.00% 0.0055 211.04)",
-          "oklch(26.43% 0.0055 211.04)",
-          "oklch(37.86% 0.0055 211.04)",
-          "oklch(49.29% 0.0055 211.04)",
-          "oklch(60.71% 0.0055 211.04)",
-          "oklch(72.14% 0.0055 211.04)",
-          "oklch(83.57% 0.0055 211.04)",
-          "oklch(95.00% 0.0055 211.04)"
+          "oklch(15.00% 0.0026 286.35)",
+          "oklch(26.43% 0.0026 286.35)",
+          "oklch(37.86% 0.0026 286.35)",
+          "oklch(49.29% 0.0026 286.35)",
+          "oklch(60.71% 0.0026 286.35)",
+          "oklch(72.14% 0.0026 286.35)",
+          "oklch(83.57% 0.0026 286.35)",
+          "oklch(95.00% 0.0026 286.35)"
         ]
       },
       "canvas": {
         "role": "neutral",
         "displayName": "Toile neutre",
         "tonalRamp": [
-          "oklch(15.00% 0.0025 228.78)",
-          "oklch(26.43% 0.0025 228.78)",
-          "oklch(37.86% 0.0025 228.78)",
-          "oklch(49.29% 0.0025 228.78)",
-          "oklch(60.71% 0.0025 228.78)",
-          "oklch(72.14% 0.0025 228.78)",
-          "oklch(83.57% 0.0025 228.78)",
-          "oklch(95.00% 0.0025 228.78)"
+          "oklch(15.00% 0.0000 89.88)",
+          "oklch(26.43% 0.0000 89.88)",
+          "oklch(37.86% 0.0000 89.88)",
+          "oklch(49.29% 0.0000 89.88)",
+          "oklch(60.71% 0.0000 89.88)",
+          "oklch(72.14% 0.0000 89.88)",
+          "oklch(83.57% 0.0000 89.88)",
+          "oklch(95.00% 0.0000 89.88)"
         ]
       },
       "line": {
         "role": "neutral",
         "displayName": "Séparateur de surface",
         "tonalRamp": [
-          "oklch(15.00% 0.0080 216.63)",
-          "oklch(26.43% 0.0080 216.63)",
-          "oklch(37.86% 0.0080 216.63)",
-          "oklch(49.29% 0.0080 216.63)",
-          "oklch(60.71% 0.0080 216.63)",
-          "oklch(72.14% 0.0080 216.63)",
-          "oklch(83.57% 0.0080 216.63)",
-          "oklch(95.00% 0.0080 216.63)"
+          "oklch(15.00% 0.0094 286.22)",
+          "oklch(26.43% 0.0094 286.22)",
+          "oklch(37.86% 0.0094 286.22)",
+          "oklch(49.29% 0.0094 286.22)",
+          "oklch(60.71% 0.0094 286.22)",
+          "oklch(72.14% 0.0094 286.22)",
+          "oklch(83.57% 0.0094 286.22)",
+          "oklch(95.00% 0.0094 286.22)"
         ]
       },
       "row-line": {
         "role": "neutral",
         "displayName": "Séparateur de tableau",
         "tonalRamp": [
-          "oklch(15.00% 0.0070 219.56)",
-          "oklch(26.43% 0.0070 219.56)",
-          "oklch(37.86% 0.0070 219.56)",
-          "oklch(49.29% 0.0070 219.56)",
-          "oklch(60.71% 0.0070 219.56)",
-          "oklch(72.14% 0.0070 219.56)",
-          "oklch(83.57% 0.0070 219.56)",
-          "oklch(95.00% 0.0070 219.56)"
+          "oklch(15.00% 0.0094 286.22)",
+          "oklch(26.43% 0.0094 286.22)",
+          "oklch(37.86% 0.0094 286.22)",
+          "oklch(49.29% 0.0094 286.22)",
+          "oklch(60.71% 0.0094 286.22)",
+          "oklch(72.14% 0.0094 286.22)",
+          "oklch(83.57% 0.0094 286.22)",
+          "oklch(95.00% 0.0094 286.22)"
         ]
       },
       "input-line": {
         "role": "neutral",
         "displayName": "Contour de saisie",
         "tonalRamp": [
-          "oklch(15.00% 0.0215 221.01)",
-          "oklch(26.43% 0.0215 221.01)",
-          "oklch(37.86% 0.0215 221.01)",
-          "oklch(49.29% 0.0215 221.01)",
-          "oklch(60.71% 0.0215 221.01)",
-          "oklch(72.14% 0.0215 221.01)",
-          "oklch(83.57% 0.0215 221.01)",
-          "oklch(95.00% 0.0215 221.01)"
+          "oklch(15.00% 0.0269 295.82)",
+          "oklch(26.43% 0.0269 295.82)",
+          "oklch(37.86% 0.0269 295.82)",
+          "oklch(49.29% 0.0269 295.82)",
+          "oklch(60.71% 0.0269 295.82)",
+          "oklch(72.14% 0.0269 295.82)",
+          "oklch(83.57% 0.0269 295.82)",
+          "oklch(95.00% 0.0269 295.82)"
         ]
       },
       "selected": {
         "role": "primary",
-        "displayName": "Sélection pétrole claire",
+        "displayName": "Sélection violette claire",
         "tonalRamp": [
-          "oklch(15.00% 0.0120 209.80)",
-          "oklch(26.43% 0.0120 209.80)",
-          "oklch(37.86% 0.0120 209.80)",
-          "oklch(49.29% 0.0120 209.80)",
-          "oklch(60.71% 0.0120 209.80)",
-          "oklch(72.14% 0.0120 209.80)",
-          "oklch(83.57% 0.0120 209.80)",
-          "oklch(95.00% 0.0120 209.80)"
+          "oklch(15.00% 0.0233 299.36)",
+          "oklch(26.43% 0.0233 299.36)",
+          "oklch(37.86% 0.0233 299.36)",
+          "oklch(49.29% 0.0233 299.36)",
+          "oklch(60.71% 0.0233 299.36)",
+          "oklch(72.14% 0.0233 299.36)",
+          "oklch(83.57% 0.0233 299.36)",
+          "oklch(95.00% 0.0233 299.36)"
         ]
       },
       "hover": {
         "role": "primary",
-        "displayName": "Survol pétrole léger",
+        "displayName": "Survol violet léger",
         "tonalRamp": [
-          "oklch(15.00% 0.0065 208.78)",
-          "oklch(26.43% 0.0065 208.78)",
-          "oklch(37.86% 0.0065 208.78)",
-          "oklch(49.29% 0.0065 208.78)",
-          "oklch(60.71% 0.0065 208.78)",
-          "oklch(72.14% 0.0065 208.78)",
-          "oklch(83.57% 0.0065 208.78)",
-          "oklch(95.00% 0.0065 208.78)"
+          "oklch(15.00% 0.0108 297.63)",
+          "oklch(26.43% 0.0108 297.63)",
+          "oklch(37.86% 0.0108 297.63)",
+          "oklch(49.29% 0.0108 297.63)",
+          "oklch(60.71% 0.0108 297.63)",
+          "oklch(72.14% 0.0108 297.63)",
+          "oklch(83.57% 0.0108 297.63)",
+          "oklch(95.00% 0.0108 297.63)"
         ]
       },
       "success": {
         "role": "neutral",
         "displayName": "Succès",
         "tonalRamp": [
-          "oklch(15.00% 0.0906 159.59)",
-          "oklch(26.43% 0.0906 159.59)",
-          "oklch(37.86% 0.0906 159.59)",
-          "oklch(49.29% 0.0906 159.59)",
-          "oklch(60.71% 0.0906 159.59)",
-          "oklch(72.14% 0.0906 159.59)",
-          "oklch(83.57% 0.0906 159.59)",
-          "oklch(95.00% 0.0906 159.59)"
+          "oklch(15.00% 0.0961 168.96)",
+          "oklch(26.43% 0.0961 168.96)",
+          "oklch(37.86% 0.0961 168.96)",
+          "oklch(49.29% 0.0961 168.96)",
+          "oklch(60.71% 0.0961 168.96)",
+          "oklch(72.14% 0.0961 168.96)",
+          "oklch(83.57% 0.0961 168.96)",
+          "oklch(95.00% 0.0961 168.96)"
         ]
       },
       "success-bg": {
         "role": "neutral",
         "displayName": "Fond de succès",
         "tonalRamp": [
-          "oklch(15.00% 0.0124 157.00)",
-          "oklch(26.43% 0.0124 157.00)",
-          "oklch(37.86% 0.0124 157.00)",
-          "oklch(49.29% 0.0124 157.00)",
-          "oklch(60.71% 0.0124 157.00)",
-          "oklch(72.14% 0.0124 157.00)",
-          "oklch(83.57% 0.0124 157.00)",
-          "oklch(95.00% 0.0124 157.00)"
+          "oklch(15.00% 0.0186 171.51)",
+          "oklch(26.43% 0.0186 171.51)",
+          "oklch(37.86% 0.0186 171.51)",
+          "oklch(49.29% 0.0186 171.51)",
+          "oklch(60.71% 0.0186 171.51)",
+          "oklch(72.14% 0.0186 171.51)",
+          "oklch(83.57% 0.0186 171.51)",
+          "oklch(95.00% 0.0186 171.51)"
         ]
       },
       "warning": {
         "role": "neutral",
         "displayName": "Avertissement",
         "tonalRamp": [
-          "oklch(15.00% 0.0967 75.12)",
-          "oklch(26.43% 0.0967 75.12)",
-          "oklch(37.86% 0.0967 75.12)",
-          "oklch(49.29% 0.0967 75.12)",
-          "oklch(60.71% 0.0967 75.12)",
-          "oklch(72.14% 0.0967 75.12)",
-          "oklch(83.57% 0.0967 75.12)",
-          "oklch(95.00% 0.0967 75.12)"
+          "oklch(15.00% 0.1098 68.16)",
+          "oklch(26.43% 0.1098 68.16)",
+          "oklch(37.86% 0.1098 68.16)",
+          "oklch(49.29% 0.1098 68.16)",
+          "oklch(60.71% 0.1098 68.16)",
+          "oklch(72.14% 0.1098 68.16)",
+          "oklch(83.57% 0.1098 68.16)",
+          "oklch(95.00% 0.1098 68.16)"
         ]
       },
       "warning-bg": {
         "role": "neutral",
         "displayName": "Fond d’avertissement",
         "tonalRamp": [
-          "oklch(15.00% 0.0183 86.15)",
-          "oklch(26.43% 0.0183 86.15)",
-          "oklch(37.86% 0.0183 86.15)",
-          "oklch(49.29% 0.0183 86.15)",
-          "oklch(60.71% 0.0183 86.15)",
-          "oklch(72.14% 0.0183 86.15)",
-          "oklch(83.57% 0.0183 86.15)",
-          "oklch(95.00% 0.0183 86.15)"
+          "oklch(15.00% 0.0186 75.32)",
+          "oklch(26.43% 0.0186 75.32)",
+          "oklch(37.86% 0.0186 75.32)",
+          "oklch(49.29% 0.0186 75.32)",
+          "oklch(60.71% 0.0186 75.32)",
+          "oklch(72.14% 0.0186 75.32)",
+          "oklch(83.57% 0.0186 75.32)",
+          "oklch(95.00% 0.0186 75.32)"
         ]
       },
       "danger": {
         "role": "neutral",
         "displayName": "Erreur",
         "tonalRamp": [
-          "oklch(15.00% 0.1440 25.95)",
-          "oklch(26.43% 0.1440 25.95)",
-          "oklch(37.86% 0.1440 25.95)",
-          "oklch(49.29% 0.1440 25.95)",
-          "oklch(60.71% 0.1440 25.95)",
-          "oklch(72.14% 0.1440 25.95)",
-          "oklch(83.57% 0.1440 25.95)",
-          "oklch(95.00% 0.1440 25.95)"
+          "oklch(15.00% 0.1697 18.29)",
+          "oklch(26.43% 0.1697 18.29)",
+          "oklch(37.86% 0.1697 18.29)",
+          "oklch(49.29% 0.1697 18.29)",
+          "oklch(60.71% 0.1697 18.29)",
+          "oklch(72.14% 0.1697 18.29)",
+          "oklch(83.57% 0.1697 18.29)",
+          "oklch(95.00% 0.1697 18.29)"
         ]
       },
       "danger-bg": {
         "role": "neutral",
         "displayName": "Fond d’erreur",
         "tonalRamp": [
-          "oklch(15.00% 0.0144 28.01)",
-          "oklch(26.43% 0.0144 28.01)",
-          "oklch(37.86% 0.0144 28.01)",
-          "oklch(49.29% 0.0144 28.01)",
-          "oklch(60.71% 0.0144 28.01)",
-          "oklch(72.14% 0.0144 28.01)",
-          "oklch(83.57% 0.0144 28.01)",
-          "oklch(95.00% 0.0144 28.01)"
+          "oklch(15.00% 0.0163 12.78)",
+          "oklch(26.43% 0.0163 12.78)",
+          "oklch(37.86% 0.0163 12.78)",
+          "oklch(49.29% 0.0163 12.78)",
+          "oklch(60.71% 0.0163 12.78)",
+          "oklch(72.14% 0.0163 12.78)",
+          "oklch(83.57% 0.0163 12.78)",
+          "oklch(95.00% 0.0163 12.78)"
         ]
       }
     },
     "typographyMeta": {
       "headline": {
         "displayName": "Titre de contenu",
-        "purpose": "Titres Poppins dans le contenu du module."
+        "purpose": "Titres Inter dans le contenu du module."
       },
       "title": {
         "displayName": "Titre du bandeau",
-        "purpose": "Nom unique du module : 24 px PC, 23 px tablette, 18 px téléphone."
+        "purpose": "Nom unique du module : 24 px PC/tablette et 20 px téléphone."
       },
       "section": {
         "displayName": "Titre de section",
-        "purpose": "Hiérarchie Poppins des surfaces de travail ; certains panneaux emploient 16 px."
+        "purpose": "Hiérarchie Inter des surfaces de travail ; certains panneaux emploient 16 px."
       },
       "body": {
         "displayName": "Texte courant",
@@ -370,28 +370,28 @@
     "shadows": [
       {
         "name": "surface",
-        "value": "0 1px 3px rgb(40 59 66 / .035),0 6px 18px -12px rgb(40 59 66 / .08)",
-        "purpose": "Panneaux, KPI et tuiles ; une seule ombre par groupe."
+        "value": "none",
+        "purpose": "Cartes et commandes plates ; pas de profondeur décorative."
       },
       {
         "name": "raised",
-        "value": "0 3px 8px rgb(40 59 66 / .04),0 12px 28px -14px rgb(40 59 66 / .14)",
-        "purpose": "Survol interactif et menus."
+        "value": "0 4px 16px rgba(38,35,49,.06)",
+        "purpose": "Menus et superpositions légères."
       },
       {
         "name": "dialog",
-        "value": "0 8px 24px rgb(40 59 66 / .08),0 24px 64px -16px rgb(40 59 66 / .22)",
+        "value": "0 12px 32px rgba(38,35,49,.12)",
         "purpose": "Fenêtres et tiroir ouvert."
       },
       {
         "name": "action",
         "value": "none",
-        "purpose": "Commande principale plate au repos."
+        "purpose": "Cartes et commandes plates ; pas de profondeur décorative."
       },
       {
         "name": "pressed",
-        "value": "inset 0 2px 3px rgb(16 59 82 / .12)",
-        "purpose": "Retour bref de pression, supprimé avec le mouvement réduit."
+        "value": "none",
+        "purpose": "Cartes et commandes plates ; pas de profondeur décorative."
       }
     ],
     "motion": [
@@ -461,9 +461,9 @@
       "name": "Action principale",
       "kind": "button",
       "refersTo": "button-primary",
-      "description": "Commande principale orange ; les actions secondaires restent plus discrètes.",
+      "description": "Commande principale violette ; les actions secondaires restent plus discrètes.",
       "html": "<button class=\"ds-primary\" type=\"button\">Enregistrer</button>",
-      "css": ".ds-primary{display:inline-flex;align-items:center;justify-content:center;gap:8px;box-sizing:border-box;min-height:44px;padding:10px 16px;border:1px solid var(--coco-line,#E1E8EA);border-radius:var(--arc-r-sm,8px);box-shadow:var(--coco-action-shadow);cursor:pointer;font:500 14px/1.55 var(--arc-font,Inter,Arial,sans-serif);background:var(--coco-action-top,#AF5C35) var(--coco-action-fill,none);border-color:var(--coco-action,#AF5C35);color:var(--coco-on-action,#fff)}.ds-primary:hover:not(:disabled){background:var(--coco-action-hover,#974B2A)}.ds-primary:focus-visible{outline:2px solid var(--arc-accent-600,#2F7180);outline-offset:3px;}.ds-primary:active:not(:disabled,[aria-busy=true]){transform:translateY(1px);box-shadow:var(--coco-pressed-shadow,inset 0 2px 3px rgb(16 59 82 / .12))}.ds-primary:disabled{opacity:.55;cursor:not-allowed}.ds-primary{transition:background-color var(--coco-motion-feedback,120ms),border-color var(--coco-motion-feedback,120ms),box-shadow var(--coco-motion-feedback,120ms),transform var(--coco-motion-feedback,120ms) var(--coco-ease,cubic-bezier(.16,1,.3,1))}@media(prefers-reduced-motion:reduce){.ds-primary{transition:none}.ds-primary:active{transform:none}}"
+      "css": ".ds-primary{display:inline-flex;align-items:center;justify-content:center;gap:8px;box-sizing:border-box;min-height:44px;padding:10px 16px;border:1px solid var(--coco-line,#E9E9F0);border-radius:var(--arc-r-sm,8px);box-shadow:var(--coco-action-shadow);cursor:pointer;font:500 14px/1.55 var(--arc-font,Inter,Arial,sans-serif);background:var(--coco-action-top,#6246CC) var(--coco-action-fill,none);border-color:var(--coco-action,#6246CC);color:var(--coco-on-action,#fff)}.ds-primary:hover:not(:disabled){background:var(--coco-action-hover,#5438BA)}.ds-primary:focus-visible{outline:2px solid var(--arc-accent-600,#6246CC);outline-offset:3px;}.ds-primary:active:not(:disabled,[aria-busy=true]){transform:translateY(1px);box-shadow:none}.ds-primary:disabled{opacity:.55;cursor:not-allowed}.ds-primary{transition:background-color var(--coco-motion-feedback,120ms),border-color var(--coco-motion-feedback,120ms),box-shadow var(--coco-motion-feedback,120ms),transform var(--coco-motion-feedback,120ms) var(--coco-ease,cubic-bezier(.16,1,.3,1))}@media(prefers-reduced-motion:reduce){.ds-primary{transition:none}.ds-primary:active{transform:none}}"
     },
     {
       "name": "Action secondaire",
@@ -471,15 +471,15 @@
       "refersTo": "button-secondary",
       "description": "Retour ou action complémentaire sur fond blanc.",
       "html": "<button class=\"ds-secondary\" type=\"button\">Retour</button>",
-      "css": ".ds-secondary{display:inline-flex;align-items:center;justify-content:center;gap:8px;box-sizing:border-box;min-height:44px;padding:10px 16px;border:1px solid var(--coco-line,#E1E8EA);border-radius:var(--arc-r-sm,8px);box-shadow:none;cursor:pointer;font:500 14px/1.55 var(--arc-font,Inter,Arial,sans-serif);background:var(--coco-surface,#fff);color:var(--coco-ink,#283B42)}.ds-secondary:hover:not(:disabled){background:var(--coco-inset,#EEF3F4);border-color:var(--arc-accent-600,#2F7180)}.ds-secondary:focus-visible{outline:2px solid var(--arc-accent-600,#2F7180);outline-offset:3px;}.ds-secondary:active:not(:disabled,[aria-busy=true]){transform:translateY(1px);box-shadow:var(--coco-pressed-shadow,inset 0 2px 3px rgb(16 59 82 / .12))}.ds-secondary:disabled{opacity:.55;cursor:not-allowed}.ds-secondary{transition:background-color var(--coco-motion-feedback,120ms),border-color var(--coco-motion-feedback,120ms),box-shadow var(--coco-motion-feedback,120ms),transform var(--coco-motion-feedback,120ms) var(--coco-ease,cubic-bezier(.16,1,.3,1))}@media(prefers-reduced-motion:reduce){.ds-secondary{transition:none}.ds-secondary:active{transform:none}}"
+      "css": ".ds-secondary{display:inline-flex;align-items:center;justify-content:center;gap:8px;box-sizing:border-box;min-height:44px;padding:10px 16px;border:1px solid var(--coco-line,#E9E9F0);border-radius:var(--arc-r-sm,8px);box-shadow:none;cursor:pointer;font:500 14px/1.55 var(--arc-font,Inter,Arial,sans-serif);background:var(--coco-surface,#fff);color:var(--coco-ink,#262331)}.ds-secondary:hover:not(:disabled){background:var(--coco-inset,#FAFAFC);border-color:var(--arc-accent-600,#6246CC)}.ds-secondary:focus-visible{outline:2px solid var(--arc-accent-600,#6246CC);outline-offset:3px;}.ds-secondary:active:not(:disabled,[aria-busy=true]){transform:translateY(1px);box-shadow:none}.ds-secondary:disabled{opacity:.55;cursor:not-allowed}.ds-secondary{transition:background-color var(--coco-motion-feedback,120ms),border-color var(--coco-motion-feedback,120ms),box-shadow var(--coco-motion-feedback,120ms),transform var(--coco-motion-feedback,120ms) var(--coco-ease,cubic-bezier(.16,1,.3,1))}@media(prefers-reduced-motion:reduce){.ds-secondary{transition:none}.ds-secondary:active{transform:none}}"
     },
     {
       "name": "Action discrète",
       "kind": "button",
       "refersTo": "button-ghost",
-      "description": "Commande de moindre priorité avec libellé pétrole.",
+      "description": "Commande de moindre priorité avec libellé violet.",
       "html": "<button class=\"ds-ghost\" type=\"button\">Actualiser</button>",
-      "css": ".ds-ghost{display:inline-flex;align-items:center;justify-content:center;gap:8px;box-sizing:border-box;min-height:44px;padding:10px 16px;border:1px solid var(--coco-line,#E1E8EA);border-radius:var(--arc-r-sm,8px);box-shadow:none;cursor:pointer;font:500 14px/1.55 var(--arc-font,Inter,Arial,sans-serif);background:transparent;border-color:transparent;color:var(--arc-accent-600,#2F7180)}.ds-ghost:hover:not(:disabled){background:var(--arc-surface-3,#E7EEF0);color:var(--coco-ink,#283B42)}.ds-ghost:focus-visible{outline:2px solid var(--arc-accent-600,#2F7180);outline-offset:3px;}.ds-ghost:active:not(:disabled,[aria-busy=true]){transform:translateY(1px);box-shadow:var(--coco-pressed-shadow,inset 0 2px 3px rgb(16 59 82 / .12))}.ds-ghost:disabled{opacity:.55;cursor:not-allowed}.ds-ghost{transition:background-color var(--coco-motion-feedback,120ms),border-color var(--coco-motion-feedback,120ms),box-shadow var(--coco-motion-feedback,120ms),transform var(--coco-motion-feedback,120ms) var(--coco-ease,cubic-bezier(.16,1,.3,1))}@media(prefers-reduced-motion:reduce){.ds-ghost{transition:none}.ds-ghost:active{transform:none}}"
+      "css": ".ds-ghost{display:inline-flex;align-items:center;justify-content:center;gap:8px;box-sizing:border-box;min-height:44px;padding:10px 16px;border:1px solid var(--coco-line,#E9E9F0);border-radius:var(--arc-r-sm,8px);box-shadow:none;cursor:pointer;font:500 14px/1.55 var(--arc-font,Inter,Arial,sans-serif);background:transparent;border-color:transparent;color:var(--arc-accent-600,#6246CC)}.ds-ghost:hover:not(:disabled){background:var(--arc-surface-3,#F3F2F7);color:var(--coco-ink,#262331)}.ds-ghost:focus-visible{outline:2px solid var(--arc-accent-600,#6246CC);outline-offset:3px;}.ds-ghost:active:not(:disabled,[aria-busy=true]){transform:translateY(1px);box-shadow:none}.ds-ghost:disabled{opacity:.55;cursor:not-allowed}.ds-ghost{transition:background-color var(--coco-motion-feedback,120ms),border-color var(--coco-motion-feedback,120ms),box-shadow var(--coco-motion-feedback,120ms),transform var(--coco-motion-feedback,120ms) var(--coco-ease,cubic-bezier(.16,1,.3,1))}@media(prefers-reduced-motion:reduce){.ds-ghost{transition:none}.ds-ghost:active{transform:none}}"
     },
     {
       "name": "Champ de saisie",
@@ -487,15 +487,15 @@
       "refersTo": "field",
       "description": "Libellé persistant et contour de champ distinct du séparateur de panneau.",
       "html": "<label class=\"ds-field\">Référence<input class=\"ds-field-input\" type=\"text\" value=\"REF-001\"></label>",
-      "css": ".ds-field{display:flex;flex-direction:column;gap:var(--coco-field-gap,8px);color:var(--coco-ink,#283B42);font:500 13px/1.5 var(--arc-font,Inter,Arial,sans-serif);}.ds-field-input{min-width:0;box-sizing:border-box;min-height:44px;padding:10px 12px;border:1px solid var(--arc-line-strong,#819298);border-radius:var(--arc-r-sm,8px);background:var(--coco-surface,#fff);color:var(--coco-ink,#283B42);font:400 14px/1.5 var(--arc-font,Inter,Arial,sans-serif);box-shadow:none}.ds-field-input:focus-visible{outline:2px solid var(--arc-accent-600,#2F7180);outline-offset:3px;}.ds-field-input[aria-invalid=true]{border-color:var(--arc-danger,#AD403B);background:var(--arc-danger-bg,#FBEEEC)}.ds-field-input[readonly]{background:var(--coco-inset,#EEF3F4)}@media(max-width:760px){.ds-field-input{font-size:16px}}"
+      "css": ".ds-field{display:flex;flex-direction:column;gap:var(--coco-field-gap,8px);color:var(--coco-ink,#262331);font:500 13px/1.5 var(--arc-font,Inter,Arial,sans-serif);}.ds-field-input{min-width:0;box-sizing:border-box;min-height:44px;padding:10px 12px;border:1px solid var(--arc-line-strong,#8E8A9C);border-radius:var(--arc-r-sm,8px);background:var(--coco-surface,#fff);color:var(--coco-ink,#262331);font:400 14px/1.5 var(--arc-font,Inter,Arial,sans-serif);box-shadow:none}.ds-field-input:focus-visible{outline:2px solid var(--arc-accent-600,#6246CC);outline-offset:3px;}.ds-field-input[aria-invalid=true]{border-color:var(--arc-danger,#BE3848);background:var(--arc-danger-bg,#FFF0F1)}.ds-field-input[readonly]{background:var(--coco-inset,#FAFAFC)}@media(max-width:760px){.ds-field-input{font-size:16px}}"
     },
     {
       "name": "Onglets de module",
       "kind": "nav",
       "refersTo": "module-tab",
-      "description": "Onglets natifs dans le contenu du module, défilants, avec sélection pétrole.",
+      "description": "Onglets natifs dans le contenu du module, défilants, avec sélection violette.",
       "html": "<nav class=\"ds-tabs\" aria-label=\"Exemple de sections\"><button class=\"ds-tab\" aria-current=\"page\">Vue d’ensemble</button><button class=\"ds-tab\">Historique</button></nav>",
-      "css": ".ds-tabs{display:flex;gap:8px;overflow-x:auto;padding:4px 0}.ds-tab{flex:none;box-sizing:border-box;min-height:44px;padding:10px 16px;border:1px solid transparent;border-radius:var(--arc-r-sm,8px);background:transparent;color:var(--coco-ink,#283B42);font:400 13px/1.4 var(--arc-font,Inter,Arial,sans-serif);cursor:pointer}.ds-tab[aria-current=page]{background:var(--arc-accent-100,#E5F0F2);border-color:var(--arc-accent-600,#2F7180);color:var(--arc-accent-700,#245C69);font-weight:500}.ds-tab:hover{background:var(--arc-accent-100,#E5F0F2)}.ds-tab:focus-visible{outline:2px solid var(--arc-accent-600,#2F7180);outline-offset:-3px}.ds-tab:active{background:var(--arc-accent-100,#E5F0F2)}"
+      "css": ".ds-tabs{display:flex;gap:8px;overflow-x:auto;padding:4px 0}.ds-tab{flex:none;box-sizing:border-box;min-height:44px;padding:10px 16px;border:1px solid transparent;border-radius:var(--arc-r-sm,8px);background:transparent;color:var(--coco-ink,#262331);font:400 13px/1.4 var(--arc-font,Inter,Arial,sans-serif);cursor:pointer}.ds-tab[aria-current=page]{background:var(--arc-accent-100,#F0EBFC);border-color:var(--arc-accent-600,#6246CC);color:var(--arc-accent-700,#5438BA);font-weight:500}.ds-tab:hover{background:var(--arc-accent-100,#F0EBFC)}.ds-tab:focus-visible{outline:2px solid var(--arc-accent-600,#6246CC);outline-offset:-3px}.ds-tab:active{background:var(--arc-accent-100,#F0EBFC)}"
     },
     {
       "name": "Statut confirmé",
@@ -503,15 +503,15 @@
       "refersTo": "status-success",
       "description": "Indication lisible ; le texte explicite porte le sens du statut.",
       "html": "<span class=\"ds-status\">Confirmé</span>",
-      "css": ".ds-status{display:inline-flex;align-items:center;gap:4px;padding:4px 9px;border:0;border-radius:6px;background:var(--arc-success-bg,#EDF6F0);color:var(--arc-success,#28704E);font:500 12px/1.55 var(--arc-font,Inter,Arial,sans-serif)}"
+      "css": ".ds-status{display:inline-flex;align-items:center;gap:4px;padding:4px 9px;border:0;border-radius:6px;background:var(--arc-success-bg,#E8F8F2);color:var(--arc-success,#16785D);font:500 12px/1.55 var(--arc-font,Inter,Arial,sans-serif)}"
     },
     {
       "name": "Panneau de travail",
       "kind": "card",
       "refersTo": "panel",
-      "description": "Surface blanche opaque et profondeur légère ; une seule ombre par groupe.",
+      "description": "Surface blanche opaque, contour fin, rayon 16 px et aucune ombre.",
       "html": "<article class=\"ds-panel\"><h3 class=\"ds-panel-title\">Détails</h3><p class=\"ds-panel-text\">Les informations complémentaires restent accessibles dans le dossier.</p></article>",
-      "css": ".ds-panel{padding:24px;border:0;border-radius:var(--arc-r-lg,16px);background:var(--coco-surface,#fff);color:var(--coco-ink,#283B42);box-shadow:var(--coco-surface-shadow);font:400 14px/1.55 var(--arc-font,Inter,Arial,sans-serif)}.ds-panel-title{margin:0 0 12px;font-family:var(--arc-font-display,Poppins,Inter,Arial,sans-serif);font-size:17px;line-height:1.4;font-weight:600;letter-spacing:-.02em}.ds-panel-text{margin:0;color:var(--coco-muted,#5F7178)}@media(max-width:760px){.ds-panel{padding:16px;border-radius:12px}}"
+      "css": ".ds-panel{padding:24px;border:1px solid var(--coco-line,#E9E9F0);border-radius:var(--arc-r-lg,16px);background:var(--coco-surface,#fff);color:var(--coco-ink,#262331);box-shadow:none;font:400 14px/1.55 var(--arc-font,Inter,Arial,sans-serif)}.ds-panel-title{margin:0 0 12px;font-family:var(--arc-font-display,Inter,Arial,sans-serif);font-size:17px;line-height:1.4;font-weight:600;letter-spacing:-.02em}.ds-panel-text{margin:0;color:var(--coco-muted,#676473)}@media(max-width:760px){.ds-panel{padding:16px;border-radius:16px}}"
     },
     {
       "name": "Fiche mobile de liste",
@@ -519,7 +519,7 @@
       "refersTo": "mobile-card",
       "description": "Fiche de consultation à valeurs de 16 px et libellés de colonne visibles.",
       "html": "<article class=\"ds-record\"><h3 class=\"ds-record-title\">Référence</h3><dl class=\"ds-record-fields\"><div><dt>Client</dt><dd>Nom du client</dd></div><div><dt>Statut</dt><dd>À traiter</dd></div></dl><button class=\"ds-record-action\" type=\"button\">Ouvrir</button></article>",
-      "css": ".ds-record{padding:16px;border:0;border-radius:12px;background:var(--coco-surface,#fff);box-shadow:var(--coco-surface-shadow);color:var(--coco-ink,#283B42);font:400 16px/1.5 var(--arc-font,Inter,Arial,sans-serif)}.ds-record-title{margin:0 0 12px;font-size:16px;line-height:1.5;font-weight:600}.ds-record-fields{margin:0}.ds-record-fields>div{display:grid;grid-template-columns:108px minmax(0,1fr);gap:10px;padding:6px 0}.ds-record-fields dt{font-size:11px;color:var(--coco-muted,#5F7178)}.ds-record-fields dd{margin:0;overflow-wrap:anywhere}.ds-record-action{display:inline-flex;align-items:center;justify-content:center;gap:8px;box-sizing:border-box;min-height:44px;padding:10px 16px;border:1px solid var(--coco-line,#E1E8EA);border-radius:var(--arc-r-sm,8px);box-shadow:none;cursor:pointer;font:500 14px/1.55 var(--arc-font,Inter,Arial,sans-serif);margin-top:8px;background:var(--coco-surface,#fff);color:var(--coco-ink,#283B42)}.ds-record-action:hover{background:var(--coco-inset,#EEF3F4);border-color:var(--arc-accent-600,#2F7180)}.ds-record-action:focus-visible{outline:2px solid var(--arc-accent-600,#2F7180);outline-offset:3px;}.ds-record-action:active{background:var(--arc-accent-50,#F1F7F8)}"
+      "css": ".ds-record{padding:16px;border:0;border-radius:16px;background:var(--coco-surface,#fff);box-shadow:none;color:var(--coco-ink,#262331);font:400 16px/1.5 var(--arc-font,Inter,Arial,sans-serif)}.ds-record-title{margin:0 0 12px;font-size:16px;line-height:1.5;font-weight:600}.ds-record-fields{margin:0}.ds-record-fields>div{display:grid;grid-template-columns:108px minmax(0,1fr);gap:10px;padding:6px 0}.ds-record-fields dt{font-size:11px;color:var(--coco-muted,#676473)}.ds-record-fields dd{margin:0;overflow-wrap:anywhere}.ds-record-action{display:inline-flex;align-items:center;justify-content:center;gap:8px;box-sizing:border-box;min-height:44px;padding:10px 16px;border:1px solid var(--coco-line,#E9E9F0);border-radius:var(--arc-r-sm,8px);box-shadow:none;cursor:pointer;font:500 14px/1.55 var(--arc-font,Inter,Arial,sans-serif);margin-top:8px;background:var(--coco-surface,#fff);color:var(--coco-ink,#262331)}.ds-record-action:hover{background:var(--coco-inset,#FAFAFC);border-color:var(--arc-accent-600,#6246CC)}.ds-record-action:focus-visible{outline:2px solid var(--arc-accent-600,#6246CC);outline-offset:3px;}.ds-record-action:active{background:var(--arc-accent-50,#F8F6FE)}"
     },
     {
       "name": "Historique replié",
@@ -527,7 +527,7 @@
       "refersTo": "panel",
       "description": "Résumé compact dans le flux ; partage la ligne Outils aux largeurs prévues, sans cloner les contrôles.",
       "html": "<details class=\"ds-history\"><summary class=\"ds-history-summary\">Historique du module</summary><div class=\"ds-history-body\">Aucune action enregistrée.</div></details>",
-      "css": ".ds-history{border:0;border-radius:var(--arc-r-lg,16px);background:var(--coco-surface,#fff);box-shadow:var(--coco-surface-shadow);color:var(--coco-ink,#283B42);font:400 13px/1.5 var(--arc-font,Inter,Arial,sans-serif)}.ds-history-summary{box-sizing:border-box;min-height:44px;padding:10px 12px;font-weight:500;cursor:pointer}.ds-history-summary:hover{background:var(--coco-inset,#EEF3F4)}.ds-history-summary:focus-visible{outline:2px solid var(--arc-accent-600,#2F7180);outline-offset:3px;}.ds-history-summary:active{background:var(--arc-accent-50,#F1F7F8)}.ds-history[open]>.ds-history-summary{border-bottom:1px solid var(--coco-line,#E1E8EA)}.ds-history-body{padding:12px;color:var(--coco-muted,#5F7178)}"
+      "css": ".ds-history{border:0;border-radius:var(--arc-r-lg,16px);background:var(--coco-surface,#fff);box-shadow:none;color:var(--coco-ink,#262331);font:400 13px/1.5 var(--arc-font,Inter,Arial,sans-serif)}.ds-history-summary{box-sizing:border-box;min-height:44px;padding:10px 12px;font-weight:500;cursor:pointer}.ds-history-summary:hover{background:var(--coco-inset,#FAFAFC)}.ds-history-summary:focus-visible{outline:2px solid var(--arc-accent-600,#6246CC);outline-offset:3px;}.ds-history-summary:active{background:var(--arc-accent-50,#F8F6FE)}.ds-history[open]>.ds-history-summary{border-bottom:1px solid var(--coco-line,#E9E9F0)}.ds-history-body{padding:12px;color:var(--coco-muted,#676473)}"
     },
     {
       "name": "Lien latéral",
@@ -535,23 +535,23 @@
       "refersTo": "sidebar-link",
       "description": "Destination du menu PC ou du tiroir, avec état courant explicite.",
       "html": "<nav class=\"ds-side\" aria-label=\"Exemple de modules\"><a class=\"ds-side-link\" href=\"#dashboard\" aria-current=\"page\">Dashboard</a><a class=\"ds-side-link\" href=\"#documents\">Documents</a></nav>",
-      "css": ".ds-side{width:208px;padding:12px;background:var(--coco-surface,#FFFFFF);border-radius:20px}.ds-side-link{display:flex;align-items:center;box-sizing:border-box;min-height:44px;padding:10px 12px;margin-bottom:4px;border-radius:8px;color:var(--coco-ink,#283B42);font:400 13px/1.5 var(--arc-font,Inter,Arial,sans-serif);text-decoration:none}.ds-side-link[aria-current=page]{background:var(--arc-accent-100,#E5F0F2);color:var(--arc-accent-700,#245C69)}.ds-side-link:hover,.ds-side-link:active{background:var(--coco-inset,#EEF3F4)}.ds-side-link:focus-visible{outline:2px solid var(--arc-accent-600,#2F7180);outline-offset:3px}"
+      "css": ".ds-side{width:256px;padding:16px;background:#F6F6F9;border-radius:0}.ds-side-link{display:flex;align-items:center;box-sizing:border-box;min-height:44px;padding:10px 12px;margin-bottom:4px;border-radius:8px;color:var(--coco-ink,#262331);font:400 13px/1.5 var(--arc-font,Inter,Arial,sans-serif);text-decoration:none}.ds-side-link[aria-current=page]{background:var(--arc-accent-600,#6246CC);color:#fff}.ds-side-link:hover,.ds-side-link:active{background:var(--coco-inset,#FAFAFC)}.ds-side-link:focus-visible{outline:2px solid var(--arc-accent-600,#6246CC);outline-offset:3px}"
     }
   ],
   "narrative": {
     "northStar": "Coco / GAMA — gestion sereine",
-    "overview": "Coco ERP privilégie un travail quotidien calme et lisible : choisir un module, repérer ou rechercher une information, puis agir dans les parcours existants. Une toile neutre, des surfaces blanches, des accents GAMA atténués et une hiérarchie compacte rendent les données utiles visibles plus tôt. Les formulaires séparent clairement libellés, valeurs et groupes de champs sans élargir les listes opérationnelles.\n\nCe contrat décrit l’application interne servie par `src/app/index.html`. Il réconcilie la finition professionnelle du 4 novembre 2026 demandée par le propriétaire avec la structure ERP existante ; les références Geex restent historiques. Les tokens viennent de `src/styles/tokens.css`, appliqués par `workbench.css`, `design.css`, les contrôles partagés et les feuilles différées. Les fonctions, identifiants, droits, langues FR/ES/EN, favoris, historiques et données métier sont conservés. Le site public possède son propre `DESIGN.md` à la racine.",
+    "overview": "Coco ERP applique la référence claire et violette fournie le 7 novembre 2026 à son application réelle GitHub Pages. Navigation gris très clair, destination active violette, bandeau blanc, cartes à contour fin et tableaux aérés partagent les tokens canoniques. Inter sert aux titres, valeurs et contrôles. Le breakpoint du tiroir reste à 1180 px, avec sidebar de 256 px sur PC. Les parcours, droits, calculs, données et préférences restent conservés. Le site public possède son propre DESIGN.md à la racine ; l’aperçu Sites reste distinct.",
     "keyCharacteristics": [
-      "Toile neutre, surfaces blanches et ombres peu profondes.",
-      "Inter pour le travail courant, Poppins pour les titres.",
-      "Libellés proches de leur champ et groupes de formulaire espacés.",
-      "Orange cuivré pour la commande principale, pétrole pour les liens et sélections.",
-      "Navigation et utilitaires compacts, structures métier conservées."
+      "Surfaces blanches, sidebar gris clair et accent violet.",
+      "Inter locale pour les titres, valeurs et contrôles.",
+      "Cartes de rayon 16 px, bordure fine et aucune ombre.",
+      "Lignes de travail séparées de 8 px, statuts explicites.",
+      "Tiroir accessible sous 1180 px, contrôles métier préservés."
     ],
     "rules": [
       {
         "name": "The Action Rule",
-        "body": "Réserver l’orange d’action à la commande principale ; employer le pétrole pour les liens et les sélections.",
+        "body": "Réserver le violet plein à la commande principale et à la destination courante.",
         "section": "colors"
       },
       {
@@ -561,7 +561,7 @@
       },
       {
         "name": "The Surface Rule",
-        "body": "Un groupe de contenu porte une seule ombre ; ses tableaux et sous-panneaux restent plats.",
+        "body": "Cartes à contour fin sans ombre ni gradient ; profondeur réservée aux superpositions.",
         "section": "elevation"
       }
     ],
@@ -577,7 +577,7 @@
       "Don't remettre une seconde occurrence du titre de module dans le contenu.",
       "Don't déplacer ni cloner les contrôles métier pour composer une barre utilitaire.",
       "Don't empiler les ombres ni ajouter des halos ou textures décoratifs.",
-      "Don't utiliser l’orange brut du logo pour une action à texte blanc.",
+      "Don't réintroduire des couleurs d’action locales ou des gradients sur les cartes.",
       "Don't forcer les lignes éditables ou les fenêtres en fiches sans préserver leurs contrôles.",
       "Don't transformer une valeur inconnue ou un échec de chargement en zéro ou succès.",
       "Don't appliquer ce contrat au site public ni modifier son autorité visuelle racine."

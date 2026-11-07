@@ -128,7 +128,7 @@ test('desktop navigation remains usable across the drawer breakpoint without tra
  expect(await page.locator('.arcSidebar').evaluate(el=>el.inert)).toBe(false);
  expect(await page.locator('.arcMain').evaluate(el=>el.inert)).toBe(false);
  await page.evaluate(()=>document.fonts.ready);
- expect(await page.evaluate(()=>[400,500,600].every(weight=>document.fonts.check(weight+' 14px Inter'))&&document.fonts.check('600 24px Poppins'))).toBe(true);
+ expect(await page.evaluate(()=>[400,500,600].every(weight=>document.fonts.check(weight+' 14px Inter'))&&document.fonts.check('600 24px Inter'))).toBe(true);
  // A real long translated label must fit without breaking its final word.
  // This also covers the narrowest persistent-sidebar breakpoint.
  for(const width of [1180,1280,1440]){

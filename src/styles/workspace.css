@@ -1,9 +1,9 @@
 /* Coco workspace, based on the approved October mockups and Odoo references.
    Shared surfaces and layouts only; domain states and permissions stay in JS. */
 body[data-app="coco-erp"]{
- --coco-blue:#157F98;--coco-blue-dark:#10677D;--coco-orange:#F87826;
- --coco-grid:#C5D1DB;
- --coco-blue-tint:#E7F3F6;--coco-orange-tint:#FFF0E6;
+ --coco-blue:#6246CC;--coco-blue-dark:#5438BA;--coco-orange:#6246CC;
+ --coco-grid:#E9E9F0;
+ --coco-blue-tint:#F0EBFC;--coco-orange-tint:#F0EBFC;
  background:#F7F8FB;color:var(--coco-ink);
 }
 .arcShell{--arc-sidebar-w:232px}

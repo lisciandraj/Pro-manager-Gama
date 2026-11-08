@@ -123,7 +123,7 @@ button:disabled,button[disabled]{opacity:.55;cursor:not-allowed;transform:none}
 .success:hover:not(:disabled){background:var(--arc-success)}
 .warning:hover:not(:disabled){background:var(--arc-warning)}
 .headIcon{transition:background-color .12s ease,border-color .12s ease,color .12s ease}
-.headIcon:hover{background:var(--arc-accent-100);border-color:var(--arc-accent-100);color:var(--gama-teal,var(--arc-accent-600))}
+.headIcon:not(.plus):hover{background:var(--arc-accent-100);border-color:var(--arc-accent-100);color:var(--gama-teal,var(--arc-accent-600))}
 
 /* Campos. En un formulario largo, sin marca de foco hay que buscar el cursor
    a ojo; y un campo de sólo lectura parecía uno vacío que no aceptaba nada. */

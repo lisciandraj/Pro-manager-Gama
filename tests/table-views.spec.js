@@ -54,7 +54,13 @@ test('portrait and landscape support both modes without overflow and preserve su
  await expect(page.locator('#viewLegacy table')).toHaveAttribute('data-gama-view','cards');
  await page.locator('#viewLegacy [data-table-view=table]').click();
  await expect(page.locator('#viewLegacy table')).toHaveAttribute('data-gama-view','table');
- const borders=await page.locator('#viewLegacy table').evaluate(t=>[...t.rows].map(row=>{const cells=[...row.cells];return cells.every(c=>parseFloat(getComputedStyle(c).borderBottomWidth)>=1)&&parseFloat(getComputedStyle(cells[0]).borderLeftWidth)>=1&&parseFloat(getComputedStyle(cells.at(-1)).borderRightWidth)>=1}));expect(borders.every(Boolean)).toBe(true);
+ const grid=await page.locator('#viewLegacy table').evaluate(t=>{
+  const table=getComputedStyle(t),cells=[...t.rows].flatMap(row=>[...row.cells]);
+  return {collapse:table.borderCollapse,noGap:table.borderSpacing.split(' ').every(v=>parseFloat(v)===0),
+   fineBorders:cells.every(c=>{const s=getComputedStyle(c);return ['Top','Right','Bottom','Left'].every(side=>s['border'+side+'Width']==='1px')}),
+   squareCells:cells.every(c=>{const s=getComputedStyle(c);return ['TopLeft','TopRight','BottomRight','BottomLeft'].every(corner=>s['border'+corner+'Radius']==='0px')})};
+ });
+ expect(grid).toEqual({collapse:'collapse',noGap:true,fineBorders:true,squareCells:true});
  await page.setViewportSize({width:844,height:390});await expect(page.locator('#viewLegacy table')).toHaveAttribute('data-gama-view','table');
  await page.locator('#viewShared').getByRole('button',{name:'Tuiles',exact:true}).click();
  const rows=page.locator('#viewShared tbody tr');expect((await rows.nth(0).boundingBox()).y).toBe((await rows.nth(1).boundingBox()).y);
@@ -104,20 +110,26 @@ test('phone table mode keeps every value under its column header, empty cells in
  expect(await page.locator('#alignTest tbody tr').nth(1).locator('td').evaluateAll(c=>c.filter(x=>getComputedStyle(x).display==='none').length)).toBe(3);
 });
 
-// Los botones muestran iconos coherentes con el acento violeta y el nombre traducido.
+// Los botones muestran iconos blancos al estar activos y carbón al estar inactivos.
 test('les boutons d’affichage montrent des icônes et des libellés traduits',async({page})=>{
  await boot(page);await fixtures(page);
  const bar=page.locator('#viewShared .gamaTableViews'),cards=bar.locator('[data-table-view=cards]'),table=bar.locator('[data-table-view=table]');
  for(const b of [cards,table]){expect(await b.evaluate(x=>x.textContent.trim())).toBe(await b.getAttribute('aria-label'));const box=await b.boundingBox();expect(Math.round(box.width)).toBeGreaterThanOrEqual(44);expect(Math.round(box.height)).toBeGreaterThanOrEqual(44)}
  await expect(cards.locator('svg rect')).toHaveCount(4);
- for(const button of [cards,table]){
+ const expectViewStyles=async()=>{for(const button of [cards,table]){
+  const active=await button.getAttribute('aria-pressed')==='true';
+  const stroke=active?'rgb(255, 255, 255)':'rgb(38, 50, 56)';
+  await expect(button).toHaveCSS('background-color',active?'rgb(38, 50, 56)':'rgb(255, 255, 255)');
+  await expect(button).toHaveCSS('color',stroke);
   await expect(button.locator('svg')).toBeVisible();
-  await expect(button.locator('.cocoIconPrimary')).toHaveCSS('stroke','rgb(98, 70, 204)');
-  await expect(button.locator('.cocoIconAccent')).toHaveCSS('stroke','rgb(98, 70, 204)');
- }
+  await expect(button.locator('.cocoIconPrimary')).toHaveCSS('stroke',stroke);
+  await expect(button.locator('.cocoIconAccent')).toHaveCSS('stroke',stroke);
+ }};
+ await expectViewStyles();
  const names=async()=>[await cards.getAttribute('aria-label'),await cards.getAttribute('title'),await table.getAttribute('aria-label'),await table.getAttribute('title')];
  expect(await names()).toEqual(['Tuiles','Tuiles','Tableau','Tableau']);
  await openAppNavigation(page);await page.locator('#arcLangSelect').selectOption('en');await page.keyboard.press('Escape');await expect(cards).toHaveAccessibleName('Cards');expect(await names()).toEqual(['Cards','Cards','Table','Table']);
  await openAppNavigation(page);await page.locator('#arcLangSelect').selectOption('es');await page.keyboard.press('Escape');await expect(table).toHaveAccessibleName('Tabla');expect(await names()).toEqual(['Tarjetas','Tarjetas','Tabla','Tabla']);
  await cards.click();await expect(page.locator('#viewShared table')).toHaveAttribute('data-gama-view','cards');await expect(cards).toHaveAttribute('aria-pressed','true');await expect(table).toHaveAttribute('aria-pressed','false');
+ await expectViewStyles();
 });

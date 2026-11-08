@@ -1,20 +1,20 @@
-/* Coco workspace: floating desktop navigation, neutral canvas,
+/* Coco workspace: white desktop navigation, compact CRM canvas,
    roomy title/search header and native module controls in normal flow.
    The 1180px breakpoint is shared with shell.js's accessible drawer state. */
 @media screen{
- body.cocoWorkbench{--arc-topbar-h:88px;--arc-workspace-title:24px;--arc-workspace-radius:var(--arc-r-lg);--arc-content-max:none}
+ body.cocoWorkbench{--arc-topbar-h:64px;--arc-workspace-title:24px;--arc-workspace-radius:var(--arc-r-lg);--arc-content-max:none}
  body.cocoWorkbench .arcShell{--arc-sidebar-w:232px}
  body.cocoWorkbench .arcMain{margin-left:calc(var(--arc-sidebar-w) + 24px);min-width:0}
- body.cocoWorkbench .arcSidebar{inset:0 auto 0 0;width:256px;border:0;border-radius:0;background:#F6F6F9;box-shadow:none;transform:none;visibility:visible;padding:0 0 0 var(--arc-safe-l);transition:transform var(--coco-motion-overlay) var(--coco-ease);border-right:1px solid var(--arc-line)}
- body.cocoWorkbench .arcSidebar .arcBrand{padding:12px 8px;margin:16px 20px 20px;border:0}
- body.cocoWorkbench .arcSidebar .arcLogo{display:block;max-width:180px}
+ body.cocoWorkbench .arcSidebar{inset:0 auto 0 0;width:256px;border:0;border-radius:0;background:var(--coco-surface);box-shadow:none;transform:none;visibility:visible;padding:0 0 0 var(--arc-safe-l);transition:transform var(--coco-motion-overlay) var(--coco-ease);border-right:1px solid var(--arc-line)}
+ body.cocoWorkbench .arcSidebar .arcBrand{padding:8px 20px;margin:0 0 12px;min-height:64px;border-bottom:1px solid var(--coco-line)}
+ body.cocoWorkbench .arcSidebar .arcLogo{display:block;max-width:124px}
  body.cocoWorkbench .arcSidebar .arcLogoMark{display:none}
  body.cocoWorkbench .arcSidebar .arcNav{padding:0 16px 20px}
  body.cocoWorkbench .arcSidebar .arcNavLink{--gama-blue:var(--coco-muted);--gama-orange:var(--coco-muted);justify-content:flex-start;gap:12px;min-height:44px;padding:10px 12px;margin-bottom:4px;border:0;border-radius:8px;background:transparent;box-shadow:none;color:var(--coco-ink);font-size:13px;font-weight:400}
  body.cocoWorkbench .arcSidebar .arcNavLink>svg{color:var(--coco-muted);width:20px;height:20px;flex:none}
  body.cocoWorkbench .arcSidebar .arcNavLink:hover{background:var(--coco-inset)}
- body.cocoWorkbench .arcSidebar .arcNavLink[aria-current=page]{--gama-blue:#FFFFFF;--gama-orange:#FFFFFF;background:var(--arc-accent-600);color:white;box-shadow:none}
- body.cocoWorkbench .arcSidebar .arcNavLink[aria-current=page]>svg{color:white}
+ body.cocoWorkbench .arcSidebar .arcNavLink[aria-current=page]{--gama-blue:var(--coco-ink);--gama-orange:var(--coco-ink);background:var(--coco-selected);color:var(--coco-ink);box-shadow:none}
+ body.cocoWorkbench .arcSidebar .arcNavLink[aria-current=page]>svg{color:var(--coco-ink)}
  body.cocoWorkbench .arcSidebar :is(.arcNavLabel,.arcFootBrand,.arcFootVersion){display:block}
  body.cocoWorkbench .arcSidebar .arcNavGroup{height:auto;border:0;font-size:11px;font-weight:500;letter-spacing:0;text-transform:none;padding:16px 12px 8px;margin:12px 0 6px;color:var(--arc-text-muted);border-top:1px solid var(--arc-line)}
  body.cocoWorkbench .arcSidebar .arcFoot{margin:0 24px;padding:14px 0 20px;border:0;border-top:1px solid var(--arc-line)}
@@ -22,13 +22,13 @@
  body.cocoWorkbench .arcSidebar .arcLang .arcIco{display:block}
  body.cocoWorkbench .arcSidebar .arcLang select{text-align:left;font-size:12px}
  body.cocoWorkbench .arcDrawerClose{display:none}
- body.cocoWorkbench .arcTopbar{container-type:inline-size;height:auto;min-height:80px;padding:16px calc(var(--coco-page-gutter) + var(--arc-safe-r)) 12px calc(var(--coco-page-gutter) + var(--arc-safe-l));gap:24px;flex-wrap:nowrap;background:var(--arc-surface);border:0;box-shadow:none;border-bottom:1px solid var(--arc-line);padding-top:12px;padding-bottom:12px}
+ body.cocoWorkbench .arcTopbar{container-type:inline-size;height:auto;min-height:64px;padding:10px calc(var(--coco-page-gutter) + var(--arc-safe-r)) 12px calc(var(--coco-page-gutter) + var(--arc-safe-l));gap:24px;flex-wrap:nowrap;background:var(--arc-surface);border:0;box-shadow:none;border-bottom:1px solid var(--arc-line);padding-top:9px;padding-bottom:9px}
  body.cocoWorkbench .arcBurger{display:none}
  .cocoModuleHeading{display:flex;align-items:flex-start;gap:8px;min-width:0;flex:1;padding:0;border:0}
  .cocoModuleText{min-width:0;flex:1}
- body.cocoWorkbench .cocoModuleContext{display:block;min-height:44px;min-width:0;max-width:none;margin:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:var(--arc-font);font-size:24px;line-height:44px;font-weight:600;letter-spacing:-.025em;color:var(--coco-ink)}
- .cocoModuleSubtitle{margin:2px 0 0;font-size:12px;line-height:1.65;color:var(--coco-muted);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
- body.cocoWorkbench .cocoModuleBack{display:inline-flex;align-items:center;justify-content:center;flex:0 0 44px;width:44px;min-width:44px;height:44px;min-height:44px;padding:10px;border:0;border-radius:12px;background:var(--coco-surface);box-shadow:none;color:var(--arc-accent-700)}
+ body.cocoWorkbench .cocoModuleContext{display:block;min-height:44px;min-width:0;max-width:none;margin:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:var(--arc-font);font-size:20px;line-height:44px;font-weight:600;letter-spacing:-.025em;color:var(--coco-ink)}
+ .cocoModuleSubtitle{display:none}
+ body.cocoWorkbench .cocoModuleBack{display:inline-flex;align-items:center;justify-content:center;flex:0 0 44px;width:44px;min-width:44px;height:44px;min-height:44px;padding:10px;border:0;border-radius:6px;background:var(--coco-surface);box-shadow:none;color:var(--coco-ink)}
  body.cocoWorkbench .cocoModuleBack[hidden]{display:none}
  .cocoModuleBack .arcIco{width:24px;height:24px}
  body.cocoWorkbench .cocoModuleBack:hover{background:var(--arc-accent-100)}
@@ -46,14 +46,14 @@
  body.cocoWorkbench .arcUserSlot{padding:0;border:0;margin-left:6px}
  body.cocoWorkbench .arcAvatar{width:36px;height:36px;border-radius:50%;font-size:13px;background:var(--arc-accent-100);color:var(--arc-accent-700)}
  body.cocoWorkbench .arcAvatar>img{border-radius:inherit}
- body.cocoWorkbench .arcContent{padding:20px calc(var(--coco-page-gutter) + var(--arc-safe-r)) calc(32px + var(--arc-safe-b)) calc(var(--coco-page-gutter) + var(--arc-safe-l));background:var(--arc-surface)}
+ body.cocoWorkbench .arcContent{padding:20px calc(var(--coco-page-gutter) + var(--arc-safe-r)) calc(32px + var(--arc-safe-b)) calc(var(--coco-page-gutter) + var(--arc-safe-l));background:var(--coco-canvas)}
  body.cocoWorkbench .arcContent>.wrap,body.cocoWorkbench .arcContent>#mainmenu{max-width:none;min-width:0}
  body.cocoWorkbench .arcContent>.wrap>section{min-width:0;max-width:100%}
  /* These remain native buttons inside the business module, with one title. */
  body.cocoWorkbench .arcContent section .cocoModuleNav{position:static;display:flex!important;align-items:center;flex-wrap:nowrap!important;gap:8px!important;overflow-x:auto;overflow-y:hidden;max-width:100%;min-width:0;margin:0 0 20px!important;padding:4px 6px 4px 0!important;box-sizing:border-box;border:0;border-radius:0;background:transparent;scrollbar-width:thin;scroll-padding-inline:12px;overscroll-behavior-x:contain}
  body.cocoWorkbench .arcContent section .cocoModuleNav>button{flex:0 0 auto!important;min-width:0!important;min-height:44px;max-width:none;padding:10px 16px!important;margin:0;white-space:nowrap!important;line-height:1.4;font-size:13px;font-weight:400;border:1px solid transparent!important;border-radius:8px!important;background:transparent!important;box-shadow:none!important;color:var(--coco-ink)!important}
- body.cocoWorkbench .arcContent section .cocoModuleNav>button:is(.active,.on,.sel,[aria-selected=true],[aria-current=page],[aria-current=true],[aria-pressed=true]){border-color:var(--arc-accent-600)!important;background:var(--arc-accent-100)!important;color:var(--arc-accent-700)!important;font-weight:500}
- body.cocoWorkbench .arcContent section .cocoModuleNav>button:hover{background:var(--arc-accent-100)!important;color:var(--arc-accent-700)!important}
+ body.cocoWorkbench .arcContent section .cocoModuleNav>button:is(.active,.on,.sel,[aria-selected=true],[aria-current=page],[aria-current=true],[aria-pressed=true]){border-color:var(--coco-line)!important;background:var(--coco-selected)!important;color:var(--coco-ink)!important;font-weight:500}
+ body.cocoWorkbench .arcContent section .cocoModuleNav>button:hover{background:var(--coco-inset)!important;color:var(--coco-ink)!important}
  body.cocoWorkbench .arcContent section .cocoModuleNav>button:focus-visible{outline-offset:-3px}
  body.cocoWorkbench .arcContent section:not(#mainmenu) .gamaStdHeader{min-height:44px;height:auto;margin:0 0 20px;padding:0;border:0;gap:12px;align-items:center;flex-wrap:wrap;background:transparent;box-shadow:none}
  body.cocoWorkbench .arcContent .cocoWorkspaceHeader :is(.gamaStdIcon,.gamaStdText,.gamaStdBack){display:none!important}
@@ -84,8 +84,8 @@
  .cocoListOptions{display:flex;gap:8px 14px;align-items:center;flex-wrap:wrap;margin:10px 0;border-top:1px solid var(--arc-line);padding-top:8px}
  .cocoQuoteFilters{border:0;padding:0;margin:0}
  .cocoQuoteFilters>summary{min-height:44px;padding:10px 0;box-sizing:border-box;color:var(--arc-accent-700);font-size:13px;font-weight:600;cursor:pointer}
- body.cocoWorkbench .cocoListOptions .gqQuickFilters{gap:8px;margin:0;align-items:center;flex:1 1 420px}
- .gqQuickFilters>label{display:flex;align-items:center;gap:6px;flex:1 1 130px!important;min-width:0!important;margin:0!important;font-size:12px;color:var(--arc-text-muted)}
+ body.cocoWorkbench .cocoListOptions .gqQuickFilters{gap:8px;margin:0;align-items:center;flex:1 1 360px}
+ .gqQuickFilters>label{display:flex;align-items:center;gap:6px;flex:0 1 180px!important;min-width:0!important;margin:0!important;font-size:12px;color:var(--arc-text-muted)}
  .gqQuickFilters>label>span{flex:none}
  .gqQuickFilters select{min-width:0;width:100%;min-height:38px;margin:0;padding:7px 24px 7px 8px;font-size:12px}
  .gqQuickFilters #gqFind{min-height:38px;padding:7px 10px;font-size:12px}
@@ -100,7 +100,7 @@
 }
 @media screen and (min-width:761px){.cocoQuoteFilters>summary{display:none}.cocoListOptions .gqAdvanced[open]{flex-basis:100%;order:4}}
 @media screen and (max-width:1179px){
- body.cocoWorkbench{--arc-topbar-h:80px}
+ body.cocoWorkbench{--arc-topbar-h:64px}
  body.cocoWorkbench .arcMain{margin-left:0}
  body.cocoWorkbench .arcSidebar{width:min(304px,calc(100vw - 24px));transform:translateX(calc(-100% - 24px));visibility:hidden}
  body.cocoWorkbench.arcDrawerOpen{overflow:hidden}
@@ -109,7 +109,7 @@
  .arcDrawerClose svg{width:20px;height:20px}
  body.cocoWorkbench .arcSidebar .arcBrand{margin-top:44px}
  body.cocoWorkbench .arcBurger{display:flex;flex:none;min-width:44px;min-height:44px;padding:10px;border:0;border-radius:12px;background:var(--coco-surface);color:var(--arc-accent-700)}
- body.cocoWorkbench .arcTopbar{padding:16px calc(24px + var(--arc-safe-r)) 16px calc(24px + var(--arc-safe-l));gap:16px}
+ body.cocoWorkbench .arcTopbar{padding:9px calc(24px + var(--arc-safe-r)) 16px calc(24px + var(--arc-safe-l));gap:16px}
  body.cocoWorkbench .cocoModuleContext{font-size:23px}
  body.cocoWorkbench .arcTopbar>.arcSearch{flex-basis:280px}
  body.cocoWorkbench .arcTopRight{gap:6px}
@@ -118,8 +118,8 @@
 }
 @media screen and (max-width:860px){body.cocoWorkbench .arcContent{padding-bottom:calc(92px + var(--arc-safe-b))}}
 @media screen and (max-width:760px){
- body.cocoWorkbench{--arc-topbar-h:72px}
- body.cocoWorkbench .arcTopbar{padding:10px calc(10px + var(--arc-safe-r)) 10px calc(10px + var(--arc-safe-l));gap:6px}
+ body.cocoWorkbench{--arc-topbar-h:64px}
+ body.cocoWorkbench .arcTopbar{padding:9px calc(10px + var(--arc-safe-r)) 10px calc(10px + var(--arc-safe-l));gap:6px}
  body.cocoWorkbench .arcTopbar>.arcSearch{display:none}
  body.cocoWorkbench[data-coco-module=mainmenu] .cocoModuleHeading{display:none}
  .cocoModuleHeading{gap:5px}

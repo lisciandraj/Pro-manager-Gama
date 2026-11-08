@@ -1,4 +1,4 @@
-const {test}=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
+const {test}=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),os=require('node:os');
 const {PGlite}=require('@electric-sql/pglite');
 const {pg_trgm}=require('@electric-sql/pglite/contrib/pg_trgm');
 const {unaccent}=require('@electric-sql/pglite/contrib/unaccent');
@@ -15,6 +15,39 @@ test('first-install preparation refuses development and invalid resume positions
  assert.throws(()=>prepareBootstrap(target,{outputSubdir:'../escape'}),/Invalid bootstrap preparation/);
  const file='20260917194131_fleet_management_demo_data.sql';
  assert.throws(()=>productionMigration(file,fs.readFileSync(path.join(root,'supabase/migrations',file),'utf8')+'\n-- changed'),/Historical bootstrap source changed/);
+});
+
+test('later releases cannot change the immutable first-installation SQL or hide historical source edits',()=>{
+ const temporary=fs.mkdtempSync(path.join(os.tmpdir(),'coco-bootstrap-snapshot-'));
+ try{
+  fs.mkdirSync(path.join(temporary,'scripts'));
+  fs.mkdirSync(path.join(temporary,'supabase'));
+  for(const file of ['bootstrap-production.cjs','prepare-production-verification.cjs','production-bootstrap-sql.cjs','production-bootstrap-snapshot.cjs','fresh-migration.cjs'])fs.copyFileSync(path.join(root,'scripts',file),path.join(temporary,'scripts',file));
+  const directory=path.join(temporary,'supabase/migrations');fs.cpSync(path.join(root,'supabase/migrations'),directory,{recursive:true});
+  const bootstrap=require(path.join(temporary,'scripts/bootstrap-production.cjs')).prepare;
+  const verify=require(path.join(temporary,'scripts/prepare-production-verification.cjs')).prepare;
+  const verificationDirectory=path.join(temporary,'.build/verification');
+  const baseline=bootstrap(target,{startIndex:361}),verification=verify(target,{outputDirectory:verificationDirectory});
+  const batch=fs.readFileSync(path.join(baseline.directory,'batch-001.sql'),'utf8'),verificationSql=fs.readFileSync(path.join(verificationDirectory,'verify.sql'),'utf8');
+  assert.equal(baseline.migrations,362);assert.equal(verification.source_count,362);
+  assert.equal(baseline.installation,'6d1c1a9037e2f704399ef93b9db09ddcc0b7d019cde262310c9a309fb5727a1e');
+  const future='20990101000000_later_application_release.sql';
+  fs.writeFileSync(path.join(directory,future),"select 'FUTURE_RELEASE_MUST_BE_SEPARATE';\n");
+  const resumed=bootstrap(target,{startIndex:361});verify(target,{outputDirectory:verificationDirectory});
+  assert.equal(resumed.installation,baseline.installation);
+  assert.equal(fs.readFileSync(path.join(resumed.directory,'batch-001.sql'),'utf8'),batch);
+  assert.equal(fs.readFileSync(path.join(verificationDirectory,'verify.sql'),'utf8'),verificationSql);
+  for(const manifestFile of [path.join(resumed.directory,'manifest.json'),path.join(verificationDirectory,'manifest.json')]){
+   const manifest=JSON.parse(fs.readFileSync(manifestFile,'utf8'));
+   assert.equal(manifest.sources.length,362);assert.equal(manifest.sources.at(-1).file,'20261107195941_coco_environment_isolation.sql');
+   assert.ok(manifest.excluded_migrations.includes(future));
+   assert.ok(manifest.excluded_migrations.includes('20261108154619_contacts_individual_company_links.sql'));
+   assert.ok(!manifest.sources.some(source=>source.file===future));
+  }
+  const historical=path.join(directory,'20260825214709_create_gama_core_schema.sql');fs.appendFileSync(historical,'\n-- unauthorized historical edit\n');
+  assert.throws(()=>bootstrap(target,{startIndex:361}),/Historical production bootstrap snapshot changed/);
+  assert.throws(()=>verify(target,{outputDirectory:verificationDirectory}),/Historical production bootstrap snapshot changed/);
+ }finally{fs.rmSync(temporary,{recursive:true,force:true});}
 });
 
 test('derived first installation preserves configuration and access controls while starting with no business rows or fictitious history',async()=>{

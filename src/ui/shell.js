@@ -28,14 +28,8 @@ const ICON={
  close:'<path d="m6 6 12 12M18 6 6 18"/>',
  back:'<path d="m12 5-7 7 7 7M5 12h14"/>'
 };
-// Keep the original monochrome controls for mobile navigation and the app drawer.
-const NAV_ICON={
- apps:'<circle cx="5" cy="5" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="19" cy="5" r="1"/><circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="19" r="1"/><circle cx="12" cy="19" r="1"/><circle cx="19" cy="19" r="1"/>',
- home:'<path d="m3 11 9-8 9 8"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/>',
- search:'<circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/>',
- scanner:'<path d="M8 3H3v5M16 3h5v5M3 16v5h5M21 16v5h-5M7 7v10M10 7v10M14 7v10M17 7v10"/>',
- more:'<circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/>',
-};
+// Mobile controls reuse the same solid catalogue as the module navigation.
+const NAV_ICON=Object.fromEntries(['apps','home','search','scanner','more'].map(name=>[name,ICON[name]]));
 const svg=(d,cls)=>'<svg class="'+(cls||'arcIco')+'" viewBox="0 0 24 24" aria-hidden="true" fill="none" '
  +'stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">'+d+'</svg>';
 

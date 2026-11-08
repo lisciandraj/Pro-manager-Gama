@@ -8,8 +8,44 @@ const message=e=>{const k=Object.keys(taxErrors).find(k=>String(e?.message||e).i
 const ruleName=t=>`${t.code} · ${t.name} (${t.calculation_type==='fixed'?money(t.fixed_amount):Number(t.rate)+'%'}${t.price_included?' · '+T('incluido'):''})`;
 function breakdown(calc){return `<div class="gaGrid"><p>${E(T('Base imponible'))}: <strong>${E(money(calc.subtotal))}</strong></p>${(calc.taxes||[]).filter(t=>Number(t.amount)!==0).map(t=>`<p>${E(t.name||t.code)}: <strong>${E(money(t.amount))}</strong></p>`).join('')}<p>${E(T('Total'))}: <strong>${E(money(calc.total))}</strong></p></div>`}
 function controls(context,initial={}){return `<div class="gaGrid"><label class="gsField">${E(T('Posición fiscal'))}<select data-tax-position><option value="">${E(T('Automática del contacto'))}</option>${options(context.positions,initial.fiscal_position_id)}</select></label><label class="gsField">${E(T('Redondeo de impuestos'))}<select data-tax-rounding><option value="line" ${initial.rounding!=='global'?'selected':''}>${E(T('Por línea'))}</option><option value="global" ${initial.rounding==='global'?'selected':''}>${E(T('Global del documento'))}</option></select></label></div>`}
-function schedule(s,read,apply){const data=read(),signature=JSON.stringify(data);if(signature===s.signature)return;s.signature=signature;s.error=null;s.ready=false;s.confirmation=null;clearTimeout(s.timer);const token=++s.token;s.timer=setTimeout(()=>{s.pending=(async()=>{try{const result=await rpc(s.action||'preview',data);if(token!==s.token||!s.host.isConnected)return;s.result=result;s.ready=true;apply(result)}catch(e){if(token!==s.token)return;s.error=e;s.status.textContent=message(e)}finally{if(token===s.token)s.pending=null}})()},180)}
-async function ensure(s){if(!s)throw Error('TAX_PREVIEW_REQUIRED');clearTimeout(s.timer);if(!s.ready&&!s.pending){s.signature=null;s.refresh();clearTimeout(s.timer);s.pending=(async()=>{try{const result=await rpc(s.action||'preview',s.read());s.result=result;s.ready=true;s.apply(result)}catch(e){s.error=e;throw e}finally{s.pending=null}})()}if(s.pending)await s.pending;if(s.error)throw s.error;if(!s.ready)throw Error('TAX_PREVIEW_REQUIRED');return s.result}
+// Associate each request with its input and generation. An older response may
+// finish after an edit, but cannot apply data or clear a newer request.
+function startPreview(s,data,signature,token){
+ const pending=(async()=>{
+  try{
+   const result=await rpc(s.action||'preview',data);
+   if(token!==s.token||!s.host.isConnected||signature!==JSON.stringify(s.read()))return;
+   s.error=null;s.result=result;s.resultSignature=signature;s.ready=true;s.apply(result);
+  }catch(e){
+   if(token!==s.token||!s.host.isConnected||signature!==JSON.stringify(s.read()))return;
+   s.ready=false;s.error=e;s.status.textContent=message(e);
+  }finally{
+   if(s.pending===pending){s.pending=null;s.pendingSignature=null;s.pendingToken=null;}
+  }
+ })();
+ s.pending=pending;s.pendingSignature=signature;s.pendingToken=token;return pending;
+}
+function schedule(s,read,apply){
+ const data=read(),signature=JSON.stringify(data);if(signature===s.signature)return;
+ s.signature=signature;s.error=null;s.ready=false;s.confirmation=null;clearTimeout(s.timer);
+ const token=++s.token;s.timer=setTimeout(()=>{s.timer=null;startPreview(s,data,signature,token)},180);
+}
+async function ensure(s){
+ if(!s)throw Error('TAX_PREVIEW_REQUIRED');
+ while(s.host.isConnected){
+  s.refresh();const data=s.read(),signature=JSON.stringify(data);
+  if(s.ready&&s.resultSignature===signature)return s.result;
+  clearTimeout(s.timer);s.timer=null;
+  if(!s.pending||s.pendingSignature!==signature||s.pendingToken!==s.token){
+   s.signature=signature;s.error=null;s.ready=false;startPreview(s,data,signature,s.token);
+  }
+  await s.pending;
+  if(s.error&&s.signature===signature&&signature===JSON.stringify(s.read()))throw s.error;
+  // An edit during the await requires the current generation, even when the
+  // previous request's response was correctly discarded.
+ }
+ throw Error('TAX_PREVIEW_REQUIRED');
+}
 async function attachQuote(args){const form=args.form||args.dialog;if(states.has(form))return;const context=await rpc('context',{side:'sale'});if(!form.isConnected)return;const host=document.createElement('div');host.className='arcPanel';host.dataset.cocoTaxQuote='';host.innerHTML=`<h3>${E(T('Impuestos y posición fiscal'))}</h3>${controls(context,args.initial)}<div data-tax-result aria-live="polite"></div><p data-tax-status role="status"></p>`;(args.totalsNode||form.querySelector('.gqTools')).before(host);const s={...args,form,host,context,token:0,status:host.querySelector('[data-tax-status]')};states.set(form,s);
  s.read=()=>({side:'sale',partner_id:args.getCustomerId(),date:args.getDate(),fiscal_position_id:host.querySelector('[data-tax-position]').value||null,rounding:host.querySelector('[data-tax-rounding]').value,lines:args.getLines().map((l,i)=>({key:l.product_id||String(i),product_id:l.product_id,quantity:l.quantity,unit_price:l.list_price,discount:l.discount||0,tax_rate:l.tax_rate||0,...(l.tax_ids!=null?{tax_ids:l.tax_ids}:{})})).concat((args.getCommercialLines?.()||[]).map((l,i)=>({key:l.id||l.key||'commercial-'+i,quantity:l.quantity??l.qty,unit_price:l.unit_price,discount:0,tax_rate:l.tax_rate||0,...(l.tax_ids!=null?{tax_ids:l.tax_ids}:{}),tax_quantity:['discount','reward'].includes(l.kind)?0:(l.quantity??l.qty),force_price_excluded:true}))) });
  s.apply=calc=>{s.status.textContent='';host.querySelector('[data-tax-result]').innerHTML=breakdown(calc);args.onChange?.()};s.refresh=()=>refreshQuote(form);host.addEventListener('change',()=>{s.signature=null;s.refresh();form.dispatchEvent(new Event('input',{bubbles:true}))});form.addEventListener('input',()=>s.refresh());form.addEventListener('change',()=>s.refresh());refreshQuote(form);

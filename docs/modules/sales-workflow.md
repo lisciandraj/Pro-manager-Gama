@@ -24,6 +24,8 @@ Le dossier conserve ses onglets opérationnels et son lien **Suivi de processus*
 
 ## Saisie et conditions
 
+Un clic sur **Guardar borrador** attend le chargement du contexte fiscal et le calcul en cours avant de lancer l’enregistrement. Le bouton reste désactivé pendant cette attente ; une erreur conserve le formulaire et permet de réessayer sans créer de doublon.
+
 Le devis récupère le client et ses adresses existantes ; une destination ponctuelle ne modifie pas Contacts. La sélection produit recherche nom/référence/code-barres et permet **Ajouter et continuer**. Les quantités sont converties vers l'unité de stock selon les facteurs historiques validés par le serveur.
 
 Sections et notes sont non facturables. Une option est exclue du total et devient une ligne normale après une action d'acceptation, avec le tarif courant et les taxes du produit. Les modèles conservent leurs sections/options et conditions dans une copie indépendante ; les documents émis ne suivent pas les modifications du modèle. Copier une vente crée un nouveau brouillon sans documents aval.

@@ -26,6 +26,9 @@
 | B17 | Avoir déjà payé sans remboursement canonique, ou double restitution argent/portefeuille | direct-paid-refunds-db et sales-rewards-db |
 | B18 | Chiffre d’affaires sans les avoirs et retours pourtant comptabilisés | revenue-ledger-projection-db |
 | B19 | Projections privées non lisibles par les fonctions invoker du tableau de bord | dashboard-db et p1-finance-db |
+| B20 | Devise USD codée en dur dans le texte copié et affichage de facture lié à la société courante | internal-invoices et invoice-tools, document EUR face à société USD |
+| B21 | Clic Enregistrer ignoré pendant le chargement ou le recalcul fiscal | request-quote, contexte et aperçu suspendus puis une seule sauvegarde |
+| B22 | Réponse fiscale périmée qui effaçait la promesse courante ou empêchait le calcul de la dernière saisie | tax-preview-state, trois courses reproduites puis corrigées ; request-quote |
 
 La [matrice actuelle](features.csv) distingue l’implémentation et la configuration
 externe requise. Les événements Stripe de test ne créent aucun encaissement ; le

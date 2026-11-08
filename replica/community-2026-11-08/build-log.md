@@ -51,6 +51,15 @@ distinctes. Les 71 cas Contacts/bootstrap/promotion, 17 parcours navigateur cibl
 et 12 cas factures internes/outils passent aussi. La devise figée est vérifiée
 à l’écran, dans le PDF et dans le texte copié, indépendamment de la société.
 
+La validation complète GitHub du commit `710df701` passe : 1 047 tests réussis,
+zéro échec, deux cas réservés aux jobs PostgreSQL séparés. Ces jobs passent aussi.
+Les contrôles navigateur ont ensuite révélé un clic Enregistrer ignoré pendant
+le calcul fiscal et une attente sur une réponse périmée : corrections vérifiées
+par trois tests asynchrones et 36 parcours de devis, plus neuf cas taxes/charges.
+Les assertions de valeur de textarea et d’attente de sauvegarde ont été adaptées
+au chargement différé sans modifier les attentes métier. Le commit final reste
+soumis à tous les contrôles GitHub habituels.
+
 Les résultats détaillés et les commandes reproductibles sont dans
 [verification.json](verification.json). La [première livraison](../../docs/history/odoo-community-first-delivery-2026-11-08.md)
 est conservée séparément.

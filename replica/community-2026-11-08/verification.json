@@ -147,6 +147,18 @@
     "signature_payments_refunds_contacts_browser_cases": 17,
     "internal_invoice_and_lazy_tools_browser_cases": 12,
     "failed": 0,
-    "notes": "Canonical build, source/type/documentation/migration checks, generated reproducibility and original startup budgets pass. Frozen invoice currency is verified independently from the current company currency."
+    "notes": "Canonical build, source/type/documentation/migration checks, generated reproducibility and original startup budgets pass. Frozen invoice currency is verified independently from the current company currency.",
+    "sales_quote_regression_browser_cases": 36,
+    "tax_preview_async_unit_cases": 3,
+    "shared_tax_and_commercial_browser_cases": 9
+  },
+  "full_suite_reference_run": {
+    "commit": "710df701cb98851bb021ee12fa03d1328fee5611",
+    "run_id": 42511781888,
+    "tests": 1049,
+    "passed": 1047,
+    "failed": 0,
+    "skipped": 2,
+    "concurrency": "Dedicated PostgreSQL sales, stock and accounting jobs passed; final PR-head checks still required."
   }
 }

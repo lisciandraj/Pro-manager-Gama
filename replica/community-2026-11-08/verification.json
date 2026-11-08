@@ -1,0 +1,75 @@
+{
+  "reference": "Odoo 19.0 Community, explicit baseline, not a claim of latest version or complete parity",
+  "integrated_main": "8569f2e52c2e0fcdd5d036a73fb039522b49841a",
+  "full_suite": {
+    "command": "npm run update",
+    "business_tree": "e161896",
+    "tests": 790,
+    "passed": 787,
+    "failed": 1,
+    "skipped": 2,
+    "failure": "Historic tax_save error and tax metadata characterization expectation",
+    "follow_up": {
+      "command": "node --test tests/standardization-db.test.cjs",
+      "tests": 3,
+      "passed": 3,
+      "failed": 0,
+      "server_changes": false
+    }
+  },
+  "priority_server_regressions": {
+    "passed": 89,
+    "failed": 0
+  },
+  "browser_before_main_integration": {
+    "distinct_cases": 69,
+    "failed": 0
+  },
+  "browser_after_main_integration": {
+    "cases": 27,
+    "failed": 0,
+    "overlap_with_before": 14,
+    "languages": [
+      "es",
+      "fr",
+      "en"
+    ],
+    "screenshots": "clone-screens/"
+  },
+  "integrated_checks_passed": [
+    "check",
+    "check:vendors",
+    "typecheck",
+    "check:docs",
+    "verify:migrations",
+    "check:generated",
+    "check:startup"
+  ],
+  "postgres_concurrency_ci": {
+    "sales_run": 42496954621,
+    "sales_conclusion": "success",
+    "accounting_job": 128781239671,
+    "accounting_conclusion": "success"
+  },
+  "migrations": [
+    {
+      "file": "supabase/migrations/20261108152013_accounting_tax_lifecycle.sql",
+      "sha256": "748ebd7172cad6cdf7a45bb3ad8ddb5d7a00c18c29c2e99f84f83b7ea249f1a4",
+      "production_applied_by_this_task": false
+    },
+    {
+      "file": "supabase/migrations/20261108152346_sales_template_archive_permissions.sql",
+      "sha256": "1f018249c08bb5410fd90745d29d57895cebe13d50e625451a385e9b801fa985",
+      "production_applied_by_this_task": false
+    },
+    {
+      "file": "supabase/migrations/20261108152655_accounting_partner_accounts.sql",
+      "sha256": "75f784e966d734fac9d5cf9679456d04b4bdc583e0ba6227798b44ba2297e621",
+      "production_applied_by_this_task": false
+    }
+  ],
+  "production_published": false,
+  "parity_complete": false,
+  "remaining_features": "features.csv",
+  "general_ci": "Rerun with corrected characterization expectation; must pass before merge"
+}

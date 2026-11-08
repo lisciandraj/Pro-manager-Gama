@@ -1,9 +1,46 @@
 # Publication compilée de Coco ERP
 
-La publication cible est GitHub Pages avec **Source = GitHub Actions**, à configurer par le propriétaire dans les paramètres du dépôt. `deploy-coco-pages.yml` construit `dist/` à partir de `src/`, exécute `npm run update` et les parcours Agent Coco, puis publie un artefact Pages. Aucun workflow n'a besoin d'un jeton permettant de pousser du code, de clés Supabase ou de secrets ERP pour compiler.
+GitHub Pages publie un artefact contenant deux instantanés indépendants :
 
-Les jobs de construction disposent seulement de `contents: read`. Le job de publication, limité à `main` et à l'environnement `github-pages`, a `pages: write` et `id-token: write`. Il lit le mode de publication et refuse d'administrer le dépôt automatiquement. Une pull request construit et teste mais ne déploie pas.
+- `/production/` sert la version approuvée de la branche `production`.
+- `/development/` sert la version testée de la branche `development`.
+- L’adresse historique de Coco ERP ouvre `/production/`.
 
-Les scripts racine historiques ne sont plus la source de publication lorsque ce mode est activé. Ils sont des sorties locales/archives de compatibilité ; il faut reconstruire avant tout test. Le contrôle `check:generated` vérifie la reproductibilité du build, sans suppression de ses assertions. Ne jamais éditer manuellement un fichier compilé. Le manifeste conserve l'ordre et les adresses historiques des ressources.
+L’activation de cette organisation nécessite la fusion de sa configuration initiale, une branche `development`, une branche `production` contenant le nouveau démarrage et **Source = GitHub Actions** dans les réglages Pages du dépôt. Une pull request prépare et teste les changements sans publier. La création d’un commit ou d’une PR ne prouve pas que le site a été actualisé.
 
-Vérifier `coco-build.json` sur le site après déploiement pour comparer le commit réellement servi avec `main`. Tant que le réglage Pages reste sur la publication d'une branche, ces nouveaux écrans ne sont pas garantis en ligne. Ne pas annoncer le déploiement web sur la seule base d'un test de compilation.
+## Construction et isolation
+
+`deploy-coco-pages.yml` conserve les contrôles de construction, les tests SQL isolés et les parcours navigateur existants. Après leur réussite, il assemble les deux environnements avec `scripts/package-environments.cjs`. Les jobs de construction ont `contents: read`. Le job de publication possède seulement `pages: write` et `id-token: write`, dans l’environnement `github-pages`.
+
+Chaque environnement conserve son HTML, ses scripts, ses styles, son manifeste, son démarrage public Supabase et son cache de service worker sous son propre chemin. Le service worker historique de la racine est retiré ; les caches des sous-environnements sont conservés. La configuration publique est préfixée au script existant `coco-environment.js`, sans requête de démarrage supplémentaire, et ses empreintes sont recalculées. `coco-environment-config.js` reste disponible pour les diagnostics et la préparation hors connexion. La CSP autorise uniquement le projet Supabase de l’environnement concerné.
+
+Le code et la configuration de production viennent de la branche `production`, avec son propre verrouillage de dépendances. Son artefact est préparé avec le script de publication de cette version approuvée puis recopié sans modification ; les empreintes de `coco-release.json` sont revérifiées. Une modification du code, de la configuration ou du script de publication en développement ne réécrit donc pas l’instantané de production.
+
+Avant tout assemblage, `scripts/check-environment-readiness.mjs` appelle uniquement la RPC publique `coco_environment_status`, sans session utilisateur, sur le backend de développement courant et celui de l’instantané de production approuvé. Le serveur de production doit annoncer `production` et autoriser l’accès anonyme ; le serveur de développement doit annoncer `development` et refuser cet accès. Une configuration absente, des bases identiques, un marqueur incorrect ou une RPC indisponible bloque la publication avant le téléversement. Ce contrôle ne migre ni n’active les bases ; leurs marqueurs doivent être affectés après leur préparation et les bascules des services publics.
+
+`config/erp-environments.json` contient uniquement des URL et des clés publiques. La configuration `production: null` bloque toute connexion de production : elle ne peut jamais reprendre l’URL ou les données du développement. Il faut un projet de production distinct, son schéma et ses contrôles d’accès avant la mise en service. La publication web ne copie aucune ligne métier, aucun compte, fichier, secret ou fonction Edge et n’exécute aucune migration distante.
+
+## Mises à jour et autorisation
+
+Les changements suivants sont poussés sur `development`. Sa CI reconstruit `/development/` tout en conservant l’instantané approuvé de `/production/`. `main` reste accepté pour l’installation initiale et la compatibilité des contrôles ; il ne détermine pas la version de production.
+
+Après ses tests, le propriétaire lance **Approve Coco production release** depuis la branche `development`, renseigne le SHA complet testé et saisit exactement `AUTORISER PRODUCTION`. Le workflow refuse :
+
+- un nom de branche ou un SHA extérieur à l’historique de développement ;
+- une révision sans validation de release réussie sur ce SHA exact ;
+- une révision sans réussite des trois contrôles `build`, `topbar-menus` et `business-modules` ;
+- une mise à jour qui réécrirait l’historique de la branche de production.
+
+L’approbation crée une étiquette immuable `production/<date>-<sha>`, déplace la branche `production` puis demande une nouvelle publication Pages. La version précédente reste accessible dans Git et dans le résumé du workflow. L’étiquette atteste la version approuvée ; le résultat du workflow Pages atteste sa publication effective. L’environnement GitHub `production` peut en plus recevoir des réviseurs obligatoires dans les réglages du dépôt.
+
+Le versionnement décrit ici porte sur le code et la configuration. Les sauvegardes, restaurations et migrations des bases restent des opérations séparées, à tester puis autoriser explicitement pour la production. Un retour arrière passe par un nouveau commit testé, sans effacer les anciennes versions.
+
+## Vérifier la version servie
+
+Après le déploiement, le workflow contrôle :
+
+- `coco-build.json` à la racine : SHA du développement et SHA approuvé de production ;
+- `production/coco-build.json` et `development/coco-build.json` : environnement et commit correspondant ;
+- la configuration publique et les actifs commerciaux réellement servis.
+
+Chaque dossier publie aussi `coco-release.json`, qui associe les actifs à leurs empreintes SHA-256. Ne pas annoncer une publication sur la seule base d’une compilation ou de fichiers générés présents dans le dépôt. Les scripts racine historiques restent des sorties compatibles ; les sources canoniques se trouvent dans `src/`.

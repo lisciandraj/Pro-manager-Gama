@@ -1,5 +1,6 @@
 {
   "scripts": [
+    {"source":"src/app/environment.js","output":"coco-environment.js"},
     {"source":"src/features/workhub/workhub.js","output":"coco-workhub.js"},
     {"source":"src/features/workhub/documents.js","output":"coco-workhub-documents.js"},
     {"source":"src/features/finance/business-modules.js","output":"coco-business-modules.js"},

@@ -29,12 +29,12 @@ function renderEnvironments(){
  head.querySelector('.cocoEnvironmentSwitch')?.remove();
  const env=window.CocoEnvironment;
  if(!env||!['production','development'].includes(env.name)||typeof env.url!=='function')return;
- const nav=document.createElement('nav');nav.className='cocoEnvironmentSwitch';nav.dataset.giIgnore='';nav.setAttribute('aria-label',T('Entornos de trabajo'));
- const links=document.createElement('div');links.className='cocoEnvironmentLinks';
+ const nav=document.createElement('nav');nav.className='cocoEnvironmentSwitch arcToolbar';nav.dataset.giIgnore='';nav.setAttribute('aria-label',T('Entornos de trabajo'));
+ const links=document.createElement('div');links.className='cocoEnvironmentLinks arcToolbar';
  for(const name of ['production','development']){
   if(name==='development'&&!env.canDevelop?.())continue;
   let href;try{href=env.url(name)}catch(_){continue}if(!href)continue;
-  const a=document.createElement('a');a.className='cocoEnvironmentLink';a.href=href;a.dataset.cocoEnvironment=name;
+  const a=document.createElement('a');a.className='cocoEnvironmentLink arcButton ghost';a.href=href;a.dataset.cocoEnvironment=name;
   a.textContent=T(name==='production'?'Producción':'Desarrollo');
   if(name===env.name)a.setAttribute('aria-current','page');
   links.append(a);
@@ -42,7 +42,7 @@ function renderEnvironments(){
  if(!links.childElementCount)return;
  nav.append(links);
  if(/^[a-f0-9]{40}$/.test(env.version||'')){
-  const version=document.createElement('span');version.className='cocoEnvironmentVersion';version.textContent=T('Versión:')+' '+env.version.slice(0,8);version.title=env.version;
+  const version=document.createElement('span');version.className='cocoEnvironmentVersion muted';version.textContent=T('Versión:')+' '+env.version.slice(0,8);version.title=env.version;
   nav.append(version);
  }
  head.prepend(nav);

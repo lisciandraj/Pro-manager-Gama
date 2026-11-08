@@ -3,92 +3,92 @@
 @font-face{font-family:Poppins;src:url("fonts/poppins-latin-medium.woff2") format("woff2");font-style:normal;font-weight:500;font-display:swap}
 @font-face{font-family:Poppins;src:url("fonts/poppins-latin-semibold.woff2") format("woff2");font-style:normal;font-weight:600 900;font-display:swap}
 /* Coco ERP — shared design tokens.
-   The current theme uses petrol blue, orange and neutral working surfaces.
+   Reference theme: light surfaces, violet navigation and blue/violet reporting.
    Historical variable names remain public aliases for existing modules.
    src/styles/design.css supplies the scoped application/theme overrides.
    Keep semantic states labelled: color alone must not carry information. */
 :root{
  /* ------------------------------------------- colores de marca */
- --arc-coco-blue:#157F98;    /* azul petróleo */
- --arc-coco-violet:#D45C0B;  /* naranja */
- --arc-coco-teal:#238FA4;    /* turquesa */
- --arc-coco-orange:#F87826;  /* naranja */
- 
- --arc-coco-blue-text:#2F7180;   --arc-coco-violet-text:#AF5C35;
- --arc-coco-teal-text:#2F7180;   --arc-coco-orange-text:#AF5C35;
+ --arc-coco-blue:#6246CC;    /* azul petróleo */
+ --arc-coco-violet:#6246CC;  /* naranja */
+ --arc-coco-teal:#467CF5;    /* turquesa */
+ --arc-coco-orange:#6246CC;  /* naranja */
+
+ --arc-coco-blue-text:#5438BA;   --arc-coco-violet-text:#5438BA;
+ --arc-coco-teal-text:#5438BA;   --arc-coco-orange-text:#5438BA;
 
  /* ---------------------------------------------------------------- marca */
- --arc-navy-900:#103B52;   
- --arc-navy-800:#0B3045;   /* marca, cabeceras oscuras */
- --arc-navy-700:#24495A;   
- --arc-navy-600:#2F7180;
- --arc-steel-600:#496575;  /* índigo grisáceo: elementos secundarios */
- --arc-steel-500:#617C8A;
- --arc-steel-400:#89A2AD;
- --arc-steel-300:#C4D5DD;
+ --arc-navy-900:#262331;
+ --arc-navy-800:#262331;   /* marca, cabeceras oscuras */
+ --arc-navy-700:#474351;
+ --arc-navy-600:#5438BA;
+ --arc-steel-600:#676473;  /* índigo grisáceo: elementos secundarios */
+ --arc-steel-500:#676473;
+ --arc-steel-400:#8E8A9C;
+ --arc-steel-300:#E9E9F0;
 
  /* ------------------------------------------------------------- acciones */
- --arc-accent-700:#245C69;
- --arc-accent-600:#2F7180;
- --arc-accent-500:#157F98;  /* el azul del logo, para lo decorativo */
- --arc-accent-400:#70B7C6;
- --arc-accent-100:#E5F0F2;
- --arc-accent-50:#F1F7F8;
+ --arc-accent-700:#5438BA;
+ --arc-accent-600:#6246CC;
+ --arc-accent-500:#7559DB;  /* el azul del logo, para lo decorativo */
+ --arc-accent-400:#A393E5;
+ --arc-accent-100:#F0EBFC;
+ --arc-accent-50:#F8F6FE;
 
  /* ------------------------------------------------------ neutros y fondo */
- --arc-canvas:#F5F7F8;      /* Neutral workspace, with muted GAMA accents. */
+ --arc-canvas:#FFFFFF;      /* Neutral workspace, with muted GAMA accents. */
  --arc-surface:#FFFFFF;     /* tarjetas y superficies de trabajo */
- --arc-surface-2:#EEF3F4;   /* table headings and inset surfaces */
- --arc-surface-3:#E7EEF0;
- --arc-line:#E1E8EA;        /* decorative surface separators */
- --arc-line-strong:#819298; /* interactive boundaries, AA contrast */
+ --arc-surface-2:#FAFAFC;   /* table headings and inset surfaces */
+ --arc-surface-3:#F3F2F7;
+ --arc-line:#E9E9F0;        /* decorative surface separators */
+ --arc-line-strong:#8E8A9C; /* interactive boundaries, AA contrast */
 
- --arc-text:#283B42;
- --arc-text-muted:#5F7178;
- --arc-text-subtle:#5F7178;
+ --arc-text:#262331;
+ --arc-text-muted:#676473;
+ --arc-text-subtle:#676473;
  --arc-text-invert:#FFFFFF;
- --arc-text-on-navy:#DDEEF2; 
+ --arc-text-on-navy:#FFFFFF;
 
  /* --------------------------------------------------------- funcionales */
- --arc-success:#28704E;   --arc-success-bg:#EDF6F0;   --arc-success-line:#B8D8C5;
- --arc-warning:#865D19;   --arc-warning-bg:#FAF4E7;   --arc-warning-line:#E5D3AB;
- --arc-danger:#AD403B;    --arc-danger-bg:#FBEEEC;    --arc-danger-line:#E7C4BF;
- --arc-info:#245C69;      --arc-info-bg:#E5F0F2;      --arc-info-line:#BDD7DD;
+ --arc-success:#16785D;   --arc-success-bg:#E8F8F2;   --arc-success-line:#B9DFD0;
+ --arc-warning:#976015;   --arc-warning-bg:#FBF2E6;   --arc-warning-line:#E7D0AB;
+ --arc-danger:#BE3848;    --arc-danger-bg:#FFF0F1;    --arc-danger-line:#ECC2C8;
+ --arc-info:#5438BA;      --arc-info-bg:#F0EBFC;      --arc-info-line:#D8CEF2;
 
  /* Familias de módulos. Los nombres históricos se conservan por compatibilidad. */
- --arc-fam-analytics:var(--arc-coco-blue-text);   --arc-fam-analytics-bg:#E7F3F6;   /* C azul: pilotaje */
- --arc-fam-sales:var(--arc-coco-violet-text);     --arc-fam-sales-bg:#FFF0E6;       /* naranja: ventas y clientes */
- --arc-fam-logistics:var(--arc-coco-teal-text);   --arc-fam-logistics-bg:#E7F3F6;   /* C turquesa: stock, compras y logística */
- --arc-fam-purchase:var(--arc-coco-teal-text);    --arc-fam-purchase-bg:#E7F3F6;
- --arc-fam-finance:var(--arc-coco-orange-text);   --arc-fam-finance-bg:#FFF0E6;     /* O naranja: administración */
- --arc-fam-people:var(--arc-coco-orange-text);    --arc-fam-people-bg:#FFF0E6;
- --arc-fam-system:var(--arc-coco-orange-text);    --arc-fam-system-bg:#FFF0E6;
+ --arc-fam-analytics:#6246CC;   --arc-fam-analytics-bg:#F0EBFC;   /* C azul: pilotaje */
+ --arc-fam-sales:#6246CC;     --arc-fam-sales-bg:#F0EBFC;       /* naranja: ventas y clientes */
+ --arc-fam-logistics:#6246CC;   --arc-fam-logistics-bg:#F0EBFC;   /* C turquesa: stock, compras y logística */
+ --arc-fam-purchase:#6246CC;    --arc-fam-purchase-bg:#F0EBFC;
+ --arc-fam-finance:#6246CC;   --arc-fam-finance-bg:#F0EBFC;     /* O naranja: administración */
+ --arc-fam-people:#6246CC;    --arc-fam-people-bg:#F0EBFC;
+ --arc-fam-system:#6246CC;    --arc-fam-system-bg:#F0EBFC;
 
  /* Series de gráfico. Se distinguen por tono Y por claridad, y nunca van
     solas: toda serie lleva su etiqueta y su cifra al lado. */
- --arc-viz-1:#157F98; --arc-viz-2:#D45C0B; --arc-viz-3:#238FA4;
- --arc-viz-4:#AD4508; --arc-viz-5:#103B52; --arc-viz-6:#B3261E;
+ --arc-viz-1:#467CF5; --arc-viz-2:#6246CC; --arc-viz-3:#C9BDF7;
+ --arc-viz-4:#B3A0D6; --arc-viz-5:#8E78CD; --arc-viz-6:#BE3848;
 
  /* ------------------------------------------------------------- espacio */
  --arc-s1:4px;  --arc-s2:8px;  --arc-s3:12px; --arc-s4:16px;
  --arc-s5:20px; --arc-s6:24px; --arc-s7:32px; --arc-s8:40px;
 
  /* -------------------------------------------------------------- radios */
- --arc-r-sm:8px; --arc-r-md:12px; --arc-r-lg:16px; --arc-r-xl:20px; --arc-r-pill:999px;
+ --arc-r-sm:8px; --arc-r-md:8px; --arc-r-lg:16px; --arc-r-xl:16px; --arc-r-pill:999px;
 
  /* ------------------------------------------------------------- sombras */
- --arc-sh-1:0 1px 3px rgb(40 59 66 / .035),0 6px 18px -12px rgb(40 59 66 / .08);
- --arc-sh-2:0 3px 8px rgb(40 59 66 / .04),0 12px 28px -14px rgb(40 59 66 / .14);
- --arc-sh-3:0 8px 24px rgb(40 59 66 / .08),0 24px 64px -16px rgb(40 59 66 / .22);
- --arc-sh-nav:0 1px 3px rgb(16 59 82 / .03),0 6px 20px -12px rgb(16 59 82 / .16);
+ --arc-sh-1:none;
+ --arc-sh-2:0 4px 16px rgba(38,35,49,.06);
+ --arc-sh-3:0 12px 32px rgba(38,35,49,.12);
+ --arc-sh-nav:none;
 
  /* ---------------------------------------------------------- tipografía */
  --arc-font:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
- --arc-font-display:"Poppins",var(--arc-font);
- --arc-fs-page:1.5rem;   --arc-lh-page:1.3;    /* title */
+ --arc-font-display:var(--arc-font);
+ --arc-fs-page:28px;   --arc-lh-page:1.3;    /* title */
  --arc-fs-section:1rem;--arc-lh-section:1.4;
  --arc-fs-card:15px;   --arc-lh-card:1.35;   /* título de tarjeta */
- --arc-fs-body:.875rem;   --arc-lh-body:1.55;
+ --arc-fs-body:14px;   --arc-lh-body:1.55;
  --arc-fs-sec:13px;    --arc-lh-sec:1.5;     /* texto secundario */
  --arc-fs-cap:12px;    --arc-lh-cap:1.45;    /* pie, etiqueta */
  --arc-fw-reg:400; --arc-fw-med:500; --arc-fw-bold:600; --arc-fw-black:650;
@@ -99,7 +99,7 @@
  --arc-topbar-h:88px;
  --coco-catalog-width:64rem;--coco-catalog-card-width:20rem;--coco-catalog-line:1px;
  --arc-tap:44px;            /* zona táctil mínima */
- --arc-focus:0 0 0 3px rgb(47 113 128 / .2);
+ --arc-focus:0 0 0 3px #F0EBFC;
  --arc-content-max:1600px;
  /* Operational workspaces: Odoo layout references, Coco brand roles. */
  --arc-workspace-radius:var(--arc-r-lg);
@@ -109,14 +109,13 @@
  --arc-input-border:var(--arc-line-strong);
  --arc-workspace-title:22px;
  --arc-reading-width:78ch;
- /* GAMA reference theme: one source for shared and lazy-loaded components. */
- --coco-canvas:#F5F7F8;--coco-surface:#FFFFFF;--coco-inset:#EEF3F4;
- --coco-line:#E1E8EA;--coco-row-line:#E8EEF0;--coco-column-line:transparent;
- --coco-ink:#283B42;--coco-muted:#5F7178;
- /* Logo/illustration orange stays #F87826. The action shade lets white labels
-    meet AA at every point of the subtle gradient, including hover. */
- --coco-action:#AF5C35;--coco-action-top:var(--coco-action);--coco-action-hover:#974B2A;--coco-on-action:#FFFFFF;
- --coco-action-tint:#FAEFE8;--coco-action-line:#E7C8B6;
+ /* Coco reference theme: shared by every module and deferred component. */
+ --coco-canvas:#FFFFFF;--coco-surface:#FFFFFF;--coco-inset:#FAFAFC;
+ --coco-line:#E9E9F0;--coco-row-line:#E9E9F0;--coco-column-line:transparent;
+ --coco-ink:#262331;--coco-muted:#676473;
+ /* One accessible violet for all primary actions. Original logo assets stay unchanged. */
+ --coco-action:#6246CC;--coco-action-top:var(--coco-action);--coco-action-hover:#5438BA;--coco-on-action:#FFFFFF;
+ --coco-action-tint:#F0EBFC;--coco-action-line:#D8CEF2;
  --coco-panel-padding:24px;--coco-panel-gap:24px;
  /* Separate form comfort from list density; large screens keep useful data visible. */
  --coco-field-gap:8px;--coco-form-row-gap:24px;--coco-form-column-gap:24px;
@@ -125,12 +124,12 @@
  --coco-page-gutter:28px;
  --coco-surface-sheen:none;
  --coco-surface-fill:var(--coco-surface-sheen) var(--coco-surface);
- --coco-surface-shadow:var(--arc-sh-1);
+ --coco-surface-shadow:none;
  --coco-canvas-light:linear-gradient(var(--coco-canvas),var(--coco-canvas));
  --coco-canvas-texture:none;
  --coco-action-fill:none;
  --coco-action-shadow:none;
- --coco-pressed-shadow:inset 0 2px 3px rgb(16 59 82 / .12);
+ --coco-pressed-shadow:none;
  --coco-motion-feedback:120ms;--coco-motion-state:180ms;--coco-motion-overlay:240ms;
  --coco-ease:cubic-bezier(.16,1,.3,1);
  --coco-icon-surface:var(--coco-inset);
@@ -139,8 +138,8 @@
  --coco-dialog-shadow:var(--arc-sh-3);
  --coco-scrim:rgb(23 36 59 / .26);
  --coco-kanban-surface:transparent;
- --coco-chart-orange-top:#E96A1B;--coco-chart-orange-bottom:#C4510A;
- --coco-chart-blue-top:#238FA4;--coco-chart-blue-bottom:#10677D;
+ --coco-chart-orange-top:#467CF5;--coco-chart-orange-bottom:#467CF5;
+ --coco-chart-blue-top:#6246CC;--coco-chart-blue-bottom:#6246CC;
 }
 
 /* El movimiento es decoración: quien lo ha desactivado en su sistema no lo
@@ -158,21 +157,21 @@
  --color-text:var(--arc-text);--color-text-secondary:var(--arc-text-muted);
  --radius-sm:var(--arc-r-sm);--radius-md:var(--arc-r-md);--radius-lg:var(--arc-r-lg);
  --shadow-sm:var(--arc-sh-1);--shadow-md:var(--arc-sh-2);
- --arc-card-border:var(--arc-tile-border);--arc-card-shadow:var(--arc-tile-shadow);
+ --arc-card-border:#E9E9F0;--arc-card-shadow:none;
  /* Home tiles: a visible edge and a lower rim retain depth on desktop displays. */
- --arc-tile-border:#708897;--arc-tile-border-bottom:#708897;
- --arc-tile-shadow:var(--coco-surface-shadow);--arc-tile-border-hover:#10677D;
- --arc-tile-shadow-hover:var(--arc-sh-2);
+ --arc-tile-border:#E9E9F0;--arc-tile-border-bottom:#E9E9F0;
+ --arc-tile-shadow:none;--arc-tile-border-hover:#C9BDF7;
+ --arc-tile-shadow-hover:none;
  --arc-control-shadow:none;--arc-field-shadow:none;
- 
- --arc-icon-blue:#157F98;--arc-icon-blue-bg:#E7F3F6;
- --arc-icon-violet:#D45C0B;--arc-icon-violet-bg:#FFF0E6;
- --arc-icon-teal:#238FA4;--arc-icon-teal-bg:#E7F3F6;
- --arc-icon-orange:#AD4508;--arc-icon-orange-bg:#FFF0E6;
+
+ --arc-icon-blue:#6246CC;--arc-icon-blue-bg:#F0EBFC;
+ --arc-icon-violet:#6246CC;--arc-icon-violet-bg:#F0EBFC;
+ --arc-icon-teal:#6246CC;--arc-icon-teal-bg:#F0EBFC;
+ --arc-icon-orange:#6246CC;--arc-icon-orange-bg:#F0EBFC;
  /* Alias históricos para los iconos de módulos. */
- --arc-icon-indigo:var(--arc-icon-blue);--arc-icon-indigo-bg:var(--arc-icon-blue-bg);
- --arc-icon-pink:var(--arc-icon-violet);--arc-icon-pink-bg:var(--arc-icon-violet-bg);
- --arc-icon-cyan:var(--arc-icon-teal);--arc-icon-cyan-bg:var(--arc-icon-teal-bg);
- --arc-icon-green:var(--arc-icon-teal);--arc-icon-green-bg:var(--arc-icon-teal-bg);
- --arc-icon-red:var(--arc-icon-orange);--arc-icon-red-bg:var(--arc-icon-orange-bg);
+ --arc-icon-indigo:#6246CC;--arc-icon-indigo-bg:#F0EBFC;
+ --arc-icon-pink:#6246CC;--arc-icon-pink-bg:#F0EBFC;
+ --arc-icon-cyan:#6246CC;--arc-icon-cyan-bg:#F0EBFC;
+ --arc-icon-green:#6246CC;--arc-icon-green-bg:#F0EBFC;
+ --arc-icon-red:#6246CC;--arc-icon-red-bg:#F0EBFC;
 }

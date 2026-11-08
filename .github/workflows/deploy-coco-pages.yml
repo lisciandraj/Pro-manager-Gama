@@ -144,6 +144,8 @@ jobs:
           ref: production
           path: .build/production-source
           persist-credentials: false
+      - name: Require both Supabase environments ready before publication
+        run: node scripts/check-environment-readiness.mjs config/erp-environments.json .build/production-source/config/erp-environments.json
       - name: Build the frozen production source with its own lockfile
         working-directory: .build/production-source
         run: npm ci && npm run build

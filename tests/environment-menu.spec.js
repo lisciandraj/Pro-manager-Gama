@@ -8,7 +8,7 @@ async function boot(page,{admin=true,environment='development'}={}){
  await page.route('**/production/',r=>r.fulfill({contentType:'text/html',body:'<h1>Production release</h1>'}));
  await page.route('**/development/',r=>r.fulfill({contentType:'text/html',body:'<h1>Development release</h1>'}));
  await page.goto('/environment-menu-fixture');
- await page.addStyleTag({content:':root{--arc-text:#283b42;--arc-text-muted:#5f7178;--arc-accent-600:#2f7180;--arc-surface-2:#eef3f4}body{font-family:Arial,sans-serif;margin:14px}*{box-sizing:border-box}'+fs.readFileSync(path.join(__dirname,'../src/styles/home.css'),'utf8')});
+ await page.addStyleTag({content:':root{--arc-text:#283b42;--arc-text-muted:#5f7178;--arc-accent-600:#2f7180;--arc-surface-2:#eef3f4}body{font-family:Arial,sans-serif;margin:14px}*{box-sizing:border-box}'+fs.readFileSync(path.join(__dirname,'../src/styles/tokens.css'),'utf8')+fs.readFileSync(path.join(__dirname,'../src/ui/components.css'),'utf8')+fs.readFileSync(path.join(__dirname,'../src/styles/home.css'),'utf8')});
  await page.evaluate(({admin,environment})=>{
   localStorage.setItem('gama_session_v1',JSON.stringify({role:'admin',name:'Forged browser value'}));
   window.__verifiedAdmin=admin;

@@ -16,6 +16,8 @@ Chaque environnement conserve son HTML, ses scripts, ses styles, son manifeste, 
 
 Le code et la configuration de production viennent de la branche `production`, avec son propre verrouillage de dépendances. Son artefact est préparé avec le script de publication de cette version approuvée puis recopié sans modification ; les empreintes de `coco-release.json` sont revérifiées. Une modification du code, de la configuration ou du script de publication en développement ne réécrit donc pas l’instantané de production.
 
+Avant tout assemblage, `scripts/check-environment-readiness.mjs` appelle uniquement la RPC publique `coco_environment_status`, sans session utilisateur, sur le backend de développement courant et celui de l’instantané de production approuvé. Le serveur de production doit annoncer `production` et autoriser l’accès anonyme ; le serveur de développement doit annoncer `development` et refuser cet accès. Une configuration absente, des bases identiques, un marqueur incorrect ou une RPC indisponible bloque la publication avant le téléversement. Ce contrôle ne migre ni n’active les bases ; leurs marqueurs doivent être affectés après leur préparation et les bascules des services publics.
+
 `config/erp-environments.json` contient uniquement des URL et des clés publiques. La configuration `production: null` bloque toute connexion de production : elle ne peut jamais reprendre l’URL ou les données du développement. Il faut un projet de production distinct, son schéma et ses contrôles d’accès avant la mise en service. La publication web ne copie aucune ligne métier, aucun compte, fichier, secret ou fonction Edge et n’exécute aucune migration distante.
 
 ## Mises à jour et autorisation

@@ -34,7 +34,7 @@ test('les onglets RH n’ont plus d’icône, côté salarié',async({page})=>{
 
 // Configuración y Notificaciones sí llevan en cada apartado un dibujo de la
 // aplicación (no un emoji): se ven como las tarjetas del inicio.
-const logos=locator=>locator.evaluateAll((tabs,src)=>{const re=new RegExp(src,'u');return tabs.map(t=>({text:t.textContent.trim(),logo:!!t.querySelector('.arcSideIcon svg path, .arcSideIcon svg circle'),emoji:re.test(t.textContent)}))},/\p{Extended_Pictographic}/u.source);
+const logos=locator=>locator.evaluateAll((tabs,src)=>{const re=new RegExp(src,'u');return tabs.map(t=>({text:t.textContent.trim(),logo:!!t.querySelector('.arcSideIcon svg :is(path,rect,circle,ellipse,line,polygon,polyline)'),emoji:re.test(t.textContent)}))},/\p{Extended_Pictographic}/u.source);
 test('les rubriques des fenêtres Configuration et Notifications ont leur logo, sans emoji',async({page})=>{
  await boot(page);
  await openSettings(page);

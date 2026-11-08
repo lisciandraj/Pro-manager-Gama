@@ -103,3 +103,14 @@ permissions et relations ; `contact-nature-company.spec.js` pour la création,
 les filtres, la conservation des brouillons et la navigation entre les fiches
 sur ordinateur et téléphone. La migration et l’interface doivent toutes deux
 être publiées avant l’utilisation de ces nouveaux liens en production.
+
+La migration de rattachement a été installée sur le **développement**
+(`mknsaibrewksgomuslev`) le 8 novembre 2026, sous la version serveur
+`20261108163417`. Ses octets correspondent à la source
+`20261108154619_contacts_individual_company_links.sql` (SHA-256
+`88ea8d3a675a68ecb9a1dc2bec1ed3e4bb8e73256f31706476ea1e8682ee6ad1`).
+Les fonctions invocateur, droits, index et déclencheur ont été vérifiés, sans
+création de contact métier. La production indépendante
+(`vhutzdfatijjpahsqkne`) ne dispose pas encore des fonctions Contacts Odoo
+requises ; ce lot n’y a pas été appliqué. La publication des environnements
+reste subordonnée à leur contrôle public de disponibilité.

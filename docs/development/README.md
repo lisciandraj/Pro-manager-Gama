@@ -3,7 +3,7 @@
 1. Chercher le module dans `config/runtime-assets.json` ; ouvrir son `source`.
 2. Modifier le source nommé par domaine. Les anciennes URL dans les tests sont les sorties publiques compatibles.
 3. Lancer `npm run update` pour construire et valider, puis les tests navigateur du parcours modifié.
-4. Vérifier `npm run check:generated` avant publication : aucune copie racine ne doit diverger.
+4. Vérifier `npm run check:generated` avant publication : aucune copie racine ne doit diverger. Pousser les changements suivants sur `development` ; la production conserve son instantané approuvé.
 5. Mettre à jour le document courant du module.
 
 ## Commandes
@@ -39,7 +39,7 @@ Les sections CSS métier sont dans `src/styles/modules/` et assemblées dans l�
 ## Tests et publication
 
 Privilégier les comportements observables : mêmes droits, mêmes documents, cache sans fuite de session, reprise après échec, mobile utilisable.
-La CI vérifie la syntaxe, les contrats, les liens documentaires, les tests et la correspondance des sorties avec leurs sources. Les anciens workflows d’installation désactivés ont été retirés. GitHub Pages publie les sorties commises ; une modification de source seule n’actualise pas la production.
+La CI vérifie la syntaxe, les contrats, les liens documentaires, les tests et la correspondance des sorties avec leurs sources. GitHub Pages assemble les artefacts indépendants des branches `development` et `production`. Une mise à jour de développement conserve la production approuvée. Le transfert d’un SHA testé exige le workflow manuel d’approbation ; voir [publication compilée et environnements](pages-publication.md).
 
 Ne jamais exécuter une fixture de test contre la base de production. Les tests SRI simulés ne remplacent pas l’autorisation réelle du SRI ni un essai de signature avec le service privé.
 

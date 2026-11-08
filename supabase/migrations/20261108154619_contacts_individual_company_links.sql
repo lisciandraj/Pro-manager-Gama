@@ -26,25 +26,27 @@ language plpgsql stable security invoker set search_path='' as $$
 declare e private.coco_contact_entities;k public.crm_contacts;result jsonb;begin
  select * into e from private.coco_contact_entities where id=p_entity;
  if not found then return null;end if;
- if e.relation='employee' and e.parent_id is not null then
-  if exists(select 1 from private.coco_contact_entities where id=e.parent_id and nature='company') then
-   return private.coco_contact_entity_summary(e.parent_id);
-  end if;
-  return null;
- end if;
  -- The CRM keeps its original customer/prospect parent, including legacy
- -- parents whose nature has not yet been classified by a user.
+ -- parents whose nature has not yet been classified by a user. Its native
+ -- parent also takes precedence over a pre-existing generic profile relation.
  if private.erp_module_allowed('crm',array['administrador','comercial']) then
   select * into k from public.crm_contacts where contact_entity_id=p_entity;
-  if k.customer_id is not null and private.erp_module_allowed('contacts',array['administrador','comercial']) then
-   select jsonb_build_object('entity_id',c.contact_entity_id,'kind','clients','id',c.id,'name',c.name)
-    into result from public.customers c where c.id=k.customer_id;
-  elsif k.lead_id is not null then
-   select jsonb_build_object('entity_id',l.contact_entity_id,'kind','leads','id',l.id,'name',coalesce(nullif(l.company,''),nullif(concat_ws(' ',l.first_name,l.last_name),''),'—'))
-    into result from public.crm_leads l where l.id=k.lead_id;
+  if found then
+   if k.customer_id is not null and private.erp_module_allowed('contacts',array['administrador','comercial']) then
+    select jsonb_build_object('entity_id',c.contact_entity_id,'kind','clients','id',c.id,'name',c.name)
+     into result from public.customers c where c.id=k.customer_id;
+   elsif k.lead_id is not null then
+    select jsonb_build_object('entity_id',l.contact_entity_id,'kind','leads','id',l.id,'name',coalesce(nullif(l.company,''),nullif(concat_ws(' ',l.first_name,l.last_name),''),'—'))
+     into result from public.crm_leads l where l.id=k.lead_id;
+   end if;
+   return result;
   end if;
  end if;
- return result;
+ if e.relation='employee' and e.parent_id is not null
+  and exists(select 1 from private.coco_contact_entities where id=e.parent_id and nature='company') then
+  return private.coco_contact_entity_summary(e.parent_id);
+ end if;
+ return null;
 end $$;
 revoke all on function private.coco_contact_company(uuid) from public,anon,service_role;
 grant execute on function private.coco_contact_company(uuid) to authenticated;
@@ -55,6 +57,13 @@ create function private.coco_contact_company_guard() returns trigger
 language plpgsql security definer set search_path='' as $$
 declare company_nature text;begin
  if row(new.nature,new.parent_id,new.relation) is not distinct from row(old.nature,old.parent_id,old.relation) then return new;end if;
+ -- The original profile guard runs later in trigger order. Check its access
+ -- boundary before privileged integrity lookups so errors reveal no parent
+ -- classification to a caller who cannot read that parent.
+ if not private.coco_contact_system_writer() then
+  if auth.uid() is null or not private.coco_contact_access(new.id,true) then raise exception 'CONTACT_ACCESS_DENIED';end if;
+  if new.parent_id is not null and not private.coco_contact_access(new.parent_id) then raise exception 'CONTACT_PARENT_ACCESS_DENIED';end if;
+ end if;
  perform pg_advisory_xact_lock(hashtextextended('coco-contact-parent-graph',0));
  if new.nature is distinct from old.nature and new.nature is distinct from 'person'
   and exists(select 1 from public.crm_contacts where contact_entity_id=new.id) then raise exception 'CONTACT_PERSON_REQUIRED';end if;
@@ -62,15 +71,19 @@ declare company_nature text;begin
   raise exception 'CONTACT_COMPANY_HAS_PEOPLE';
  end if;
  if new.relation='employee' and new.parent_id is not null then
+  if row(new.parent_id,new.relation) is distinct from row(old.parent_id,old.relation)
+   and exists(select 1 from public.crm_contacts where contact_entity_id=new.id) then raise exception 'CONTACT_INVALID_DATA';end if;
   if new.nature is distinct from 'person' then raise exception 'CONTACT_COMPANY_REQUIRED';end if;
   select nature into company_nature from private.coco_contact_entities where id=new.parent_id;
   if new.parent_id=new.id or company_nature is distinct from 'company' then raise exception 'CONTACT_INVALID_COMPANY';end if;
   -- An existing archived association can still be read and edited. A newly
   -- selected company must have at least one active operational role.
   if row(new.parent_id,new.relation) is distinct from row(old.parent_id,old.relation)
-   and not (exists(select 1 from public.customers where contact_entity_id=new.parent_id and active)
-    or exists(select 1 from public.suppliers where contact_entity_id=new.parent_id and active)
-    or exists(select 1 from public.crm_leads where contact_entity_id=new.parent_id and active)) then raise exception 'CONTACT_INVALID_COMPANY';end if;
+   and not ((private.erp_module_allowed('contacts',array['administrador','comercial'])
+     and (exists(select 1 from public.customers where contact_entity_id=new.parent_id and active)
+      or exists(select 1 from public.suppliers where contact_entity_id=new.parent_id and active)))
+    or (private.erp_module_allowed('crm',array['administrador','comercial'])
+     and exists(select 1 from public.crm_leads where contact_entity_id=new.parent_id and active))) then raise exception 'CONTACT_INVALID_COMPANY';end if;
  end if;
  return new;
 end $$;
@@ -181,7 +194,16 @@ revoke all on function private.coco_contact_hub_native(text,uuid,text,jsonb) fro
 grant execute on function private.coco_contact_hub_native(text,uuid,text,jsonb) to authenticated;
 create function public.coco_contact_hub(p_kind text,p_id uuid,p_action text default 'get',p_data jsonb default '{}') returns jsonb
 language plpgsql security invoker set search_path='' as $$
-declare result jsonb;children jsonb;eid uuid;begin
+declare result jsonb;children jsonb;eid uuid;previous jsonb;parent uuid;begin
+ -- Keep this check in caller context: an active role hidden by RLS or a
+ -- disabled module cannot make an otherwise archived company selectable.
+ if p_action='save' and jsonb_typeof(p_data)='object' and p_data->>'relation'='employee'
+  and nullif(p_data->>'parent_id','') is not null then
+  previous:=public.coco_contact_record(p_kind,p_id);
+  parent:=(p_data->>'parent_id')::uuid;
+  if row(parent,'employee'::text) is distinct from row((previous#>>'{profile,parent_id}')::uuid,previous#>>'{profile,relation}')
+   and private.coco_contact_entity_summary(parent,true) is null then raise exception 'CONTACT_INVALID_COMPANY';end if;
+ end if;
  result:=private.coco_contact_hub_native(p_kind,p_id,p_action,p_data);
  eid:=(result#>>'{profile,id}')::uuid;
  if eid is null then return result;end if;

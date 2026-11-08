@@ -89,6 +89,9 @@ test('company relationships validate atomically in main, shared-profile and dire
   await assert.rejects(save('people',crm.record.id,{odoo:{nature:'company'}}),/CONTACT_PERSON_REQUIRED/);
   await assert.rejects(hub('people',crm.record.id,'save',{version:crm.version,nature:'company'}),/CONTACT_PERSON_REQUIRED/);
   await assert.rejects(save('people',crm.record.id,{odoo:{parent_id:company.profile.id}}),/CONTACT_INVALID_DATA/);
+  const crmCurrent=await read('people',crm.record.id);
+  await assert.rejects(hub('people',crm.record.id,'save',{version:crmCurrent.version,nature:'person',parent_id:crmParent.profile.id,relation:'employee'}),/CONTACT_INVALID_DATA|CONTACT_INVALID_COMPANY/);
+  await assert.rejects(q("update private.coco_contact_entities set parent_id=$2,relation='employee' where id=$1",[crm.profile.id,crmParent.profile.id]),/CONTACT_INVALID_DATA/);
   assert.equal((await read('people',crm.record.id)).record.customer_id,crmParent.record.id);
  }finally{await db.close()}
 });
@@ -103,8 +106,22 @@ test('relationship reads retain module boundaries and writes retain linked-role 
   const hidden=(await q('select contact_entity_id from crm_leads where id=$1',[leadId]))[0].contact_entity_id;
   await q("update private.coco_contact_entities set nature='company' where id=$1",[hidden]);
   await q("update role_module_access set disabled_modules='{crm}' where role='comercial'");
+  // A company may have an active CRM role but only an archived Contacts role
+  // visible to this caller. The shared-profile path must not use the hidden
+  // role to permit a new relationship.
+  const archivedCompany=await save('suppliers',null,{name:'Archived visible company',odoo:{nature:'company'}});
+  await q('update suppliers set active=false where id=$1',[archivedCompany.record.id]);
+  await db.exec('reset role');
+  await q("insert into crm_leads(id,kind,company,contact_entity_id) values($1,'empresa','Active hidden role',$2)",[uuid(),archivedCompany.profile.id]);
+  await db.exec('set role authenticated');
   await user(seller);
   await assert.rejects(save('suppliers',individual.record.id,{odoo:{parent_id:hidden}}),/CONTACT_INVALID_COMPANY/);
+  await assert.rejects(q("update private.coco_contact_entities set parent_id=$2,relation='employee' where id=$1",[individual.profile.id,hidden]),/CONTACT_PARENT_ACCESS_DENIED/);
+  const beforeHidden=await read('suppliers',individual.record.id);
+  await assert.rejects(hub('suppliers',individual.record.id,'save',{version:beforeHidden.version,nature:'person',parent_id:archivedCompany.profile.id,relation:'employee'}),/CONTACT_INVALID_COMPANY/);
+  await assert.rejects(q("update private.coco_contact_entities set parent_id=$2,relation='employee' where id=$1",[individual.profile.id,archivedCompany.profile.id]),/CONTACT_INVALID_COMPANY/);
+  const afterHidden=await read('suppliers',individual.record.id);
+  assert.equal(afterHidden.version,beforeHidden.version);assert.equal(afterHidden.profile.parent_id,null);
   const crm=await user(admin).then(()=>save('people',null,{customer_id:company.record.id,first_name:'CRM hidden person'}));
   await user(seller);
   assert.ok(!(await directory()).items.some(r=>r.id===crm.record.id));

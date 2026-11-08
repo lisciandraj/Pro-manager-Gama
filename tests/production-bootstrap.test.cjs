@@ -42,6 +42,8 @@ test('later releases cannot change the immutable first-installation SQL or hide 
    assert.equal(manifest.sources.length,362);assert.equal(manifest.sources.at(-1).file,'20261107195941_coco_environment_isolation.sql');
    assert.ok(manifest.excluded_migrations.includes(future));
    assert.ok(manifest.excluded_migrations.includes('20261108154619_contacts_individual_company_links.sql'));
+   assert.ok(manifest.excluded_migrations.includes('20261029233001_security_boundary_alignment.sql'));
+   assert.ok(manifest.excluded_migrations.includes('20261107195615_audit_identity_policy.sql'));
    assert.ok(!manifest.sources.some(source=>source.file===future));
   }
   const historical=path.join(directory,'20260825214709_create_gama_core_schema.sql');fs.appendFileSync(historical,'\n-- unauthorized historical edit\n');

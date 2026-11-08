@@ -13,8 +13,10 @@ from pathlib import Path
 import re
 import shutil
 import subprocess
+import stat
 import urllib.parse
 import urllib.request
+from coco_operations import NoRedirect, atomic_json, read_regular
 
 REQUIRED = ('COCO_DATABASE_URL', 'COCO_SUPABASE_URL', 'COCO_SERVICE_KEY', 'COCO_AGE_RECIPIENT')
 
@@ -27,6 +29,14 @@ def preflight(env=os.environ):
         raise ValueError('Expected the exact HTTPS Supabase project origin')
     if url.path not in ('', '/') or url.query or url.fragment:
         raise ValueError('Project URL must be an origin')
+    database = urllib.parse.urlsplit(env['COCO_DATABASE_URL'])
+    project = url.netloc.split('.')[0]
+    direct = database.hostname == 'db.' + url.netloc
+    pooler = bool(database.hostname and database.hostname.endswith('.pooler.supabase.com') and urllib.parse.unquote(database.username or '') == 'postgres.' + project)
+    if database.scheme not in ('postgres', 'postgresql') or not (direct or pooler) or database.query or database.fragment or database.path != '/postgres':
+        raise ValueError('Database URL must identify the same Supabase project without query overrides')
+    if database.port not in (None, 5432):
+        raise ValueError('Use the direct or session pooler port for pg_dump')
     if not env['COCO_AGE_RECIPIENT'].startswith(('age1', 'ssh-')):
         raise ValueError('Public age recipient required; do not supply its private identity')
     return url.scheme + '://' + url.netloc
@@ -52,9 +62,40 @@ def encrypt(source, destination, recipient):
             p.kill()
             p.wait()
             raise
-    part.rename(destination)
+        target.flush()
+        os.fsync(target.fileno())
+    # Never overwrite a completed artifact, even when a destination was reused.
+    os.link(part, destination, follow_symlinks=False)
+    part.unlink()
 
-def run(destination):
+def vault_assets(path):
+    """Read an operator-owned inventory, not secret values, into a bounded plan."""
+    if not path:
+        return []
+    source = Path(path)
+    info = source.lstat()
+    if info.st_uid != os.getuid() or info.st_mode & 0o077:
+        raise ValueError('Private vault inventory required')
+    entries = json.loads(read_regular(source, 1024 * 1024))
+    if not isinstance(entries, list) or not 1 <= len(entries) <= 100:
+        raise ValueError('Vault inventory must name 1-100 assets')
+    seen = set()
+    for entry in entries:
+        label = entry.get('id', '')
+        if not re.fullmatch('[a-z0-9_-]{1,64}', label) or label in seen:
+            raise ValueError('Invalid vault asset ID')
+        seen.add(label)
+        asset = Path(entry['path'])
+        if not asset.is_absolute():
+            raise ValueError('Vault asset must use an absolute path')
+        info = asset.lstat()
+        if not stat.S_ISREG(info.st_mode) or info.st_nlink != 1 or info.st_uid != os.getuid() or info.st_mode & 0o077:
+            raise ValueError('Vault asset must be a private regular owner file')
+        if info.st_size > 100 * 1024 * 1024:
+            raise ValueError('Vault asset too large')
+    return entries
+
+def run(destination, report=True):
     origin = preflight()
     for binary in ('pg_dump', 'age'):
         if not shutil.which(binary):
@@ -62,6 +103,7 @@ def run(destination):
     version = subprocess.check_output(['pg_dump', '--version'], text=True)
     if not re.search(r'\b17\.', version):
         raise ValueError('Use reviewed PostgreSQL 17 pg_dump for this project')
+    assets = vault_assets(os.environ.get('COCO_VAULT_ASSETS_FILE'))
     destination.mkdir(mode=0o700, parents=True, exist_ok=False)
     recipient = os.environ['COCO_AGE_RECIPIENT']
     headers = {'apikey': os.environ['COCO_SERVICE_KEY'], 'Authorization': 'Bearer ' + os.environ['COCO_SERVICE_KEY']}
@@ -69,7 +111,7 @@ def run(destination):
 
     def request(path, payload=None):
         body = None if payload is None else json.dumps(payload).encode()
-        return urllib.request.urlopen(urllib.request.Request(origin + path, data=body, headers={**headers, 'Content-Type': 'application/json'}), timeout=60)
+        return urllib.request.build_opener(NoRedirect()).open(urllib.request.Request(origin + path, data=body, headers={**headers, 'Content-Type': 'application/json'}), timeout=60)
 
     def inventory():
         with request('/storage/v1/bucket') as response:
@@ -118,12 +160,31 @@ def run(destination):
     _, after = inventory()
     if objects != after:
         raise RuntimeError('Storage changed during export; retry in a quiet window')
+    encrypted_assets = []
+    for entry in assets:
+        name = 'vault-' + entry['id'] + '.age'
+        fd = os.open(entry['path'], os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
+        try:
+            info = os.fstat(fd)
+            if not stat.S_ISREG(info.st_mode) or info.st_nlink != 1 or info.st_mode & 0o077 or info.st_uid != os.getuid() or info.st_size > 100 * 1024 * 1024:
+                raise ValueError('Vault asset changed before encryption')
+            with os.fdopen(fd, 'rb', closefd=False) as asset:
+                encrypt(asset, destination/name, recipient)
+            after_asset = os.fstat(fd)
+            if (info.st_size, info.st_mtime_ns) != (after_asset.st_size, after_asset.st_mtime_ns):
+                raise ValueError('Vault asset changed during encryption')
+        finally:
+            os.close(fd)
+        encrypted_assets.append({'id': entry['id'], 'file': name, 'sha256': digest(destination/name)})
     root = Path(__file__).resolve().parent.parent
     configs = {str(p.relative_to(root)): p.read_text() for p in sorted((root/'config').rglob('*.json'))}
-    manifest = {'started_at': started, 'finished_at': dt.datetime.now(dt.timezone.utc).isoformat(), 'project': origin, 'buckets': buckets, 'files': files, 'versioned_configs': configs, 'limitations': ['Not a transactional snapshot across DB and Storage', 'Provider secrets, DNS and SRI service configuration must be backed up separately', 'Restore rehearsal required before claiming RPO/RTO']}
+    manifest = {'format': 'coco-encrypted-backup', 'version': 2, 'started_at': started, 'finished_at': dt.datetime.now(dt.timezone.utc).isoformat(), 'project': origin, 'buckets': buckets, 'files': files, 'vault_assets': encrypted_assets, 'versioned_configs': configs, 'limitations': ['Not a transactional snapshot across DB and Storage', 'Vault inventory completeness must be approved by the owner', 'Restore rehearsal required before claiming RPO/RTO']}
     encrypt(io.BytesIO(json.dumps(manifest).encode()), destination/'manifest.json.age', recipient)
-    (destination/'COMPLETE.json').write_text(json.dumps({'encrypted_files': len(files)+1, 'manifest_sha256': digest(destination/'manifest.json.age'), 'finished_at': manifest['finished_at']}))
-    print(json.dumps({'complete': True, 'objects': len(objects), 'encrypted_files': len(files)+1}))
+    artifacts = [{'file': f['file'], 'sha256': f['sha256']} for f in files + encrypted_assets]
+    artifacts.append({'file': 'manifest.json.age', 'sha256': digest(destination/'manifest.json.age')})
+    atomic_json(destination/'COMPLETE.json', {'format': 'coco-encrypted-backup', 'version': 2, 'encrypted_files': len(artifacts), 'artifacts': artifacts, 'finished_at': manifest['finished_at']})
+    if report:
+        print(json.dumps({'complete': True, 'objects': len(objects), 'encrypted_files': len(artifacts), 'vault_assets': len(encrypted_assets)}))
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)

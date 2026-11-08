@@ -56,7 +56,7 @@ function preview(role){
  const registry=window.ArcModules.registry;
  return {id,label:roles[id].label,modules:registry.filter(m=>m.menu!==false&&!m.retired&&!m.tabOf&&(base(id,m.id)||registry.some(tab=>tab.tabOf===m.id&&base(id,tab.id)))).map(m=>({id:m.id,label:m.label,enabled:window.GamaModules?.enabled(m.id)!==false}))};
 }
-async function assign(user,role){const r=await window.ArcData.rawRpc('gama_assign_access_profile',{p_user:user,p_profile:dbRoles[role]||role});if(r.error)throw r.error;return r.data;}
+async function assign(user,role){return window.ArchitectIdentity.withStepUp('identity_admin','profile:'+user,async()=>{const r=await window.ArcData.rawRpc('gama_assign_access_profile',{p_user:user,p_profile:dbRoles[role]||role});if(r.error)throw r.error;return r.data;});}
 window.GamaRoleAccess={load,enabled,base,locked,options,preview,assign,isReady:()=>ready};
 const refresh=()=>{if(session())load().catch(()=>{});};
 window.addEventListener('gama:auth-change',event=>{if(event.detail?.event==='TOKEN_REFRESHED'||event.detail?.event==='INITIAL_SESSION'&&!ready){refresh();return;}generation++;pending=null;ready=false;changed();refresh()});

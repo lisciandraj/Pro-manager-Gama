@@ -1,0 +1,217 @@
+{
+  "date": "2026-11-07",
+  "project": "mknsaibrewksgomuslev",
+  "source_branch": "security/audit-hardening-20261107",
+  "method": "Supabase migration statements SHA-256 and Edge runtime file readback; no business data read or mutation tests in production",
+  "database": {
+    "cron": [
+      {
+        "name": "coco-workhub-receipt-purge",
+        "owner": "postgres",
+        "active": true,
+        "schedule": "* * * * *"
+      },
+      {
+        "name": "coco-ai-provider-usage-purge",
+        "owner": "postgres",
+        "active": true,
+        "schedule": "17 3 * * *"
+      }
+    ],
+    "migrations": [
+      {
+        "name": "audit_access_hardening",
+        "bytes": 64835,
+        "sha256": "6f56a274f43a01768dcc5883b3f8964f57e06694c3ccc044b5182a8852950b6c",
+        "version": "20261107202657",
+        "statement_count": 1
+      },
+      {
+        "name": "audit_workhub_quotas",
+        "bytes": 6603,
+        "sha256": "18adfa61b8073cdb67110f43de35255086eb67c2013ea463b78fb63bc9b5e218",
+        "version": "20261107203620",
+        "statement_count": 1
+      },
+      {
+        "name": "audit_ai_budget",
+        "bytes": 8998,
+        "sha256": "136e2fe7fe3cc11e27b019b977602f4397774a6b0c16298b004f23eec0a277ea",
+        "version": "20261107203702",
+        "statement_count": 1
+      },
+      {
+        "name": "audit_receipt_validation",
+        "bytes": 2369,
+        "sha256": "10c8353fe5be02c69094f871a74fa328332e701d257df13b2cb2bec7b055d6ca",
+        "version": "20261107203955",
+        "statement_count": 1
+      },
+      {
+        "version": "20261107220404",
+        "name": "security_monitor_aggregates",
+        "sha256": "c75251e410c6252f61a1dd089dea216f038a307d36330714e85a19ce71816569",
+        "bytes": 5541,
+        "statement_count": 1
+      }
+    ],
+    "public_buckets": 0,
+    "identity_policy_present": false,
+    "public_tables_without_rls": 0,
+    "aggregate_execute": {
+      "anon": false,
+      "authenticated": false,
+      "service_role": true
+    },
+    "export_log_select": {
+      "anon": false,
+      "authenticated": false,
+      "service_role": false
+    },
+    "export_volatility": {
+      "private": "v",
+      "public": "v"
+    }
+  },
+  "edge_functions": [
+    {
+      "name": "gama-assistant-ia",
+      "version": 10,
+      "status": "ACTIVE",
+      "verify_jwt": true,
+      "ezbr_sha256": "1ea867cd4f461eea2c8761bdcdcbf214d737fdc42d36d9463aecc94888d9584f",
+      "runtime_files_verified": [
+        {
+          "file": "_shared/ai-keyring.mjs",
+          "sha256": "6023d1d37e2936985d4674cf04e47d29b02273a631b04b58371e98d51ef82a5d"
+        },
+        {
+          "file": "_shared/ai-provider-budget.mjs",
+          "sha256": "9a9953feff2ac2db3a5b13830722051c197e5f2944101de54ad5185e2141fdae"
+        },
+        {
+          "file": "_shared/http.mjs",
+          "sha256": "7a80e07c12765d7ed87596dd68973f4482dde6e7c2170c4cabc04b33d4fa28d0"
+        },
+        {
+          "file": "gama-assistant-ia/deno.json",
+          "sha256": "ba8f022b49605d495b2de6a3ba014cfb9945e23db0e7fb13a36203dbadb337bd"
+        },
+        {
+          "file": "gama-assistant-ia/handler.mjs",
+          "sha256": "2e801e6e7f2bfde332db16ec8738d17a732445efc710ab5cca2b2b22ab8443de"
+        },
+        {
+          "file": "gama-assistant-ia/index.ts",
+          "sha256": "ac00b41af592c475611717e1a7052791d382db995f069c7b964e7b456518d8ee"
+        },
+        {
+          "file": "gama-assistant-ia/minimization.mjs",
+          "sha256": "b8975c03922bd9f2ef0f2be027dfbe99b8c0a70243dcdbf6c830defbe2a2c947"
+        },
+        {
+          "file": "gama-assistant-ia/reports.mjs",
+          "sha256": "2c24f27f821059b99d15dbfb24139d311f84292268ba6414dd34563f28ddaed1"
+        },
+        {
+          "file": "gama-assistant-ia/stock-planner.mjs",
+          "sha256": "86934d60d07e26cb955a81862d49957bec1cdb498b0ec44ee4b7a766ca32ddfa"
+        }
+      ]
+    },
+    {
+      "name": "coco-supplier-ocr",
+      "version": 3,
+      "status": "ACTIVE",
+      "verify_jwt": true,
+      "ezbr_sha256": "e351d0b1b7bc45241c6b7b8f19bb75b90934ef77547339682e31789e3e9edacd",
+      "runtime_files_verified": [
+        {
+          "file": "_shared/ai-keyring.mjs",
+          "sha256": "6023d1d37e2936985d4674cf04e47d29b02273a631b04b58371e98d51ef82a5d"
+        },
+        {
+          "file": "_shared/ai-provider-budget.mjs",
+          "sha256": "9a9953feff2ac2db3a5b13830722051c197e5f2944101de54ad5185e2141fdae"
+        },
+        {
+          "file": "_shared/http.mjs",
+          "sha256": "7a80e07c12765d7ed87596dd68973f4482dde6e7c2170c4cabc04b33d4fa28d0"
+        },
+        {
+          "file": "coco-supplier-ocr/deno.json",
+          "sha256": "d44eec77097b5f01e4e8bda030d5f81bc3a35800ce77481d590e5ce23a715f9b"
+        },
+        {
+          "file": "coco-supplier-ocr/handler.mjs",
+          "sha256": "1986d81bc89659b2aa209ff7dbfbbfdbc0bbdfadc12909de5c07fa135cc97dc0"
+        },
+        {
+          "file": "coco-supplier-ocr/index.ts",
+          "sha256": "9fe0ca1fdeec90af45e910e7479888d177a5b21597a99f55cae676800a4c4bf2"
+        }
+      ]
+    },
+    {
+      "name": "gama-sri",
+      "version": 7,
+      "status": "ACTIVE",
+      "verify_jwt": false,
+      "ezbr_sha256": "b57166c62c3a06e13d133473900c3802df0669d3e0ffbe68173bd88103902ee6",
+      "runtime_files_verified": [
+        {
+          "file": "_shared/http.mjs",
+          "sha256": "7a80e07c12765d7ed87596dd68973f4482dde6e7c2170c4cabc04b33d4fa28d0"
+        },
+        {
+          "file": "_shared/sri-invoice-contract.mjs",
+          "sha256": "eb22e83b5cf8650fcc445dea1ed9d3127fba943fe7d4e088a5d0ee613af40047"
+        },
+        {
+          "file": "gama-sri/deno.json",
+          "sha256": "ba8f022b49605d495b2de6a3ba014cfb9945e23db0e7fb13a36203dbadb337bd"
+        },
+        {
+          "file": "gama-sri/index.ts",
+          "sha256": "01f44792e2474d4502706e2bce0451ae96469efb7ec0c062a0a893c47f8deff5"
+        }
+      ]
+    }
+  ],
+  "pending": [
+    "identity migration: connector confirmation repeatedly expires despite full-access app setting and explicit user authorization",
+    "admin Edge handlers with bound rights proofs: deploy only after identity migration",
+    "web publication: retain CI release gates",
+    "private backup host/credentials, first encrypted Drive upload and actual restore drill",
+    "personal MFA enrollment and activation",
+    "Auth management settings and dedicated secret provisioning",
+    "private SRI host capability cutover",
+    "Cloudflare ERP headers and GitHub branch protection administration"
+  ],
+  "google_drive": {
+    "account": "Coco ERP",
+    "folder_name": "Coco ERP - sécurité",
+    "created_and_read_back": true,
+    "observed_permissions": [
+      "user:owner"
+    ],
+    "folder_id_location": "private operational configuration; omitted from source repository",
+    "scheduled_backup_active": false,
+    "real_backup_uploaded": false
+  },
+  "unauthenticated_function_checks": {
+    "gama-assistant-ia": 401,
+    "coco-supplier-ocr": 401,
+    "gama-sri": 401
+  },
+  "pending_identity_migration": {
+    "file": "20261107195615_audit_identity_policy.sql",
+    "sha256": "7ad4320bd2a016c4b7de922c4d9df33342e6d4e0c4e14e98199f4f54fbf5e9c5",
+    "status": "connector confirmation expired repeatedly; not applied",
+    "default_enforcement": false
+  },
+  "pending_admin_edge_functions": [
+    "architect-user-admin",
+    "gama-admin-users"
+  ]
+}

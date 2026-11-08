@@ -1,6 +1,42 @@
 /** Presentation only. Document currency always takes precedence over company defaults. */
 export const escapeHtml = value => String(value ?? '').replace(/[&<>"'\\]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;','\\':'&#92;'}[c]));
 export const translate = value => window.GamaI18n?.t?.(value) || value;
+/** A quoted CSV field is still a formula in a spreadsheet. Only real numbers
+ * bypass formula neutralization; never infer a numeric type from user text. */
+export function csvCell(value) {
+  let text = String(value ?? '');
+  if (typeof value !== 'number' && (/^[\u0000-\u001f\u007f]/.test(text) || /^[\s\u0000-\u001f\u007f]*[=+@-]/u.test(text))) text = "'" + text;
+  return '"' + text.replace(/"/g, '""') + '"';
+}
+export function csvRows(rows, {delimiter = ';', bom = true} = {}) {
+  if (![';', ',', '\t'].includes(delimiter)) throw Error('CSV_DELIMITER_INVALID');
+  return (bom ? '\uFEFF' : '') + rows.map(row => row.map(csvCell).join(delimiter)).join('\r\n');
+}
+/** Decode only inert receipt formats. Never pass a stored data URL into HTML
+ * or a navigation sink. Size and magic bytes are checked before Blob creation. */
+export function attachmentBlob(file, {maxBytes = 2000000} = {}) {
+  const invalid = () => { throw Error('DOCUMENT_FILE_INVALID'); };
+  const input = file?.data_url;
+  if (typeof input !== 'string' || !Number.isSafeInteger(maxBytes) || maxBytes < 1 || input.length > 4 * Math.ceil(maxBytes / 3) + 64) return invalid();
+  const match = /^data:(application\/pdf|image\/(?:png|jpeg|webp));base64,([A-Za-z0-9+/]+={0,2})$/.exec(input);
+  if (!match || match[2].length % 4 !== 0 || (file.mime_type && file.mime_type !== match[1])) return invalid();
+  const [ , type, data ] = match;
+  const size = data.length / 4 * 3 - (data.endsWith('==') ? 2 : data.endsWith('=') ? 1 : 0);
+  if (size < 1 || size > maxBytes) return invalid();
+  let raw;
+  try { raw = atob(data); } catch (_) { return invalid(); }
+  if (raw.length !== size || btoa(raw) !== data) return invalid();
+  const bytes = Uint8Array.from(raw, c => c.charCodeAt(0));
+  const begins = signature => signature.every((byte, i) => bytes[i] === byte);
+  const signatures = {
+    'application/pdf': () => begins([0x25,0x50,0x44,0x46,0x2d]),
+    'image/png': () => begins([0x89,0x50,0x4e,0x47,0x0d,0x0a,0x1a,0x0a]),
+    'image/jpeg': () => begins([0xff,0xd8,0xff]),
+    'image/webp': () => begins([0x52,0x49,0x46,0x46]) && bytes[8] === 0x57 && bytes[9] === 0x45 && bytes[10] === 0x42 && bytes[11] === 0x50
+  };
+  if (!signatures[type]()) return invalid();
+  return new Blob([bytes], {type});
+}
 const technicalDocumentName = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i;
 export const format = {
   documentLabel(document) {
@@ -26,7 +62,7 @@ export function normalizeError(error) {
 }
 export function errorMessage(error) {
   const e = normalizeError(error);
-  const messages = {AUTH_REQUIRED:'Vuelve a iniciar sesión.', ROLE_NOT_ALLOWED:'Tu perfil no puede realizar esta operación.', PM_FORBIDDEN:'Tu perfil no puede realizar esta operación.', '23505':'Ya existe un registro con estos datos.', '23503':'Este registro está vinculado a otros documentos.', PM_CONFLICT:'Los datos cambiaron. Actualiza antes de guardar.', NETWORK_ERROR:'Comprueba la conexión y vuelve a intentarlo.'};
+  const messages = {AUTH_REQUIRED:'Vuelve a iniciar sesión.', ROLE_NOT_ALLOWED:'Tu perfil no puede realizar esta operación.', PM_FORBIDDEN:'Tu perfil no puede realizar esta operación.', '23505':'Ya existe un registro con estos datos.', '23503':'Este registro está vinculado a otros documentos.', PM_CONFLICT:'Los datos cambiaron. Actualiza antes de guardar.', NETWORK_ERROR:'Comprueba la conexión y vuelve a intentarlo.', DOCUMENT_FILE_INVALID:'Formato de archivo no permitido.'};
   const specific=e.message.match(/\b[A-Z][A-Z_]{3,}\b/)?.[0];
   const audit={
    CHECKOUT_RECEIPT_RESERVED:['Este anticipo está reservado. Aplícalo a una factura vinculada o solicita la liberación de su reserva contable.','Cet acompte est réservé. Affectez-le à une facture liée ou demandez la levée de sa réservation comptable.','This advance is reserved. Allocate it to a linked invoice or request release of its accounting reservation.'],

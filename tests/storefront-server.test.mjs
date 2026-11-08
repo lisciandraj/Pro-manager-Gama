@@ -1,5 +1,8 @@
 import {test} from 'node:test';import assert from 'node:assert/strict';
 import {onRequest} from '../src/storefront/server/api.mjs';import {escapeBootstrap,metadata} from '../src/storefront/server/middleware.mjs';
+import {onRequest as surveyRequest} from '../src/storefront/server/surveys-api.mjs';
+import {onRequest as middleware} from '../src/storefront/server/middleware.mjs';
+import {securityHeaders} from '../src/storefront/server/security-headers.mjs';
 const token='a'.repeat(64),secureEnv={COCO_SITE_TOKEN:token,TURNSTILE_SITE_KEY:'test-key',TURNSTILE_SECRET_KEY:'test-secret'},withHuman=fn=>async(u,o)=>u.includes('challenges.cloudflare.com')?Response.json({success:true,hostname:'gama.pages.dev',action:'gama_commerce'}):fn(u,o),request=(action,data={},headers={})=>new Request('https://gama.pages.dev/api/storefront',{method:'POST',headers:{'Content-Type':'application/json',Origin:'https://gama.pages.dev','CF-Connecting-IP':'198.51.100.5',...headers},body:JSON.stringify({p_action:action,p_data:{...data,...(["submit","commerce_checkout"].includes(action)?{human_token:"test-human-token"}:{})}})});
 test('public proxy only allows the catalogue contract and bounds the complete body',async()=>{
  for(const a of ['public_connection','public_inquiries','delete','overview']){const r=await onRequest({request:request(a),fetcher:()=>assert.fail('must not reach database')});assert.equal(r.status,400)}
@@ -43,4 +46,20 @@ test('rights/returns and review withdrawal require the same origin, human proof 
 
 test('policy refresh supplies public human-verification configuration for restored B2B sessions',async()=>{
  const r=await onRequest({request:request('commerce_policies'),env:secureEnv,fetcher:async()=>Response.json({version:'policy-v2',documents:{terms:'Terms'}})});const p=await r.json();assert.equal(p.commerce.turnstile_sitekey,'test-key');assert.equal(p.commerce.policy_version,'policy-v2');assert.ok(!JSON.stringify(p).includes('test-secret'));
+});
+
+test('Functions preserve browser protections on successful, rejected and fallback responses',async()=>{
+ const responses=[
+  await onRequest({request:request('catalog'),fetcher:async()=>Response.json({items:[]})}),
+  await onRequest({request:request('submit',{}, {Origin:'https://other.invalid'}),env:secureEnv,fetcher:()=>assert.fail()}),
+  await onRequest({request:new Request('https://gama.pages.dev/api/storefront')}),
+  await surveyRequest({request:new Request('https://gama.pages.dev/api/surveys')}),
+  await surveyRequest({request:request('get'),fetcher:async()=>Response.json({survey:{title:'Test'}})}),
+  await middleware({request:new Request('https://gama.pages.dev/api/storefront'),next:async()=>Response.json({error:'TEST'},{status:400,headers:{'X-Test':'preserved'}})}),
+  // A non-HTML home fallback never calls the database and still needs protections.
+  await middleware({request:new Request('https://gama.pages.dev/'),next:async()=>new Response('Unavailable',{status:503})})
+ ];
+ for(const response of responses){for(const [name,value] of Object.entries(securityHeaders))assert.equal(response.headers.get(name),value);assert.equal(response.headers.get('Cache-Control'),'no-store')}
+ assert.equal(responses[5].status,400);assert.equal(responses[5].headers.get('X-Test'),'preserved');assert.deepEqual(await responses[5].json(),{error:'TEST'});
+ assert.equal(responses[6].status,503);assert.equal(await responses[6].text(),'Unavailable');
 });

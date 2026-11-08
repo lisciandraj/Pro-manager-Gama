@@ -15,7 +15,7 @@ async function environmentFetch(input,options){
  const url=new URL(input instanceof URL?input.href:typeof input==='string'?input:input.url);
  const headers=new Headers(options?.headers||(typeof input!=='string'?input.headers:undefined));
  const token=headers.get('Authorization')?.replace(/^Bearer /i,'');
- const bootstrap=url.pathname.startsWith('/auth/v1/')||url.pathname==='/rest/v1/rpc/coco_environment_status'||url.pathname==='/rest/v1/profiles';
+ const bootstrap=url.pathname.startsWith('/auth/v1/')||url.pathname==='/rest/v1/rpc/coco_environment_status'||url.pathname==='/rest/v1/rpc/coco_identity_login_status'||url.pathname==='/rest/v1/profiles';
  if(environment?.enforced&&!bootstrap&&(!verifiedToken||token!==verifiedToken))return new Response(JSON.stringify({code:'ENVIRONMENT_ACCESS_DENIED',message:'Environment access must be verified.'}),{status:403,headers:{'Content-Type':'application/json'}});
  return fetch(input,options);
 }

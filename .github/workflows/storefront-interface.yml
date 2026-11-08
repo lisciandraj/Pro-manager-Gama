@@ -3,9 +3,20 @@ on:
   pull_request:
     paths:
       - 'src/storefront/**'
+      - 'src/features/website/**'
+      - 'functions/**'
+      - 'supabase/functions/_shared/http.mjs'
+      - 'config/storefront-*.json'
+      - 'supabase/migrations/*compliance*.sql'
+      - 'src/features/surveys/survey-form.js'
       - 'scripts/build-storefront.cjs'
       - 'tests/storefront.spec.js'
       - 'tests/commerce-workflows-db.test.cjs'
+      - 'tests/commerce-compliance-db.test.cjs'
+      - 'tests/b2b-product-favorites-db.test.cjs'
+      - 'tests/storefront-intake-information-db.test.cjs'
+      - 'tests/helpers/storefront-legal.cjs'
+      - 'tests/surveys.spec.js'
       - 'supabase/migrations/*gama_ecommerce_workflows.sql'
       - 'tests/b2b-portal.spec.js'
       - 'tests/storefront-progressive.test.cjs'
@@ -26,10 +37,10 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           persist-credentials: false
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 22
           cache: npm
@@ -37,14 +48,16 @@ jobs:
       - run: npm run build && npm run build:storefront
       - run: node --test tests/storefront-server.test.mjs
       - run: node --test tests/commerce-workflows-db.test.cjs
+      - run: node --test --test-concurrency=2 tests/commerce-compliance-db.test.cjs tests/b2b-product-favorites-db.test.cjs
+      - run: node --test tests/storefront-intake-information-db.test.cjs
       - name: Verify the audit proposal with isolated public and B2B fixtures
         run: |
           node --test tests/storefront-progressive.test.cjs tests/storefront-projection-db.test.cjs tests/storefront-bootstrap-db.test.cjs
           node --require ./tests/helpers/storefront-proposal.cjs --test --test-concurrency=2 tests/storefront-db.test.cjs tests/b2b-storefront-db.test.cjs
       - run: npx playwright install --with-deps chromium
       - name: Verify public and connected catalogue at phone, tablet and desktop sizes
-        run: npx playwright test tests/storefront.spec.js tests/b2b-portal.spec.js --workers=2
-      - uses: actions/upload-artifact@v4
+        run: npx playwright test tests/storefront.spec.js tests/b2b-portal.spec.js tests/surveys.spec.js --workers=2
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: always()
         with:
           name: gama-storefront-interface

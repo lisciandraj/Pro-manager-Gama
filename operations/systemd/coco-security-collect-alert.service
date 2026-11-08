@@ -1,0 +1,18 @@
+[Unit]
+Description=Report security collector failure through the configured sanitized channel
+
+[Service]
+Type=oneshot
+User=coco-backup
+Group=coco-backup
+WorkingDirectory=/opt/coco
+EnvironmentFile=/etc/coco/monitor.env
+ExecStart=/usr/bin/python3 /opt/coco/scripts/coco-operations.py alert --event monitor_failed --send-alert
+UMask=0077
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=strict
+ProtectHome=yes
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+LimitCORE=0
+TimeoutStartSec=30s

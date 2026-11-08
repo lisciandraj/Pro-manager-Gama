@@ -7,12 +7,13 @@ const overview={as_of:'2026-09-15T12:00:00Z',today:'2026-09-15',period:{from:'20
 const reply=(body,status=200)=>new Response(body==null?null:JSON.stringify(body),{status,headers:{'Content-Type':'application/json'}});
 function fixture(options={}){
  const calls=[],saved=[];let settings=[];let openaiCount=0;
- const handler=createHandler({env:k=>({SUPABASE_URL:'https://test.supabase.co',SUPABASE_ANON_KEY:'anon-test',SUPABASE_SERVICE_ROLE_KEY:'server-test-key',OPENAI_API_KEY:options.key?'sk-test-only-abcdefghijklmnopqrstuvwxyz':undefined}[k]),fetch:async(url,init={})=>{
+ const handler=createHandler({env:k=>({SUPABASE_URL:'https://test.supabase.co',SUPABASE_ANON_KEY:'anon-test',SUPABASE_SERVICE_ROLE_KEY:'server-test-key',GAMA_AI_ENCRYPTION_KEY:'fixture-dedicated-encryption-key-32-bytes',OPENAI_API_KEY:options.key?'sk-test-only-abcdefghijklmnopqrstuvwxyz':undefined}[k]),fetch:async(url,init={})=>{
   calls.push({url,init});const body=init.body?JSON.parse(init.body):null;
   if(url.endsWith('/auth/v1/user'))return options.invalidAuth?reply({},401):reply({id:uid});
   if(url.includes('/profiles?'))return reply([{id:uid,role:options.role||'administrador',active:options.active!==false}]);
   if(url.includes('/app_modules?'))return reply(options.disabled?[{enabled:false}]:[]);
   if(url.includes('/gama_ai_settings?')){if(init.method==='POST'){settings=[body];saved.push(body);return reply(null,201);}return reply(settings);}
+  if(url.includes('/rpc/coco_ai_provider_budget'))return options.budgetDenied?reply({message:'AI_BUDGET_DAILY_LIMIT'},429):reply(body.p_action==='reserve'?{id:rid}:{});
   if(url.includes('/rpc/gama_ai_claim'))return options.rate?reply({message:'RATE_LIMIT'},400):reply(true);
   if(url.includes('/rpc/gama_ai_catalog'))return reply([{table:'products',columns:['id','stock','name'],pk:['id'],module:'products'}]);
   if(url.includes('/rpc/gama_ai_overview'))return reply(overview);
@@ -89,17 +90,33 @@ test('Agent Coco answers in Spanish independently of the requested interface lan
 });
 
 test('workspace memory reads current caller-scoped evidence and cannot write or bypass channel rights',async()=>{
- const f=fixture({key:true,tool:'read_workspace'}),r=await f.request();assert.equal(r.status,200);const a=await r.json();
- assert.equal(a.evidence[2].kind,'read_workspace');assert.equal(a.evidence[2].module,'workhub');assert.equal(a.evidence[2].data.rows[0].body,'Current delivery coordination');
+ const f=fixture({key:true,tool:'read_workspace'}),r=await f.request({question:'Analiza el canal Workhub'});assert.equal(r.status,200);const a=await r.json();
+ assert.equal(a.evidence.find(e=>e.kind==='read_workspace').kind,'read_workspace');assert.equal(a.evidence.find(e=>e.kind==='read_workspace').module,'workhub');assert.equal(a.evidence.find(e=>e.kind==='read_workspace').data.rows[0].body,'Current delivery coordination');
  const read=f.calls.find(c=>c.url.includes('/rpc/coco_workhub'));assert.equal(read.init.headers.Authorization,'Bearer user-token');assert.equal(JSON.parse(read.init.body).p_action,'context');
- const denied=fixture({key:true,tool:'read_workspace',workspaceDenied:true});assert.equal((await denied.request()).status,403);assert(!JSON.stringify(denied.saved).includes('Current delivery coordination'));
- const write=fixture({key:true,tool:'read_workspace',workspaceArgs:{action:'message_create',query:'send',channel_id:uid}});assert.equal((await write.request()).status,200);assert(!write.calls.some(c=>c.url.includes('/rpc/coco_workhub')));
+ const denied=fixture({key:true,tool:'read_workspace',workspaceDenied:true});assert.equal((await denied.request({question:'Analiza el canal Workhub'})).status,403);assert(!JSON.stringify(denied.saved).includes('Current delivery coordination'));
+ const write=fixture({key:true,tool:'read_workspace',workspaceArgs:{action:'message_create',query:'send',channel_id:uid}});assert.equal((await write.request({question:'Analiza el canal Workhub'})).status,200);assert(!write.calls.some(c=>c.url.includes('/rpc/coco_workhub')));
 });
 
 test('Agent Coco reads shared document text using the caller token and cites its current version',async()=>{
  const f=fixture({key:true,tool:'read_workspace',workspaceArgs:{action:'document',query:'',channel_id:'',document_id:rid,offset:0}});
- const response=await f.request();assert.equal(response.status,200);const answer=await response.json();
- assert.equal(answer.evidence[2].data.body,'Current shared document text');assert.equal(answer.evidence[2].data.version,3);
+ const response=await f.request({question:'Analiza el canal Workhub'});assert.equal(response.status,200);const answer=await response.json();
+ assert.equal(answer.evidence.find(e=>e.kind==='read_workspace').data.body,'Current shared document text');assert.equal(answer.evidence.find(e=>e.kind==='read_workspace').data.version,3);
  const call=f.calls.find(c=>c.url.includes('/rpc/coco_workhub_documents'));assert.equal(call.init.headers.Authorization,'Bearer user-token');assert.equal(JSON.parse(call.init.body).p_action,'read');
- const denied=fixture({key:true,tool:'read_workspace',workspaceDenied:true,workspaceArgs:{action:'document',document_id:rid,offset:0}});assert.equal((await denied.request()).status,403);
+ const denied=fixture({key:true,tool:'read_workspace',workspaceDenied:true,workspaceArgs:{action:'document',document_id:rid,offset:0}});assert.equal((await denied.request({question:'Analiza el canal Workhub'})).status,403);
+});
+
+
+test('every paid analysis round reserves global budget; denied quota prevents provider calls',async()=>{
+ const allowed=fixture({key:true,tool:'query_data'});assert.equal((await allowed.request()).status,200);
+ const reserves=allowed.calls.filter(c=>c.url.includes('coco_ai_provider_budget')&&JSON.parse(c.init.body).p_action==='reserve');
+ const finishes=allowed.calls.filter(c=>c.url.includes('coco_ai_provider_budget')&&JSON.parse(c.init.body).p_action==='finish');
+ assert.equal(reserves.length,2);assert.equal(finishes.length,2);assert.ok(reserves.every(c=>c.init.headers.Authorization==='Bearer server-test-key'));
+ const denied=fixture({key:true,budgetDenied:true});const r=await denied.request({question:'Analiza el canal Workhub'});assert.equal(r.status,429);assert.equal((await r.json()).error,'AI_BUDGET_DAILY_LIMIT');assert.ok(!denied.calls.some(c=>c.url.includes('/responses')));
+ const failed=fixture({key:true,providerError:429});await failed.request();const finish=failed.calls.find(c=>c.url.includes('coco_ai_provider_budget')&&JSON.parse(c.init.body).p_action==='finish');assert.equal(JSON.parse(finish.init.body).p_data.success,false);
+});
+
+
+test('unrequested workspace content is not disclosed even when the model asks for it',async()=>{
+ const f=fixture({key:true,tool:'read_workspace'});assert.equal((await f.request({question:'Analiza el stock'})).status,200);
+ assert.ok(!f.calls.some(c=>c.url.includes('/rpc/coco_workhub')));
 });

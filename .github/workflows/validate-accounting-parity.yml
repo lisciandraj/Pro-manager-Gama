@@ -10,8 +10,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 22
           cache: npm
@@ -19,7 +19,7 @@ jobs:
       - run: npm run build
       - run: npx playwright install --with-deps chromium
       - run: npx playwright test tests/accounting-invoice-deferrals.spec.js tests/accounting-grouped-deferrals.spec.js tests/accounting-statement-formats.spec.js tests/accounting-stock19.spec.js tests/accounting-bank-import.spec.js tests/accounting-partial-matching.spec.js tests/accounting-earnings.spec.js tests/accounting-payment-modes.spec.js tests/accounting-configuration.spec.js tests/accounting-plans.spec.js tests/accounting-audit.spec.js tests/accounting.spec.js tests/module-history.spec.js --workers=2
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: always()
         with:
           name: accounting19-browser-results
@@ -30,7 +30,7 @@ jobs:
     timeout-minutes: 15
     services:
       postgres:
-        image: postgres:17
+        image: postgres:17@sha256:ff87138949ad9a46f32ff23bd6852b52ce024a13dffe9b4087be98292cdd3b4f
         env:
           POSTGRES_PASSWORD: isolated-ci-only
           POSTGRES_DB: coco_test_accounting
@@ -40,8 +40,8 @@ jobs:
           --health-interval 5s
           --health-retries 10
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 22
           cache: npm

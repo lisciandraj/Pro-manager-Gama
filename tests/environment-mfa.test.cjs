@@ -32,6 +32,7 @@ async function boot(flow){
     return Response.json(state.profile);
    }
    if(url.pathname==='/rest/v1/rpc/coco_environment_status')return Response.json({environment:state.marker,allowed:!!authorized(),admin:!!authorized()});
+   if(url.pathname==='/rest/v1/rpc/coco_identity_login_status')return Response.json({authorized:true,administrator:true,policy_active:false,required:false,verified_factor:state.factorVerified});
    if(url.pathname==='/rest/v1/rpc/coco_security_enrollment'){
     const action=JSON.parse(options.body).p_action;
     if(action==='activate'){assert.equal(state.aal,'aal2');assert.equal(authorized(),true);state.activations++}
@@ -92,7 +93,7 @@ for(const flow of ['challenge','enrollment']){
   const paths=x.requests.slice(x.requests.lastIndexOf('/auth/v1/factors/fixture-factor/verify'));
   assert.deepEqual(paths,['/auth/v1/factors/fixture-factor/verify','/rest/v1/profiles','/rest/v1/rpc/coco_environment_status','/rest/v1/rpc/coco_security_enrollment']);
   if(flow==='enrollment')assert.equal(x.state.reloads,1);
-  const count=x.requests.length;await x.context.ArchitectIdentity.ensureMFA();assert.equal(x.requests.length,count,'an existing AAL2 session needs no new challenge');
+  const count=x.requests.length;await x.context.ArchitectIdentity.ensureMFA();assert.deepEqual(x.requests.slice(count),['/rest/v1/rpc/coco_identity_login_status'],'an existing AAL2 session reads only its policy status');
  });
 
  test(flow+': a refused environment marker cannot activate enrollment',async()=>{

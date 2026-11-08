@@ -55,6 +55,17 @@ test('database environment identity is inactive until cutover and development re
 
   await db.exec('reset role');await query("insert into auth.mfa_factors(user_id,status) values($1,'verified')",[admin]);
   await actor(admin,'authenticated',{aal:'aal1'});assert.equal((await status()).allowed,false);
+  await query("select set_config('request.path','/rpc/coco_identity_policy',false)");
+  await assert.rejects(query('select public.coco_agent_request_guard()'),/DEVELOPMENT_ADMIN_REQUIRED/);
+  await query("select set_config('request.path','/rpc/coco_identity_login_status',false)");
+  await query('select public.coco_agent_request_guard()');
+  assert.deepEqual((await query('select public.coco_identity_login_status() result'))[0].result,
+   {authorized:true,administrator:true,policy_active:false,required:false,verified_factor:true});
+  await actor(admin,'authenticated',{aal:'aal1',client_id:'fixture-oauth-client'});
+  await query("select set_config('request.path','/rpc/coco_identity_login_status',false)");
+  await assert.rejects(query('select public.coco_agent_request_guard()'),/AGENT_ENDPOINT_NOT_ALLOWED/);
+  await actor(null,'anon');
+  await assert.rejects(query('select public.coco_identity_login_status()'),/permission denied/);
   await actor(admin,'authenticated',{aal:'aal2'});assert.equal((await status()).allowed,true);
   await actor(null,'service_role');await query('select public.coco_agent_request_guard()');
   assert.equal((await query("select count(*)::int n from public.products where reference='ENV-ISOLATION'"))[0].n,1);
@@ -78,6 +89,9 @@ test('maintenance cutover requires migration parity, deliberate admin count and 
   // Those are business content, so a new production assignment refuses them.
   await assert.rejects(assign(),/EMPTY_PRODUCTION_REQUIRED/);
   await db.exec('truncate public.fleet_drivers,public.fleet_vehicles,public.knowledge_articles,public.gama_audit,public.erp_audit_events,private.coco_module_events,public.gama_document_references,private.erp_issued_references cascade');
+  // The security release follows assignment of the frozen initial database.
+  await assert.rejects(assign(),/EMPTY_PRODUCTION_REQUIRED: private\.ai_provider_policy/);
+  await db.exec('truncate private.ai_provider_policy,private.ai_provider_models,private.coco_identity_policy');
   await db.exec("begin;update private.sales_checkout_payment_settings set wire_instructions='Development merchant instructions',version=2 where id");
   await assert.rejects(assign(),/EMPTY_PRODUCTION_REQUIRED: private.sales_checkout_payment_settings/);
   await db.exec('rollback');

@@ -21,6 +21,8 @@ Le contrôle cumule :
 - Une politique restrictive sur les tables RLS applicatives, Storage et Realtime, afin de couvrir leurs accès directs.
 - Le contrôle central `private.current_user_role()` pour les opérations fondées sur le rôle et les Edge Functions qui vérifient d'abord le profil ou une RPC avec le jeton de l'appelant.
 
+La RPC authentifiée `coco_identity_login_status` indique à la personne connectée si elle doit vérifier un facteur avant l’accès au profil. Elle expose uniquement son propre statut. Les actions d’administration de la politique MFA restent derrière le contrôle d’environnement.
+
 `environment_api` contient uniquement les helpers étroits de vérification ; ne pas ajouter ce schéma aux schémas exposés de la Data API. La fonction publique de statut est un invoker. Les fonctions d'affectation et d'installation des politiques ne sont exécutables ni par un navigateur ni par `service_role`. Les clés `service_role` conservent leur privilège de traitement machine existant ; elles ne doivent jamais être publiées côté client. Les buckets du développement doivent rester privés. Une URL signée déjà émise peut rester utilisable jusqu'à son expiration : planifier la bascule après expiration ou révocation des accès temporaires concernés.
 
 ## Affectation initiale explicite

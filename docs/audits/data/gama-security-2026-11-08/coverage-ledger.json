@@ -1,0 +1,936 @@
+[
+  {
+    "coverage_id": "functions%2F_middleware.js::src%2Fstorefront%2Fserver%2Fmiddleware.mjs%23response::hosting::ATTACK-CLASSES.md%23Feature%20abuse%20and%20data%20leakage",
+    "canonical_refs": {
+      "surface": "functions/_middleware.js",
+      "boundary": "src/storefront/server/middleware.mjs#response",
+      "subsystem": "hosting",
+      "attack_class": "ATTACK-CLASSES.md#Feature abuse and data leakage"
+    },
+    "surface": "functions/_middleware.js",
+    "boundary": "src/storefront/server/middleware.mjs#response",
+    "subsystem": "hosting",
+    "attack_class": "Feature abuse and data leakage",
+    "starting_paths": [
+      "scripts/build-storefront.cjs",
+      "src/storefront/_headers",
+      "src/storefront/server/middleware.mjs",
+      ".github/workflows",
+      "supabase/functions/_shared/http.mjs"
+    ],
+    "ordinary_attack_class_block": "ATTACK-CLASSES.md#Feature abuse and data leakage",
+    "selected_companion_blocks": [
+      "WEB-PROTOCOL-AND-AUTH.md#Core discipline",
+      "WEB-PROTOCOL-AND-AUTH.md#Cache deception and private-response caching",
+      "WEB-PROTOCOL-AND-AUTH.md#Universal moves",
+      "WEB-PROTOCOL-AND-AUTH.md#Validation rules"
+    ],
+    "excluded_blocks": [
+      {
+        "block": "MEMORY-SAFETY-AND-BINARY.md",
+        "reason": "No native binary parsing boundary in public storefront source."
+      },
+      {
+        "block": "AI-AND-LLM.md",
+        "reason": "ERP AI gateway is outside public website scope."
+      }
+    ],
+    "prior_status": "none",
+    "attempts": [],
+    "wave": 1,
+    "status": "covered",
+    "agent_id": "recon_execution",
+    "reviewed_paths": [
+      "scripts/build-storefront.cjs",
+      "config/storefront-runtime.json",
+      "src/storefront/_headers",
+      "src/storefront/server/api.mjs",
+      "src/storefront/server/surveys-api.mjs",
+      "src/storefront/server/middleware.mjs",
+      "supabase/functions/_shared/http.mjs",
+      ".github/workflows/storefront-interface.yml",
+      ".gitignore"
+    ],
+    "local_checks": [
+      {
+        "agent_id": "recon_execution",
+        "reviewed_paths": [
+          "scripts/build-storefront.cjs",
+          "config/storefront-runtime.json",
+          "src/storefront/_headers",
+          "src/storefront/server/api.mjs",
+          "src/storefront/server/surveys-api.mjs",
+          "src/storefront/server/middleware.mjs",
+          "supabase/functions/_shared/http.mjs",
+          ".github/workflows/storefront-interface.yml",
+          ".gitignore"
+        ],
+        "invariant": "src/storefront/server/middleware.mjs#response",
+        "method": "source",
+        "result": "Explicit public build allowlist, intended publishable key only, no private credentials found. Dynamic API no-store and bounded streaming bodies/timeouts. Static security headers need explicit Functions propagation (hardening); dependencies not assessed against external CVE databases.",
+        "artifact": null
+      }
+    ],
+    "result_fingerprints": [],
+    "unresolved": [],
+    "hardening_notes": [
+      "Explicit security headers for Functions; broaden focused CI path filters; actual deployment settings and current advisories unobserved."
+    ]
+  },
+  {
+    "coverage_id": "functions%2Fapi%2Fstorefront.js::src%2Fstorefront%2Fserver%2Fapi.mjs%23onRequest::intake::ATTACK-CLASSES.md%23Access%20control",
+    "canonical_refs": {
+      "surface": "functions/api/storefront.js",
+      "boundary": "src/storefront/server/api.mjs#onRequest",
+      "subsystem": "intake",
+      "attack_class": "ATTACK-CLASSES.md#Access control"
+    },
+    "surface": "functions/api/storefront.js",
+    "boundary": "src/storefront/server/api.mjs#onRequest",
+    "subsystem": "intake",
+    "attack_class": "Access control",
+    "starting_paths": [
+      "src/storefront/server/api.mjs",
+      "src/storefront/server/surveys-api.mjs",
+      "supabase/migrations"
+    ],
+    "ordinary_attack_class_block": "ATTACK-CLASSES.md#Access control",
+    "selected_companion_blocks": [
+      "WEB-PROTOCOL-AND-AUTH.md#Core discipline",
+      "WEB-PROTOCOL-AND-AUTH.md#Host and forwarded-header trust",
+      "WEB-PROTOCOL-AND-AUTH.md#API-key scope and resource binding",
+      "WEB-PROTOCOL-AND-AUTH.md#Universal moves",
+      "WEB-PROTOCOL-AND-AUTH.md#Validation rules"
+    ],
+    "excluded_blocks": [
+      {
+        "block": "MEMORY-SAFETY-AND-BINARY.md",
+        "reason": "No native binary parsing boundary in public storefront source."
+      },
+      {
+        "block": "AI-AND-LLM.md",
+        "reason": "ERP AI gateway is outside public website scope."
+      }
+    ],
+    "prior_status": "none",
+    "attempts": [],
+    "wave": 1,
+    "status": "covered",
+    "agent_id": "recon_surfaces",
+    "reviewed_paths": [
+      "src/storefront/server/api.mjs",
+      "src/storefront/server/surveys-api.mjs",
+      "src/storefront/surveys.js",
+      "src/features/surveys/survey-form.js",
+      "supabase/functions/_shared/http.mjs",
+      "supabase/migrations/20261003091337_public_storefront.sql",
+      "supabase/migrations/20261003152338_surveys.sql",
+      "supabase/migrations/20261019185130_audit_catalogue_projection.sql",
+      "supabase/migrations/20261029201003_gama_ecommerce_workflows.sql",
+      "supabase/migrations/20261029215055_gama_compliance_workspace.sql"
+    ],
+    "local_checks": [
+      {
+        "agent_id": "recon_surfaces",
+        "reviewed_paths": [
+          "src/storefront/server/api.mjs",
+          "src/storefront/server/surveys-api.mjs",
+          "src/storefront/surveys.js",
+          "src/features/surveys/survey-form.js",
+          "supabase/functions/_shared/http.mjs",
+          "supabase/migrations/20261003091337_public_storefront.sql",
+          "supabase/migrations/20261003152338_surveys.sql",
+          "supabase/migrations/20261019185130_audit_catalogue_projection.sql",
+          "supabase/migrations/20261029201003_gama_ecommerce_workflows.sql",
+          "supabase/migrations/20261029215055_gama_compliance_workspace.sql"
+        ],
+        "invariant": "src/storefront/server/api.mjs#onRequest",
+        "method": "source",
+        "result": "Same-origin, secret, IP injection and human verification guards consistent; guest receipt capabilities bound by id/token; prices server calculated and policy snapshots retained on checkout/cases. Survey question IDs restricted to safe identifier regex and types validated in SQL before escaped shared renderer. No injection or public capability bypass found.",
+        "artifact": null
+      }
+    ],
+    "result_fingerprints": [],
+    "unresolved": [],
+    "hardening_notes": [
+      "Bind quote policy version to exact server bundle; shared email/global quota serialization needs local concurrency validation; detailed GAMA privacy notice missing on standalone public surveys."
+    ]
+  },
+  {
+    "coverage_id": "functions%2Fapi%2Fsurveys.js::src%2Fstorefront%2Fserver%2Fsurveys-api.mjs%23onRequest::survey::ATTACK-CLASSES.md%23Injection",
+    "canonical_refs": {
+      "surface": "functions/api/surveys.js",
+      "boundary": "src/storefront/server/surveys-api.mjs#onRequest",
+      "subsystem": "survey",
+      "attack_class": "ATTACK-CLASSES.md#Injection"
+    },
+    "surface": "functions/api/surveys.js",
+    "boundary": "src/storefront/server/surveys-api.mjs#onRequest",
+    "subsystem": "survey",
+    "attack_class": "Injection",
+    "starting_paths": [
+      "src/storefront/server/api.mjs",
+      "src/storefront/server/surveys-api.mjs",
+      "supabase/migrations"
+    ],
+    "ordinary_attack_class_block": "ATTACK-CLASSES.md#Injection",
+    "selected_companion_blocks": [
+      "CLIENT-SIDE.md#Core discipline",
+      "CLIENT-SIDE.md#DOM-based XSS",
+      "CLIENT-SIDE.md#Universal moves",
+      "CLIENT-SIDE.md#Validation rules"
+    ],
+    "excluded_blocks": [
+      {
+        "block": "MEMORY-SAFETY-AND-BINARY.md",
+        "reason": "No native binary parsing boundary in public storefront source."
+      },
+      {
+        "block": "AI-AND-LLM.md",
+        "reason": "ERP AI gateway is outside public website scope."
+      }
+    ],
+    "prior_status": "none",
+    "attempts": [],
+    "wave": 1,
+    "status": "covered",
+    "agent_id": "recon_surfaces",
+    "reviewed_paths": [
+      "src/storefront/server/api.mjs",
+      "src/storefront/server/surveys-api.mjs",
+      "src/storefront/surveys.js",
+      "src/features/surveys/survey-form.js",
+      "supabase/functions/_shared/http.mjs",
+      "supabase/migrations/20261003091337_public_storefront.sql",
+      "supabase/migrations/20261003152338_surveys.sql",
+      "supabase/migrations/20261019185130_audit_catalogue_projection.sql",
+      "supabase/migrations/20261029201003_gama_ecommerce_workflows.sql",
+      "supabase/migrations/20261029215055_gama_compliance_workspace.sql"
+    ],
+    "local_checks": [
+      {
+        "agent_id": "recon_surfaces",
+        "reviewed_paths": [
+          "src/storefront/server/api.mjs",
+          "src/storefront/server/surveys-api.mjs",
+          "src/storefront/surveys.js",
+          "src/features/surveys/survey-form.js",
+          "supabase/functions/_shared/http.mjs",
+          "supabase/migrations/20261003091337_public_storefront.sql",
+          "supabase/migrations/20261003152338_surveys.sql",
+          "supabase/migrations/20261019185130_audit_catalogue_projection.sql",
+          "supabase/migrations/20261029201003_gama_ecommerce_workflows.sql",
+          "supabase/migrations/20261029215055_gama_compliance_workspace.sql"
+        ],
+        "invariant": "src/storefront/server/surveys-api.mjs#onRequest",
+        "method": "source",
+        "result": "Same-origin, secret, IP injection and human verification guards consistent; guest receipt capabilities bound by id/token; prices server calculated and policy snapshots retained on checkout/cases. Survey question IDs restricted to safe identifier regex and types validated in SQL before escaped shared renderer. No injection or public capability bypass found.",
+        "artifact": null
+      }
+    ],
+    "result_fingerprints": [],
+    "unresolved": [],
+    "hardening_notes": [
+      "Bind quote policy version to exact server bundle; shared email/global quota serialization needs local concurrency validation; detailed GAMA privacy notice missing on standalone public surveys."
+    ]
+  },
+  {
+    "coverage_id": "public.gama_b2b_action::private.gama_b2b_customer::b2b::ATTACK-CLASSES.md%23Access%20control",
+    "canonical_refs": {
+      "surface": "public.gama_b2b_action",
+      "boundary": "private.gama_b2b_customer",
+      "subsystem": "b2b",
+      "attack_class": "ATTACK-CLASSES.md#Access control"
+    },
+    "surface": "public.gama_b2b_action",
+    "boundary": "private.gama_b2b_customer",
+    "subsystem": "b2b",
+    "attack_class": "Access control",
+    "starting_paths": [
+      "supabase/migrations",
+      "src/storefront/b2b.js"
+    ],
+    "ordinary_attack_class_block": "ATTACK-CLASSES.md#Access control",
+    "selected_companion_blocks": [
+      "DATA-ISOLATION-AND-LIFECYCLE.md#Core discipline",
+      "DATA-ISOLATION-AND-LIFECYCLE.md#Missing tenant or owner enforcement",
+      "DATA-ISOLATION-AND-LIFECYCLE.md#Stale authorization and derived copy use",
+      "DATA-ISOLATION-AND-LIFECYCLE.md#Universal moves",
+      "DATA-ISOLATION-AND-LIFECYCLE.md#Validation rules"
+    ],
+    "excluded_blocks": [
+      {
+        "block": "MEMORY-SAFETY-AND-BINARY.md",
+        "reason": "No native binary parsing boundary in public storefront source."
+      },
+      {
+        "block": "AI-AND-LLM.md",
+        "reason": "ERP AI gateway is outside public website scope."
+      }
+    ],
+    "prior_status": "none",
+    "attempts": [],
+    "wave": 1,
+    "status": "candidate",
+    "agent_id": "recon_controls",
+    "reviewed_paths": [
+      "src/features/website/store-admin.js",
+      "src/storefront/b2b.js",
+      "supabase/functions/architect-user-admin/handler.mjs",
+      "supabase/functions/gama-sri/index.ts",
+      "supabase/migrations/20261005014142_ec_b2b_customer_portal.sql",
+      "supabase/migrations/20261005151929_b2b_customer_documents_center.sql",
+      "supabase/migrations/20261005155700_customer_followup_flows.sql",
+      "supabase/migrations/20261007073708_product_illustrative_photos.sql",
+      "supabase/migrations/20261007190055_b2b_product_favorites.sql",
+      "supabase/migrations/20261007194241_b2b_unified_storefront.sql",
+      "supabase/migrations/20261010220842_recurring_customer_orders.sql",
+      "supabase/migrations/20261015183918_sales_dossier_views_and_portal.sql",
+      "supabase/migrations/20261024130530_b2b_distribution_agreements.sql",
+      "supabase/migrations/20261029201003_gama_ecommerce_workflows.sql",
+      "supabase/migrations/20261029215055_gama_compliance_workspace.sql",
+      "tests/b2b-distribution-db.test.cjs",
+      "tests/b2b-product-favorites-db.test.cjs",
+      "tests/commerce-workflows-db.test.cjs",
+      "tests/ec-b2b-management-stock-db.test.cjs"
+    ],
+    "local_checks": [
+      {
+        "agent_id": "recon_controls",
+        "reviewed_paths": [
+          "src/features/website/store-admin.js",
+          "src/storefront/b2b.js",
+          "supabase/functions/architect-user-admin/handler.mjs",
+          "supabase/functions/gama-sri/index.ts",
+          "supabase/migrations/20261005014142_ec_b2b_customer_portal.sql",
+          "supabase/migrations/20261005151929_b2b_customer_documents_center.sql",
+          "supabase/migrations/20261005155700_customer_followup_flows.sql",
+          "supabase/migrations/20261007073708_product_illustrative_photos.sql",
+          "supabase/migrations/20261007190055_b2b_product_favorites.sql",
+          "supabase/migrations/20261007194241_b2b_unified_storefront.sql",
+          "supabase/migrations/20261010220842_recurring_customer_orders.sql",
+          "supabase/migrations/20261015183918_sales_dossier_views_and_portal.sql",
+          "supabase/migrations/20261024130530_b2b_distribution_agreements.sql",
+          "supabase/migrations/20261029201003_gama_ecommerce_workflows.sql",
+          "supabase/migrations/20261029215055_gama_compliance_workspace.sql",
+          "tests/b2b-distribution-db.test.cjs",
+          "tests/b2b-product-favorites-db.test.cjs",
+          "tests/commerce-workflows-db.test.cjs",
+          "tests/ec-b2b-management-stock-db.test.cjs"
+        ],
+        "invariant": "private.gama_b2b_customer",
+        "method": "source",
+        "result": "Current company and MFA derived server-side; documents/approvals/recurring scoped and repriced. Favorites set/list/ids omit publication and company product restriction; legacy photo also active-goods only. Main catalogue correctly routed to restricted projection.",
+        "artifact": null
+      },
+      {
+        "agent_id": "verify_b2b",
+        "reviewed_paths": [
+          "supabase/migrations/20261007190055_b2b_product_favorites.sql",
+          "supabase/migrations/20261029201003_gama_ecommerce_workflows.sql",
+          "src/features/website/store-admin.js"
+        ],
+        "invariant": "Independently refute alternate catalogue restriction bypass",
+        "method": "source",
+        "result": "Favorites and photo source lead retained needs_validation; main historical catalog variant refuted; SQL runtime and deployed definitions unresolved.",
+        "artifact": null
+      }
+    ],
+    "result_fingerprints": [
+      "b2b-product-favorites:missing-publication-and-catalogue-scope"
+    ],
+    "unresolved": [
+      "PGlite unavailable: no bounded SQL result established."
+    ],
+    "final_record_verifier": "final_verify",
+    "final_record_decision": "verified"
+  },
+  {
+    "coverage_id": "public.gama_commerce%23b2b::private.gama_b2b_cart::commerce::ATTACK-CLASSES.md%23Business%20logic",
+    "canonical_refs": {
+      "surface": "public.gama_commerce#b2b",
+      "boundary": "private.gama_b2b_cart",
+      "subsystem": "commerce",
+      "attack_class": "ATTACK-CLASSES.md#Business logic"
+    },
+    "surface": "public.gama_commerce#b2b",
+    "boundary": "private.gama_b2b_cart",
+    "subsystem": "commerce",
+    "attack_class": "Business logic",
+    "starting_paths": [
+      "supabase/migrations",
+      "src/storefront/b2b.js"
+    ],
+    "ordinary_attack_class_block": "ATTACK-CLASSES.md#Business logic",
+    "selected_companion_blocks": [
+      "DATA-ISOLATION-AND-LIFECYCLE.md#Core discipline",
+      "DATA-ISOLATION-AND-LIFECYCLE.md#Policy and query disagreement",
+      "DATA-ISOLATION-AND-LIFECYCLE.md#Universal moves",
+      "DATA-ISOLATION-AND-LIFECYCLE.md#Validation rules"
+    ],
+    "excluded_blocks": [
+      {
+        "block": "MEMORY-SAFETY-AND-BINARY.md",
+        "reason": "No native binary parsing boundary in public storefront source."
+      },
+      {
+        "block": "AI-AND-LLM.md",
+        "reason": "ERP AI gateway is outside public website scope."
+      }
+    ],
+    "prior_status": "none",
+    "attempts": [],
+    "wave": 1,
+    "status": "covered",
+    "agent_id": "recon_controls",
+    "reviewed_paths": [
+      "src/features/website/store-admin.js",
+      "src/storefront/b2b.js",
+      "supabase/functions/architect-user-admin/handler.mjs",
+      "supabase/functions/gama-sri/index.ts",
+      "supabase/migrations/20261005014142_ec_b2b_customer_portal.sql",
+      "supabase/migrations/20261005151929_b2b_customer_documents_center.sql",
+      "supabase/migrations/20261005155700_customer_followup_flows.sql",
+      "supabase/migrations/20261007073708_product_illustrative_photos.sql",
+      "supabase/migrations/20261007190055_b2b_product_favorites.sql",
+      "supabase/migrations/20261007194241_b2b_unified_storefront.sql",
+      "supabase/migrations/20261010220842_recurring_customer_orders.sql",
+      "supabase/migrations/20261015183918_sales_dossier_views_and_portal.sql",
+      "supabase/migrations/20261024130530_b2b_distribution_agreements.sql",
+      "supabase/migrations/20261029201003_gama_ecommerce_workflows.sql",
+      "supabase/migrations/20261029215055_gama_compliance_workspace.sql",
+      "tests/b2b-distribution-db.test.cjs",
+      "tests/b2b-product-favorites-db.test.cjs",
+      "tests/commerce-workflows-db.test.cjs",
+      "tests/ec-b2b-management-stock-db.test.cjs"
+    ],
+    "local_checks": [
+      {
+        "agent_id": "recon_controls",
+        "reviewed_paths": [
+          "src/features/website/store-admin.js",
+          "src/storefront/b2b.js",
+          "supabase/functions/architect-user-admin/handler.mjs",
+          "supabase/functions/gama-sri/index.ts",
+          "supabase/migrations/20261005014142_ec_b2b_customer_portal.sql",
+          "supabase/migrations/20261005151929_b2b_customer_documents_center.sql",
+          "supabase/migrations/20261005155700_customer_followup_flows.sql",
+          "supabase/migrations/20261007073708_product_illustrative_photos.sql",
+          "supabase/migrations/20261007190055_b2b_product_favorites.sql",
+          "supabase/migrations/20261007194241_b2b_unified_storefront.sql",
+          "supabase/migrations/20261010220842_recurring_customer_orders.sql",
+          "supabase/migrations/20261015183918_sales_dossier_views_and_portal.sql",
+          "supabase/migrations/20261024130530_b2b_distribution_agreements.sql",
+          "supabase/migrations/20261029201003_gama_ecommerce_workflows.sql",
+          "supabase/migrations/20261029215055_gama_compliance_workspace.sql",
+          "tests/b2b-distribution-db.test.cjs",
+          "tests/b2b-product-favorites-db.test.cjs",
+          "tests/commerce-workflows-db.test.cjs",
+          "tests/ec-b2b-management-stock-db.test.cjs"
+        ],
+        "invariant": "private.gama_b2b_cart",
+        "method": "source",
+        "result": "Current company and MFA derived server-side; documents/approvals/recurring scoped and repriced. Favorites set/list/ids omit publication and company product restriction; legacy photo also active-goods only. Main catalogue correctly routed to restricted projection.",
+        "artifact": null
+      }
+    ],
+    "result_fingerprints": [],
+    "unresolved": []
+  },
+  {
+    "coverage_id": "public.gama_commerce%23guest::storefront_api.commerce_guard::guest::ATTACK-CLASSES.md%23Business%20logic",
+    "canonical_refs": {
+      "surface": "public.gama_commerce#guest",
+      "boundary": "storefront_api.commerce_guard",
+      "subsystem": "guest",
+      "attack_class": "ATTACK-CLASSES.md#Business logic"
+    },
+    "surface": "public.gama_commerce#guest",
+    "boundary": "storefront_api.commerce_guard",
+    "subsystem": "guest",
+    "attack_class": "Business logic",
+    "starting_paths": [
+      "src/storefront/server/api.mjs",
+      "src/storefront/server/surveys-api.mjs",
+      "supabase/migrations"
+    ],
+    "ordinary_attack_class_block": "ATTACK-CLASSES.md#Business logic",
+    "selected_companion_blocks": [
+      "DATA-ISOLATION-AND-LIFECYCLE.md#Core discipline",
+      "DATA-ISOLATION-AND-LIFECYCLE.md#Missing tenant or owner enforcement",
+      "DATA-ISOLATION-AND-LIFECYCLE.md#Retention and queued-work overrun",
+      "DATA-ISOLATION-AND-LIFECYCLE.md#Universal moves",
+      "DATA-ISOLATION-AND-LIFECYCLE.md#Validation rules"
+    ],
+    "excluded_blocks": [
+      {
+        "block": "MEMORY-SAFETY-AND-BINARY.md",
+        "reason": "No native binary parsing boundary in public storefront source."
+      },
+      {
+        "block": "AI-AND-LLM.md",
+        "reason": "ERP AI gateway is outside public website scope."
+      }
+    ],
+    "prior_status": "none",
+    "attempts": [],
+    "wave": 1,
+    "status": "covered",
+    "agent_id": "recon_surfaces",
+    "reviewed_paths": [
+      "src/storefront/server/api.mjs",
+      "src/storefront/server/surveys-api.mjs",
+      "src/storefront/surveys.js",
+      "src/features/surveys/survey-form.js",
+      "supabase/functions/_shared/http.mjs",
+      "supabase/migrations/20261003091337_public_storefront.sql",
+      "supabase/migrations/20261003152338_surveys.sql",
+      "supabase/migrations/20261019185130_audit_catalogue_projection.sql",
+      "supabase/migrations/20261029201003_gama_ecommerce_workflows.sql",
+      "supabase/migrations/20261029215055_gama_compliance_workspace.sql"
+    ],
+    "local_checks": [
+      {
+        "agent_id": "recon_surfaces",
+        "reviewed_paths": [
+          "src/storefront/server/api.mjs",
+          "src/storefront/server/surveys-api.mjs",
+          "src/storefront/surveys.js",
+          "src/features/surveys/survey-form.js",
+          "supabase/functions/_shared/http.mjs",
+          "supabase/migrations/20261003091337_public_storefront.sql",
+          "supabase/migrations/20261003152338_surveys.sql",
+          "supabase/migrations/20261019185130_audit_catalogue_projection.sql",
+          "supabase/migrations/20261029201003_gama_ecommerce_workflows.sql",
+          "supabase/migrations/20261029215055_gama_compliance_workspace.sql"
+        ],
+        "invariant": "storefront_api.commerce_guard",
+        "method": "source",
+        "result": "Same-origin, secret, IP injection and human verification guards consistent; guest receipt capabilities bound by id/token; prices server calculated and policy snapshots retained on checkout/cases. Survey question IDs restricted to safe identifier regex and types validated in SQL before escaped shared renderer. No injection or public capability bypass found.",
+        "artifact": null
+      }
+    ],
+    "result_fingerprints": [],
+    "unresolved": [],
+    "hardening_notes": [
+      "Bind quote policy version to exact server bundle; shared email/global quota serialization needs local concurrency validation; detailed GAMA privacy notice missing on standalone public surveys."
+    ]
+  },
+  {
+    "coverage_id": "public.gama_compliance_admin::private.gama_compliance_admin%23case-and-retention-authority::compliance-administration::ATTACK-CLASSES.md%23Access%20control",
+    "canonical_refs": {
+      "surface": "public.gama_compliance_admin",
+      "boundary": "private.gama_compliance_admin#case-and-retention-authority",
+      "subsystem": "compliance-administration",
+      "attack_class": "ATTACK-CLASSES.md#Access control"
+    },
+    "surface": "public.gama_compliance_admin",
+    "boundary": "private.gama_compliance_admin#case-and-retention-authority",
+    "subsystem": "compliance-administration",
+    "attack_class": "Access control",
+    "starting_paths": [
+      "src/features/website/compliance-admin.js",
+      "supabase/migrations/20261029215055_gama_compliance_workspace.sql",
+      "tests/commerce-compliance-db.test.cjs"
+    ],
+    "ordinary_attack_class_block": "ATTACK-CLASSES.md#Access control",
+    "selected_companion_blocks": [
+      "DATA-ISOLATION-AND-LIFECYCLE.md#Core discipline",
+      "DATA-ISOLATION-AND-LIFECYCLE.md#Universal moves",
+      "DATA-ISOLATION-AND-LIFECYCLE.md#Validation rules"
+    ],
+    "excluded_blocks": [],
+    "prior_status": "none",
+    "attempts": [],
+    "wave": 2,
+    "status": "covered",
+    "agent_id": "admin_hunter",
+    "reviewed_paths": [
+      "src/features/website/compliance-admin.js",
+      "supabase/migrations/20261005014142_ec_b2b_customer_portal.sql",
+      "supabase/migrations/20261019185155_audit_security_gates.sql",
+      "supabase/migrations/20261029201003_gama_ecommerce_workflows.sql",
+      "supabase/migrations/20261029215055_gama_compliance_workspace.sql",
+      "tests/commerce-compliance-db.test.cjs"
+    ],
+    "local_checks": [
+      {
+        "agent_id": "admin_hunter",
+        "reviewed_paths": [
+          "src/features/website/compliance-admin.js",
+          "supabase/migrations/20261005014142_ec_b2b_customer_portal.sql",
+          "supabase/migrations/20261019185155_audit_security_gates.sql",
+          "supabase/migrations/20261029201003_gama_ecommerce_workflows.sql",
+          "supabase/migrations/20261029215055_gama_compliance_workspace.sql",
+          "tests/commerce-compliance-db.test.cjs"
+        ],
+        "invariant": "private.gama_compliance_admin#case-and-retention-authority",
+        "method": "source",
+        "result": "Revue directe des garde acteur/admin/module/MFA et edit; versions optimistes/verrous; validation des associations B2B/approbateurs; dossiers privés, preuves/identité avant clôture, conservation approuvée avec gel et contrôle de modération. Aucun franchissement concret établi.",
+        "artifact": null
+      }
+    ],
+    "result_fingerprints": [],
+    "unresolved": []
+  },
+  {
+    "coverage_id": "public.gama_website::private.gama_website%23administrator-publication-and-connection::website-administration::ATTACK-CLASSES.md%23Access%20control",
+    "canonical_refs": {
+      "surface": "public.gama_website",
+      "boundary": "private.gama_website#administrator-publication-and-connection",
+      "subsystem": "website-administration",
+      "attack_class": "ATTACK-CLASSES.md#Access control"
+    },
+    "surface": "public.gama_website",
+    "boundary": "private.gama_website#administrator-publication-and-connection",
+    "subsystem": "website-administration",
+    "attack_class": "Access control",
+    "starting_paths": [
+      "src/features/website/store-admin.js",
+      "supabase/migrations/20261003091337_public_storefront.sql",
+      "supabase/migrations/20261029215055_gama_compliance_workspace.sql"
+    ],
+    "ordinary_attack_class_block": "ATTACK-CLASSES.md#Access control",
+    "selected_companion_blocks": [
+      "WEB-PROTOCOL-AND-AUTH.md#Core discipline",
+      "WEB-PROTOCOL-AND-AUTH.md#Universal moves",
+      "WEB-PROTOCOL-AND-AUTH.md#Validation rules"
+    ],
+    "excluded_blocks": [],
+    "prior_status": "none",
+    "attempts": [],
+    "wave": 2,
+    "status": "covered",
+    "agent_id": "admin_hunter",
+    "reviewed_paths": [
+      "src/features/website/store-admin.js",
+      "supabase/migrations/20261003091337_public_storefront.sql",
+      "supabase/migrations/20261005014142_ec_b2b_customer_portal.sql",
+      "supabase/migrations/20261019185155_audit_security_gates.sql",
+      "supabase/migrations/20261029201003_gama_ecommerce_workflows.sql",
+      "supabase/migrations/20261029215055_gama_compliance_workspace.sql"
+    ],
+    "local_checks": [
+      {
+        "agent_id": "admin_hunter",
+        "reviewed_paths": [
+          "src/features/website/store-admin.js",
+          "supabase/migrations/20261003091337_public_storefront.sql",
+          "supabase/migrations/20261005014142_ec_b2b_customer_portal.sql",
+          "supabase/migrations/20261019185155_audit_security_gates.sql",
+          "supabase/migrations/20261029201003_gama_ecommerce_workflows.sql",
+          "supabase/migrations/20261029215055_gama_compliance_workspace.sql"
+        ],
+        "invariant": "private.gama_website#administrator-publication-and-connection",
+        "method": "source",
+        "result": "Revue directe des garde acteur/admin/module/MFA et edit; versions optimistes/verrous; validation des associations B2B/approbateurs; dossiers privés, preuves/identité avant clôture, conservation approuvée avec gel et contrôle de modération. Aucun franchissement concret établi.",
+        "artifact": null
+      }
+    ],
+    "result_fingerprints": [],
+    "unresolved": []
+  },
+  {
+    "coverage_id": "scripts%2Fbuild-storefront.cjs::scripts%2Fbuild-storefront.cjs%23publication::release::ATTACK-CLASSES.md%23Obvious%20things",
+    "canonical_refs": {
+      "surface": "scripts/build-storefront.cjs",
+      "boundary": "scripts/build-storefront.cjs#publication",
+      "subsystem": "release",
+      "attack_class": "ATTACK-CLASSES.md#Obvious things"
+    },
+    "surface": "scripts/build-storefront.cjs",
+    "boundary": "scripts/build-storefront.cjs#publication",
+    "subsystem": "release",
+    "attack_class": "Obvious things",
+    "starting_paths": [
+      "scripts/build-storefront.cjs",
+      "src/storefront/_headers",
+      "src/storefront/server/middleware.mjs",
+      ".github/workflows",
+      "supabase/functions/_shared/http.mjs"
+    ],
+    "ordinary_attack_class_block": "ATTACK-CLASSES.md#Obvious things",
+    "selected_companion_blocks": [
+      "SUPPLY-CHAIN-AND-RELEASE.md#Core discipline",
+      "SUPPLY-CHAIN-AND-RELEASE.md#Universal moves",
+      "SUPPLY-CHAIN-AND-RELEASE.md#Validation rules"
+    ],
+    "excluded_blocks": [
+      {
+        "block": "MEMORY-SAFETY-AND-BINARY.md",
+        "reason": "No native binary parsing boundary in public storefront source."
+      },
+      {
+        "block": "AI-AND-LLM.md",
+        "reason": "ERP AI gateway is outside public website scope."
+      }
+    ],
+    "prior_status": "none",
+    "attempts": [],
+    "wave": 1,
+    "status": "covered",
+    "agent_id": "recon_execution",
+    "reviewed_paths": [
+      "scripts/build-storefront.cjs",
+      "config/storefront-runtime.json",
+      "src/storefront/_headers",
+      "src/storefront/server/api.mjs",
+      "src/storefront/server/surveys-api.mjs",
+      "src/storefront/server/middleware.mjs",
+      "supabase/functions/_shared/http.mjs",
+      ".github/workflows/storefront-interface.yml",
+      ".gitignore"
+    ],
+    "local_checks": [
+      {
+        "agent_id": "recon_execution",
+        "reviewed_paths": [
+          "scripts/build-storefront.cjs",
+          "config/storefront-runtime.json",
+          "src/storefront/_headers",
+          "src/storefront/server/api.mjs",
+          "src/storefront/server/surveys-api.mjs",
+          "src/storefront/server/middleware.mjs",
+          "supabase/functions/_shared/http.mjs",
+          ".github/workflows/storefront-interface.yml",
+          ".gitignore"
+        ],
+        "invariant": "scripts/build-storefront.cjs#publication",
+        "method": "source",
+        "result": "Explicit public build allowlist, intended publishable key only, no private credentials found. Dynamic API no-store and bounded streaming bodies/timeouts. Static security headers need explicit Functions propagation (hardening); dependencies not assessed against external CVE databases.",
+        "artifact": null
+      }
+    ],
+    "result_fingerprints": [],
+    "unresolved": [],
+    "hardening_notes": [
+      "Explicit security headers for Functions; broaden focused CI path filters; actual deployment settings and current advisories unobserved."
+    ]
+  },
+  {
+    "coverage_id": "src%2Fstorefront%2Fb2b.js%23customer-session::src%2Fstorefront%2Fb2b.js%23authEpoch::browser::ATTACK-CLASSES.md%23Feature%20abuse%20and%20data%20leakage",
+    "canonical_refs": {
+      "surface": "src/storefront/b2b.js#customer-session",
+      "boundary": "src/storefront/b2b.js#authEpoch",
+      "subsystem": "browser",
+      "attack_class": "ATTACK-CLASSES.md#Feature abuse and data leakage"
+    },
+    "surface": "src/storefront/b2b.js#customer-session",
+    "boundary": "src/storefront/b2b.js#authEpoch",
+    "subsystem": "browser",
+    "attack_class": "Feature abuse and data leakage",
+    "starting_paths": [
+      "src/storefront/site.js",
+      "src/storefront/b2b.js",
+      "src/storefront/commerce.js"
+    ],
+    "ordinary_attack_class_block": "ATTACK-CLASSES.md#Feature abuse and data leakage",
+    "selected_companion_blocks": [
+      "CLIENT-SIDE.md#Core discipline",
+      "CLIENT-SIDE.md#Browser-storage disclosure and stale authorization",
+      "CLIENT-SIDE.md#Universal moves",
+      "CLIENT-SIDE.md#Validation rules"
+    ],
+    "excluded_blocks": [
+      {
+        "block": "MEMORY-SAFETY-AND-BINARY.md",
+        "reason": "No native binary parsing boundary in public storefront source."
+      },
+      {
+        "block": "AI-AND-LLM.md",
+        "reason": "ERP AI gateway is outside public website scope."
+      }
+    ],
+    "prior_status": "none",
+    "attempts": [],
+    "wave": 1,
+    "status": "covered",
+    "agent_id": "recon_stack",
+    "reviewed_paths": [
+      "src/storefront/site.js",
+      "src/storefront/b2b.js",
+      "src/storefront/commerce.js",
+      "src/storefront/index.html",
+      "src/storefront/b2b.html",
+      "src/storefront/_headers",
+      "tests/storefront.spec.js",
+      "tests/b2b-portal.spec.js"
+    ],
+    "local_checks": [
+      {
+        "agent_id": "recon_stack",
+        "reviewed_paths": [
+          "src/storefront/site.js",
+          "src/storefront/b2b.js",
+          "src/storefront/commerce.js",
+          "src/storefront/index.html",
+          "src/storefront/b2b.html",
+          "src/storefront/_headers",
+          "tests/storefront.spec.js",
+          "tests/b2b-portal.spec.js"
+        ],
+        "invariant": "src/storefront/b2b.js#authEpoch",
+        "method": "source",
+        "result": "HTML fields escaped, URL/image schemes constrained. authEpoch invalidates in-flight private responses and clears DOM, blob URLs, cart, favorites and bootstrap on logout/revocation. No source-supported DOM or stale-session boundary failure.",
+        "artifact": null
+      }
+    ],
+    "result_fingerprints": [],
+    "unresolved": [],
+    "hardening_notes": [
+      "Inventory external image hosts; canonicalize restored quantities."
+    ]
+  },
+  {
+    "coverage_id": "src%2Fstorefront%2Fserver%2Fapi.mjs%23onRequest::readJsonBody::availability::ATTACK-CLASSES.md%23Resource%20and%20file%20handling",
+    "canonical_refs": {
+      "surface": "src/storefront/server/api.mjs#onRequest",
+      "boundary": "readJsonBody",
+      "subsystem": "availability",
+      "attack_class": "ATTACK-CLASSES.md#Resource and file handling"
+    },
+    "surface": "src/storefront/server/api.mjs#onRequest",
+    "boundary": "readJsonBody",
+    "subsystem": "availability",
+    "attack_class": "Resource and file handling",
+    "starting_paths": [
+      "scripts/build-storefront.cjs",
+      "src/storefront/_headers",
+      "src/storefront/server/middleware.mjs",
+      ".github/workflows",
+      "supabase/functions/_shared/http.mjs"
+    ],
+    "ordinary_attack_class_block": "ATTACK-CLASSES.md#Resource and file handling",
+    "selected_companion_blocks": [
+      "RESOURCE-EXHAUSTION-AND-AVAILABILITY.md#Core discipline",
+      "RESOURCE-EXHAUSTION-AND-AVAILABILITY.md#Universal moves",
+      "RESOURCE-EXHAUSTION-AND-AVAILABILITY.md#Validation rules"
+    ],
+    "excluded_blocks": [
+      {
+        "block": "MEMORY-SAFETY-AND-BINARY.md",
+        "reason": "No native binary parsing boundary in public storefront source."
+      },
+      {
+        "block": "AI-AND-LLM.md",
+        "reason": "ERP AI gateway is outside public website scope."
+      }
+    ],
+    "prior_status": "none",
+    "attempts": [],
+    "wave": 1,
+    "status": "covered",
+    "agent_id": "recon_execution",
+    "reviewed_paths": [
+      "scripts/build-storefront.cjs",
+      "config/storefront-runtime.json",
+      "src/storefront/_headers",
+      "src/storefront/server/api.mjs",
+      "src/storefront/server/surveys-api.mjs",
+      "src/storefront/server/middleware.mjs",
+      "supabase/functions/_shared/http.mjs",
+      ".github/workflows/storefront-interface.yml",
+      ".gitignore"
+    ],
+    "local_checks": [
+      {
+        "agent_id": "recon_execution",
+        "reviewed_paths": [
+          "scripts/build-storefront.cjs",
+          "config/storefront-runtime.json",
+          "src/storefront/_headers",
+          "src/storefront/server/api.mjs",
+          "src/storefront/server/surveys-api.mjs",
+          "src/storefront/server/middleware.mjs",
+          "supabase/functions/_shared/http.mjs",
+          ".github/workflows/storefront-interface.yml",
+          ".gitignore"
+        ],
+        "invariant": "readJsonBody",
+        "method": "source",
+        "result": "Explicit public build allowlist, intended publishable key only, no private credentials found. Dynamic API no-store and bounded streaming bodies/timeouts. Static security headers need explicit Functions propagation (hardening); dependencies not assessed against external CVE databases.",
+        "artifact": null
+      }
+    ],
+    "result_fingerprints": [],
+    "unresolved": [],
+    "hardening_notes": [
+      "Explicit security headers for Functions; broaden focused CI path filters; actual deployment settings and current advisories unobserved."
+    ]
+  },
+  {
+    "coverage_id": "src%2Fstorefront%2Fsite.js%23public-render::src%2Fstorefront%2Fsite.js%23escaped-dom::browser::ATTACK-CLASSES.md%23Injection",
+    "canonical_refs": {
+      "surface": "src/storefront/site.js#public-render",
+      "boundary": "src/storefront/site.js#escaped-dom",
+      "subsystem": "browser",
+      "attack_class": "ATTACK-CLASSES.md#Injection"
+    },
+    "surface": "src/storefront/site.js#public-render",
+    "boundary": "src/storefront/site.js#escaped-dom",
+    "subsystem": "browser",
+    "attack_class": "Injection",
+    "starting_paths": [
+      "src/storefront/site.js",
+      "src/storefront/b2b.js",
+      "src/storefront/commerce.js"
+    ],
+    "ordinary_attack_class_block": "ATTACK-CLASSES.md#Injection",
+    "selected_companion_blocks": [
+      "CLIENT-SIDE.md#Core discipline",
+      "CLIENT-SIDE.md#DOM-based XSS",
+      "CLIENT-SIDE.md#Client-side navigation confusion",
+      "CLIENT-SIDE.md#Universal moves",
+      "CLIENT-SIDE.md#Validation rules"
+    ],
+    "excluded_blocks": [
+      {
+        "block": "MEMORY-SAFETY-AND-BINARY.md",
+        "reason": "No native binary parsing boundary in public storefront source."
+      },
+      {
+        "block": "AI-AND-LLM.md",
+        "reason": "ERP AI gateway is outside public website scope."
+      }
+    ],
+    "prior_status": "none",
+    "attempts": [],
+    "wave": 1,
+    "status": "covered",
+    "agent_id": "recon_stack",
+    "reviewed_paths": [
+      "src/storefront/site.js",
+      "src/storefront/b2b.js",
+      "src/storefront/commerce.js",
+      "src/storefront/index.html",
+      "src/storefront/b2b.html",
+      "src/storefront/_headers",
+      "tests/storefront.spec.js",
+      "tests/b2b-portal.spec.js"
+    ],
+    "local_checks": [
+      {
+        "agent_id": "recon_stack",
+        "reviewed_paths": [
+          "src/storefront/site.js",
+          "src/storefront/b2b.js",
+          "src/storefront/commerce.js",
+          "src/storefront/index.html",
+          "src/storefront/b2b.html",
+          "src/storefront/_headers",
+          "tests/storefront.spec.js",
+          "tests/b2b-portal.spec.js"
+        ],
+        "invariant": "src/storefront/site.js#escaped-dom",
+        "method": "source",
+        "result": "HTML fields escaped, URL/image schemes constrained. authEpoch invalidates in-flight private responses and clears DOM, blob URLs, cart, favorites and bootstrap on logout/revocation. No source-supported DOM or stale-session boundary failure.",
+        "artifact": null
+      }
+    ],
+    "result_fingerprints": [],
+    "unresolved": [],
+    "hardening_notes": [
+      "Inventory external image hosts; canonicalize restored quantities."
+    ]
+  }
+]

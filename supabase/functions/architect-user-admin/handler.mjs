@@ -1,3 +1,4 @@
+import {identityEdgeResource} from '../_shared/identity-step-up.mjs';
 import {readJsonBody,BodyError} from '../_shared/http.mjs';
 const origin='https://lisciandraj.github.io';
 const uuid=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -24,6 +25,8 @@ export function createHandler({env,fetch:fetcher}){
  const subject=clean(data.subject,150),message=clean(data.message,4000),company=clean(data.company,200);
  if((data.subject!==undefined&&!subject)||(data.message!==undefined&&!message))return reply({error:'INVALID_INVITATION'},400);
  const meta={full_name:name};if(b2b)meta.b2b_portal=true;if(subject)meta.invite_subject=subject;if(message)meta.invite_message=message;if(company)meta.company_name=company;
+ const proof=await request('/rest/v1/rpc/coco_identity_admin_authorize',{method:'POST',body:{p_resource:await identityEdgeResource(data.action,email,role,b2b?data.customer_id.toLowerCase():'')}});
+ if(!proof.ok||proof.data!==true)return reply({error:'IDENTITY_STEP_UP_REQUIRED'},403);
  // Supabase sends the invitation only for this explicit user action. New accounts remain inactive.
  const invited=await request('/auth/v1/invite?redirect_to='+encodeURIComponent(origin+'/Pro-manager-Gama/?setup=password'),{method:'POST',admin:true,body:{email,data:meta}});
  if(!invited.ok)return reply({error:invited.status===429?'INVITATION_RATE_LIMIT':'INVITATION_FAILED'},invited.status===429?429:400);

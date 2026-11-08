@@ -1,0 +1,7 @@
+[
+  {"id":"auth-config","path":"/etc/coco/vault/auth-config.json"},
+  {"id":"dns-config","path":"/etc/coco/vault/dns-config.json"},
+  {"id":"sri-certificate","path":"/etc/coco/vault/sri-certificate.p12"},
+  {"id":"sri-environment","path":"/etc/coco/vault/sri.env"},
+  {"id":"provider-secrets","path":"/etc/coco/vault/provider-secrets.json"}
+]

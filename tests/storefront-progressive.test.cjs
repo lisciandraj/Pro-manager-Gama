@@ -1,6 +1,6 @@
 const {test}=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm'),path=require('node:path');
 const tick=()=>new Promise(resolve=>setImmediate(resolve));
-function harness(){
+function harness({customer=false}={}){
  class Element{
   constructor(){this.html='';this.dataset={};this.attributes={};this.edited=false}
   get innerHTML(){return this.html}set innerHTML(value){this.html=value;this.edited=false}
@@ -10,9 +10,9 @@ function harness(){
   addEventListener(){}close(){}scrollIntoView(){}
  }
  const elements=new Map(),element=id=>{if(!elements.has(id))elements.set(id,new Element());return elements.get(id)},pending=[],calls=[],signals=[];
- const context={AbortController,AbortSignal,URL,Intl,Map,Set,Promise,setTimeout,clearTimeout,sessionStorage:{getItem:()=>null,removeItem:()=>{}},document:{getElementById:element,querySelectorAll:()=>[],addEventListener:()=>{}},window:{GamaCustomer:{isActive:()=>false,ready:new Promise(()=>{})},addEventListener:()=>{}},fetch:async(_,options)=>{signals.push(options.signal);const data=JSON.parse(options.body);calls.push(data);return new Promise(resolve=>pending.push({data,resolve}))}};
+ const context={AbortController,AbortSignal,URL,Intl,Map,Set,Promise,setTimeout,clearTimeout,sessionStorage:{getItem:()=>null,removeItem:()=>{}},document:{getElementById:element,querySelectorAll:()=>[],addEventListener:()=>{}},window:{GamaCustomer:{isActive:()=>customer,ready:new Promise(()=>{})},addEventListener:()=>{}},fetch:async(_,options)=>{signals.push(options.signal);const data=JSON.parse(options.body);calls.push(data);return new Promise(resolve=>pending.push({data,resolve}))}};
  let source=fs.readFileSync(path.join(__dirname,'../src/storefront/site.js'),'utf8');
- source=source.replace(/\}\)\(\);\s*$/,"window.probe={catalogue,sessionChanged,setup(s='',o=0){boot={categories:[]};cfg={enable_quotes:true};search=s;offset=o}};})();");
+ source=source.replace(/\}\)\(\);\s*$/,"window.probe={catalogue,sessionChanged,priceHTML,collectionSettings,setup(s='',o=0){boot={categories:[]};cfg={enable_quotes:true,show_prices:true};search=s;offset=o}};})();");
  vm.runInNewContext(source,context);context.window.probe.setup();
  const answer=(items,total=205,status=200)=>{const p=pending.shift();assert.ok(p,'request pending');p.resolve({ok:status===200,json:async()=>status===200?{items,total}:({error:'WEBSITE_UNAVAILABLE'})});return p.data};
  return {api:context.window.probe,element,pending,calls,signals,answer};
@@ -44,4 +44,22 @@ test('failed later batch preserves usable cards and exposes an error instead of 
 });
 test('pagination follows the number actually returned by a smaller server cap',async()=>{
  const h=harness(),done=h.api.catalogue();h.answer(rows(1,20),40);await tick();assert.equal(h.pending[0].data.p_data.offset,20);h.answer(rows(21,20),40);await done;assert.equal(count(h),40);
+});
+test('negotiated prices keep the net amount and show each product tax-inclusive equivalent',()=>{
+ const company=harness({customer:true}),guest=harness(),money=value=>new Intl.NumberFormat('es-EC',{style:'currency',currency:'USD'}).format(value);
+ for(const [tax_rate,total] of [[15,4.6],[0,4],[5,4.2]]){
+  const product={unit_price:4,tax_rate},html=company.api.priceHTML(product);
+  assert.ok(html.includes('<strong>'+money(4)+'</strong>'),'negotiated net price is retained');
+  assert.ok(html.includes('Tu precio · Sin IVA'));
+  assert.ok(html.includes('<small>'+money(total)+' IVA incluido</small>'),'gross price uses the product tax rate');
+  const publicHTML=guest.api.priceHTML(product);assert.ok(publicHTML.includes('<strong>'+money(total)+'</strong>'));assert.ok(!publicHTML.includes('Sin IVA'));
+ }
+ assert.ok(!company.api.priceHTML({unit_price:null,tax_rate:15}).includes('IVA incluido'),'unknown prices remain a consultation');
+});
+
+test('incomplete legal information disables commercial intake without hiding published catalogue settings',()=>{
+ const h=harness(),settings={enable_quotes:true,brand_name:'GAMA',show_prices:true};
+ const blocked=h.api.collectionSettings(settings,false);assert.equal(blocked.enable_quotes,false);assert.equal(blocked.brand_name,'GAMA');assert.equal(blocked.show_prices,true);assert.equal(settings.enable_quotes,true);
+ assert.equal(h.api.collectionSettings(settings,true).enable_quotes,true);assert.equal(h.api.collectionSettings({...settings,enable_quotes:false},true).enable_quotes,false);
+ assert.equal(h.api.collectionSettings(settings,undefined).enable_quotes,true,'older bootstrap contracts remain compatible');
 });

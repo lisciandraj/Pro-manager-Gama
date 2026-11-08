@@ -1,0 +1,13 @@
+{
+  "version": "20261107220404",
+  "name": "security_monitor_aggregates",
+  "file": "20261107212039_security_monitor_aggregates.sql",
+  "sha256": "c75251e410c6252f61a1dd089dea216f038a307d36330714e85a19ce71816569",
+  "statement_count": 1,
+  "bytes": 5541,
+  "source": "supabase_migrations.schema_migrations.statements[1]",
+  "project": "mknsaibrewksgomuslev",
+  "verified_on": "2026-11-07",
+  "encoding": "UTF-8",
+  "purpose": "Exact installed SQL SHA-256 verified against canonical source; schema-only migration, never replay in production."
+}

@@ -55,7 +55,7 @@ async function vehicleEdit(r,profile,dimensions,onDone){let d;d=dialog({classNam
 }
 
 function download(name,content,type){const blob=new Blob([content],{type}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)}
-const csvCell=v=>{const s=String(v??'');return '"'+(/^\s*[=+@-]|^[\t\r\n]/.test(s)?"'"+s:s).replace(/"/g,'""')+'"'};
+const csvCell=v=>U.csvCell(v);
 async function exportData(period,format){
  const data=await rpc('export',period);if(data.items.length>10000)throw Error(t('Reduce el período: más de 10000 entregas.','Réduisez la période : plus de 10 000 livraisons.','Reduce the period: over 10,000 deliveries.'));
  if(format==='gpx'){

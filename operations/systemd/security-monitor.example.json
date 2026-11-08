@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "project_ref": "mknsaibrewksgomuslev",
+  "window_minutes": 15,
+  "ingestion_lag_minutes": 3,
+  "thresholds": {
+    "privileged_role_change": 1,
+    "sensitive_export": 1,
+    "auth_denial": 10,
+    "mfa_removed": 1,
+    "ai_budget_rejected": 1
+  },
+  "backup": null,
+  "certificates": []
+}

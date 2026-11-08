@@ -1,0 +1,16 @@
+[Unit]
+Description=Report eligible expired encrypted backups without deletion
+
+[Service]
+Type=oneshot
+User=coco-backup
+Group=coco-backup
+EnvironmentFile=/etc/coco/backup.env
+# Keep dry-run until an approved policy and external immutable copies are verified.
+ExecStart=/usr/bin/python3 /opt/coco/scripts/coco-operations.py retention --root /srv/coco-backups --policy /etc/coco/backup-retention.json --send-alert
+UMask=0077
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+ReadOnlyPaths=/srv/coco-backups /etc/coco
+TimeoutStartSec=30m

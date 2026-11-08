@@ -1,0 +1,13 @@
+[Unit]
+Description=Report a failed Coco backup through sanitized health alert
+
+[Service]
+Type=oneshot
+User=coco-backup
+Group=coco-backup
+EnvironmentFile=/etc/coco/backup.env
+ExecStart=/usr/bin/python3 /opt/coco/scripts/coco-operations.py alert --event backup_failed --send-alert
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+ReadOnlyPaths=/srv/coco-backups /etc/coco

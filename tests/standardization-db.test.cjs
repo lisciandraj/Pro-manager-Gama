@@ -28,7 +28,11 @@ test('reconstructed schema preserves domain dispatch results, errors and permiss
   await db.exec(`insert into auth.users(id,email) values('${admin}','admin@example.invalid'),('${client}','client@example.invalid');update profiles set active=true,role=case when id='${admin}' then 'administrador' else 'cliente' end;`);
   const probe=async(domain,action)=>{
    await db.exec('savepoint probe');
-   try{const r=await db.query(`select public.gama_${domain}_action($1,$2) as result`,[action,{}]);const result=r.rows[0].result;if(result?.checked_at)result.checked_at=!!Date.parse(result.checked_at);return{ok:true,result};}
+   // Receipt content validation is an intentional new storage boundary. Use a
+   // passive PDF signature so this parity probe still reaches the historical
+   // missing-expense constraint; invalid content has dedicated security tests.
+   const data=domain==='accounting'&&action==='expense_receipt'?{filename:'Parity fixture.pdf',mime_type:'application/pdf',data_url:'data:application/pdf;base64,'+Buffer.from('%PDF-1.7\n%%EOF').toString('base64')}:{};
+   try{const r=await db.query(`select public.gama_${domain}_action($1,$2) as result`,[action,data]);const result=r.rows[0].result;if(result?.checked_at)result.checked_at=!!Date.parse(result.checked_at);return{ok:true,result};}
    catch(e){return{ok:false,code:e.code,message:e.message};}
    finally{await db.exec('rollback to probe;release probe');}
   };

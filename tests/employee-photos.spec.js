@@ -46,14 +46,14 @@ test('the avatar isolates account changes and falls back for broken images',asyn
 });
 for(const width of [1440,390])test(`Coco reference surfaces fit at ${width}px and keep top bar controls accessible`,async({page})=>{
  await page.setViewportSize({width,height:1000});await boot(page);
- await expect(page.locator('.arcSidebar')).toHaveCSS('background-color','rgb(246, 246, 249)');
+ await expect(page.locator('.arcSidebar')).toHaveCSS('background-color','rgb(255, 255, 255)');
  await expect(page.locator('#mainmenu .gamaF2Card').first()).toHaveCSS('background-color','rgb(255, 255, 255)');
- // The compact app bar allows its subtitle to determine the painted height.
- // All profile, search and navigation controls must remain inside it.
+ // The compact app bar hides its subtitle and contains every visible control.
  const bar=page.locator('.arcTopbar');
  await expect(bar).toHaveCSS('background-color','rgb(255, 255, 255)');
+ await expect(bar.locator('.cocoModuleSubtitle')).toBeHidden();
  const bounds=await bar.boundingBox();
- expect(bounds.height).toBeGreaterThanOrEqual(80);expect(bounds.height).toBeLessThanOrEqual(width>=1180?96:80);expect(bounds.width).toBe(width-(width>=1180?256:0));expect(bounds.y).toBe(0);
+ expect(bounds.height).toBe(64);expect(bounds.width).toBe(width-(width>=1180?256:0));expect(bounds.y).toBe(0);
  if(width>=1180){await expect(page.locator('.arcBurger')).toBeHidden();await expect(page.locator('.arcSidebar')).toBeVisible()}
  for(const selector of ['.arcAvatar',...(width>=1180?['.arcSearch input']:['.arcBurger'])]){
   const control=bar.locator(selector);await expect(control).toBeVisible();

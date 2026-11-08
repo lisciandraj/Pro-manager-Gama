@@ -1,13 +1,13 @@
 /* gama-crm-core.js */
 #crm .crmKpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:14px}
-#crm .crmKpi{background:#fff;border:1px solid var(--arc-line);border-radius:13px;padding:14px}
-#crm .crmKpi span{display:block;color:var(--arc-text-muted);font-size:11px;font-weight:700}
+#crm .crmKpi{background:#fff;border:1px solid var(--arc-line);border-radius:8px;padding:16px}
+#crm .crmKpi span{display:block;color:var(--arc-text-muted);font-size:12px;font-weight:500}
 #crm .crmKpi b{display:block;margin-top:6px;font-size:22px;color:var(--arc-text)}
 #crm .crmKpi small{display:block;margin-top:3px;color:var(--arc-text-subtle);font-size:11px}
-#crm .card{background:#fff;border:1px solid var(--gama-line,var(--arc-line-strong));border-radius:14px;padding:16px;margin-bottom:12px}
+#crm .card{background:#fff;border:1px solid var(--gama-line,var(--arc-line-strong));border-radius:8px;padding:16px;margin-bottom:12px}
 #crm .crmNav{display:flex;gap:7px;flex-wrap:wrap;margin:0 0 12px}
-#crm .crmNav button{background:#fff;border:1px solid var(--arc-line-strong);color:var(--arc-text);border-radius:999px;padding:9px 15px;font-weight:800;cursor:pointer;font-size:13px;width:auto;min-height:40px}
-#crm .crmNav button.on{background:var(--arc-accent-600);border-color:var(--arc-accent-600);color:#fff}
+#crm .crmNav button{background:#fff;border:1px solid var(--arc-line);color:var(--arc-text);border-radius:6px;padding:9px 14px;font-weight:500;cursor:pointer;font-size:13px;width:auto;min-height:40px}
+#crm .crmNav button.on{background:var(--arc-accent-100);border-color:var(--arc-line);color:var(--arc-text)}
 #crm .crmEmbudo{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
 #crm .crmCol{background:var(--arc-surface-2);border:1px solid var(--arc-surface-3);border-radius:11px;padding:11px}
 #crm .crmCol b{display:block;font-size:12.5px;color:var(--arc-text)}
@@ -22,7 +22,8 @@
 /* De aquí abajo, lo que comparten TODAS las listas y fichas del CRM. Vive en
    el núcleo y no en la primera pantalla que lo necesitó: si vive en una
    pantalla, abrir otra primero la deja sin estilo. */
-#crm .crmBar{display:grid;grid-template-columns:minmax(0,1fr) 190px auto;gap:8px;align-items:center;margin-bottom:12px}
+#crm .crmBar{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center;margin-bottom:16px}
+#crm .crmBar>span:empty{display:none}
 #crm .crmBar input,#crm .crmBar select{min-height:42px}
 #crm .crmTablaWrap{width:100%;overflow-x:auto}
 /* min-width:min-content y no una anchura fija: con un ancho clavado las celdas
@@ -55,22 +56,3 @@
  #crm .crmBar button{width:100%}
  #crm .crmTabla{--gamaCardsLabel:118px}
  #crm .crmAcc button{margin:0 4px 4px 0}}
-
-
-/* Coco Clair: native module finish, loaded on demand. */
-@media screen{
- body[data-app=coco-erp] .arcContent #crm .crmTarjPie{padding-top:10px;margin-top:10px;border-top:1px solid var(--coco-row-line)}
- body[data-app=coco-erp] .arcContent #crm .crmTarjPie b{font-size:16px;font-weight:600;font-variant-numeric:tabular-nums}
- body[data-app=coco-erp] .arcContent #crm .crmTablero .crmCol.crmDestino{background:var(--arc-accent-100);border:2px dashed var(--arc-accent-600)}
- body.cocoWorkbench #crm .crmTablero{gap:20px}
- body.cocoWorkbench #crm .crmTablero .crmCol{background:var(--coco-inset);border:0;border-radius:8px;padding:14px}
- body.cocoWorkbench #crm .crmTarjeta{background:white;border:1px solid var(--coco-line);border-radius:7px;padding:16px;box-shadow:none}}
-
-@media screen{body.cocoWorkbench .arcContent section#crm .crmKpis{gap:12px;border-bottom:1px solid var(--coco-line);padding-bottom:16px}body.cocoWorkbench .arcContent section#crm .crmKpi{border:0;border-radius:0;background:white;min-height:84px;padding:10px 14px}body.cocoWorkbench .arcContent section#crm .crmKpi strong{font-size:24px}}
-
-/* Geex / GAMA: the column is the canvas; the task owns its white surface. */
-@media screen{
- body.cocoWorkbench #crm .crmTablero .crmCol{background:transparent;border:0;border-radius:0;padding:0 2px}
- body.cocoWorkbench #crm .crmTablero{gap:24px}
- body.cocoWorkbench #crm .crmTarjeta{background:var(--coco-surface);border:0;border-radius:var(--arc-r-lg);padding:20px;margin-bottom:20px;box-shadow:var(--coco-surface-shadow)}
-}

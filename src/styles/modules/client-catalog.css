@@ -14,7 +14,7 @@
 /* Producto sin foto: el cubo del módulo Productos (gama-photos.js). */
 .gamaNoPhoto{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;color:var(--arc-text-subtle);vertical-align:middle}
 .ccNoImg .gamaNoPhoto{width:48px;height:48px;stroke-width:1.4}
-.ccFlag{position:absolute;top:6px;left:6px;background:var(--arc-accent-100);color:var(--arc-accent-600);border-radius:999px;padding:3px 9px;font-size:10px;font-weight:850}
+.ccFlag{position:absolute;top:6px;left:6px;background:var(--arc-accent-100);color:var(--arc-accent-700);border-radius:999px;padding:3px 9px;font-size:10px;font-weight:850}
 .ccInfo{grid-area:info;min-width:0}
 .ccProduct h3{overflow-wrap:anywhere;font-size:15px;margin:0 0 3px;line-height:1.25;color:var(--arc-text)}
 .ccBarcode{font-size:12px;color:var(--arc-text-muted);overflow-wrap:anywhere;margin-top:5px}.ccMeta{display:flex;flex-wrap:wrap;gap:4px 10px;font-size:11.5px;color:var(--arc-text-muted);margin-top:6px;overflow-wrap:anywhere}
@@ -40,7 +40,7 @@
 .ccResumen div{display:flex;justify-content:space-between;padding:4px 0;color:var(--arc-text-muted)}
 .ccResumen b{color:var(--arc-text)}
 .ccResumenTotal{margin-top:4px;padding-top:8px!important;border-top:1px solid var(--arc-line);font-size:15px;font-weight:800;color:var(--arc-text)}
-.ccResumenTotal b{font-size:17px;color:var(--arc-accent-600)}.ccDel{background:var(--arc-danger-bg);color:var(--arc-danger);padding:6px}.ccMsg{margin-top:8px;font-size:12px;font-weight:700}.ccOk{color:var(--arc-success)}.ccErr{color:var(--arc-danger)}.ccFav{margin-top:14px;border:1px solid var(--arc-line);border-radius:14px;background:#fff;padding:14px}.ccFavHead{display:flex;justify-content:space-between;align-items:center}.ccFavHead h3{margin:0;font-size:15px}.ccFavRow{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--arc-surface-3);font-size:12px}.ccFavRow:last-child{border-bottom:0}.ccFavActions{display:flex;gap:6px}@container(max-width:900px){.ccGrid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.ccResumenTotal b{font-size:17px;color:var(--arc-accent-700)}.ccDel{background:var(--arc-danger-bg);color:var(--arc-danger);padding:6px}.ccMsg{margin-top:8px;font-size:12px;font-weight:700}.ccOk{color:var(--arc-success)}.ccErr{color:var(--arc-danger)}.ccFav{margin-top:14px;border:1px solid var(--arc-line);border-radius:14px;background:#fff;padding:14px}.ccFavHead{display:flex;justify-content:space-between;align-items:center}.ccFavHead h3{margin:0;font-size:15px}.ccFavRow{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--arc-surface-3);font-size:12px}.ccFavRow:last-child{border-bottom:0}.ccFavActions{display:flex;gap:6px}@container(max-width:900px){.ccGrid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @container(max-width:580px){.ccGrid{grid-template-columns:minmax(0,1fr)}.ccProduct img,.ccNoImg{height:150px}}
 @media(max-width:560px){
  /* En el teléfono, las cuatro columnas del pedido dejaban el nombre en una

@@ -67,7 +67,7 @@
 /* Coco Premium: native module finish, loaded on demand. */
 @media screen{
  body.cocoWorkbench #workhub .whGrid{gap:24px}
- body.cocoWorkbench #workhub .whNavButton[aria-current]{background:var(--arc-accent-100);color:var(--arc-accent-600)}
+ body.cocoWorkbench #workhub .whNavButton[aria-current]{background:var(--arc-accent-100);color:var(--arc-accent-700)}
  body.cocoWorkbench #workhub :is(#whList,#whDetail){border-radius:var(--arc-r-lg);border:0;box-shadow:var(--coco-surface-shadow);background:var(--coco-surface-fill)}
  body.cocoWorkbench #workhub .whMessage{border:0;border-radius:6px;background:var(--coco-inset)}}
 @media screen and (max-width:760px){

@@ -5,10 +5,10 @@ const path = require('path');
 
 const MOCK_GAMA_CLOUD = fs.readFileSync(path.join(__dirname, 'mock-gama-cloud.js'), 'utf8');
 
-// Borderless white tiles are separated by space and a soft shadow.
+// White tiles use a fine border and spacing on the white canvas.
 // Keep text readable while applying the requested application-wide contrast.
 test.describe('Contraste del menú principal', () => {
-  test('tiles are visibly separated from the page canvas', async ({ page }) => {
+  test('flat tiles retain visible borders, spacing and readable titles', async ({ page }) => {
     await page.addInitScript(() => {
       localStorage.setItem('gama_session_v1', JSON.stringify({ role: 'admin', name: 'Test Admin' }));
       // @ts-ignore
@@ -42,6 +42,9 @@ test.describe('Contraste del menú principal', () => {
         return (Math.max(l1, l2) + 0.05) / (Math.min(l1, l2) + 0.05);
       };
       const body = getComputedStyle(document.body).backgroundColor;
+      const next = card.nextElementSibling;
+      const bounds = card.getBoundingClientRect();
+      const nextBounds = next?.getBoundingClientRect();
       return {
         cardVsCanvas: ratio(cs.backgroundColor, body),
         borderVsCanvas: ratio(cs.borderColor, body),
@@ -50,24 +53,26 @@ test.describe('Contraste del menú principal', () => {
         border:cs.borderColor,
         borderWidth:cs.borderTopWidth,
         shadow:cs.boxShadow,
+        gap:nextBounds ? (Math.abs(nextBounds.top-bounds.top)<1 ? nextBounds.left-bounds.right : nextBounds.top-bounds.bottom) : 0,
         titleContrast: ratio(getComputedStyle(card.querySelector('.gamaF2Title')).color,cs.backgroundColor),
       };
     });
 
     expect(m).not.toBeNull();
-    expect(m.cardVsCanvas).toBeGreaterThan(1.05);
-    expect(m.borderWidth).toBe('0px');
-    expect(m.shadow).not.toBe('none');
+    expect(m.cardVsCanvas).toBe(1);
+    expect(m.borderWidth).toBe('1px');
+    expect(m.border).toBe('rgb(241, 240, 239)');
+    expect(m.shadow).toBe('none');
+    expect(m.gap).toBeGreaterThan(0);
     expect(m.background).toBe('rgb(255, 255, 255)');
     expect(m.titleContrast).toBeGreaterThanOrEqual(4.5);
   });
 
-  test('the canvas separates white surfaces across the application', async ({ page }) => {
+  test('the application uses the reference white canvas', async ({ page }) => {
     await page.route('**/@supabase/**', route => route.abort());
     await page.goto('/index.html');
     const bg = await page.evaluate(() => getComputedStyle(document.body).backgroundColor);
     const [r, g, b] = bg.match(/\d+/g).slice(0, 3).map(Number);
-    // The current #F7F8FB canvas remains neutral and distinct from white panels.
-    expect([r,g,b]).toEqual([247,248,251]);
+    expect([r,g,b]).toEqual([255,255,255]);
   });
 });

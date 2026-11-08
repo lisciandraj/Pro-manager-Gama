@@ -81,14 +81,13 @@ body.arcDrawerOpen .arcScrim{opacity:1;pointer-events:auto}
 }
 @media(max-width:860px){
  .arcSidebar{width:min(84vw,260px);transform:translateX(-102%);box-shadow:var(--arc-sh-3)}
- body.arcDrawerOpen{overflow:hidden}body.arcDrawerOpen .arcSidebar{transform:none}
- .arcMain{margin-left:0}.arcBurger{display:flex}.arcTopbar{padding:8px 12px;gap:8px;min-height:64px}
+ body.arcDrawerOpen{overflow:hidden}body.arcDrawerOpen .arcSidebar{transform:none}.arcBurger{display:flex}.arcTopbar{padding:8px 12px;gap:8px;min-height:64px}
  .arcSearch kbd{display:none}.arcSearch input{padding-right:10px}.arcTopRight{gap:6px}
  .arcProfileText,.arcChevron{display:none}.arcUserSlot{padding-left:8px}.arcAvatar{width:38px;height:38px;font-size:15px}
  .arcContent{padding:20px 16px 28px}.arcBrand{padding:10px 12px}.arcLogo{max-width:180px}
 }
 @media(max-width:430px){.arcContent{padding:18px 12px 24px}.arcTopbar{padding:8px;gap:4px}.arcSearch input{font-size:12px;padding-left:32px}.arcSearch .arcIco{left:9px;width:16px}.arcTopRight{gap:2px}.arcUserSlot{padding-left:4px}}
-@media print{.arcSidebar,.arcTopbar,.arcScrim{display:none!important}.arcMain{margin-left:0}.arcContent{padding:0}}
+@media print{.arcSidebar,.arcTopbar,.arcScrim{display:none!important}}
 .arcUserSlot #gamaCloudAdminBtn{position:static!important;inset:auto!important;display:block!important;width:100%;max-width:100%;margin:10px 0 0;padding:10px;border-radius:8px;white-space:normal;font-size:12px}
 
 .arcNavGroup{padding:18px 12px 7px;color:var(--arc-text-subtle);font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;border-top:1px solid var(--arc-surface-3);margin-top:8px}

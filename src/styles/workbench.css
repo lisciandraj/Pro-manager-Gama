@@ -33,9 +33,9 @@
  .cocoModuleText{min-width:0;flex:1}
  body.cocoWorkbench .cocoModuleContext{display:block;min-height:44px;min-width:0;max-width:none;margin:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:var(--arc-font);font-size:22px;line-height:44px;font-weight:600;letter-spacing:-.03em;color:var(--coco-ink)}
  .cocoModuleSubtitle{display:none}
- body.cocoWorkbench .cocoModuleBack{display:inline-flex;align-items:center;justify-content:center;flex:0 0 44px;width:44px;min-width:44px;height:44px;min-height:44px;padding:10px;border:1px solid var(--coco-line);border-radius:8px;background:var(--coco-surface);box-shadow:none;color:var(--coco-ink)}
+ body.cocoWorkbench .cocoModuleBack{display:inline-flex;align-items:center;justify-content:center;flex:0 0 44px;width:44px;min-width:44px;height:44px;min-height:44px;padding:9px;border:1px solid var(--coco-line);border-radius:8px;background:var(--coco-surface);box-shadow:none;color:var(--coco-ink)}
  body.cocoWorkbench .cocoModuleBack[hidden]{display:none}
- .cocoModuleBack .arcIco{width:24px;height:24px}
+ .cocoModuleBack .arcIco{width:24px;height:24px;flex:none}
  body.cocoWorkbench .cocoModuleBack:hover{background:var(--arc-accent-100)}
  body.cocoWorkbench .arcTopbar>.arcSearch{display:block;flex:1 1 360px;width:auto;max-width:520px;min-width:160px;margin-left:0}
  body.cocoWorkbench .arcSearch input{width:100%;height:44px;min-height:44px;padding:9px 58px 9px 36px;border:1px solid var(--coco-line);border-radius:8px;background:var(--arc-surface);color:var(--coco-ink);font-size:13px;box-shadow:none;cursor:text}

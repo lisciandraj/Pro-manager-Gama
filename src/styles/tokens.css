@@ -3,19 +3,18 @@
 @font-face{font-family:Poppins;src:url("fonts/poppins-latin-medium.woff2") format("woff2");font-style:normal;font-weight:500;font-display:swap}
 @font-face{font-family:Poppins;src:url("fonts/poppins-latin-semibold.woff2") format("woff2");font-style:normal;font-weight:600 900;font-display:swap}
 /* Coco ERP — shared design tokens.
-   Menu icon palette: shared blue, green, rose and coral roles across ERP modules.
+   Openhub layout with the shared blue, green, rose and coral menu palette.
    Historical variable names remain public aliases for existing modules.
    src/styles/design.css supplies the scoped application/theme overrides.
    Keep semantic states labelled: color alone must not carry information. */
 :root{
- /* Menu palette primitives. Dark variants carry small text on pale tints. */
+ /* Menu palette shared by actions, status, navigation and charts. */
  --coco-blue:#2176B8;--coco-blue-hover:#1B659E;--coco-blue-tint:#EAF3FB;
  --coco-green:#278344;--coco-green-hover:#206B38;--coco-green-tint:#EDF7F0;
  --coco-rose:#C7476A;--coco-rose-hover:#AB3555;--coco-rose-tint:#FCEEF3;
  --coco-coral:#CC5139;--coco-coral-hover:#AD402D;--coco-coral-tint:#FFF1EC;
  --coco-blue-dark:var(--coco-blue-hover);--coco-orange:var(--coco-coral-hover);--coco-orange-tint:var(--coco-coral-tint);
- --gama-blue:var(--coco-blue);--gama-blue-dark:var(--coco-blue-hover);
- --coco-grid:var(--coco-line);
+ --gama-blue:var(--coco-blue);--gama-blue-dark:var(--coco-blue-hover);--coco-grid:var(--coco-line);
 
  /* ------------------------------------------- colores de marca */
  --arc-coco-blue:var(--coco-blue);    /* azul petróleo */
@@ -27,14 +26,14 @@
  --arc-coco-teal-text:var(--coco-green-hover);   --arc-coco-orange-text:var(--coco-coral-hover);
 
  /* ---------------------------------------------------------------- marca */
- --arc-navy-900:#263238;
- --arc-navy-800:#1C252A;   /* marca, cabeceras oscuras */
- --arc-navy-700:#39474E;
- --arc-navy-600:#263238;
- --arc-steel-600:#5F6B72;  /* índigo grisáceo: elementos secundarios */
- --arc-steel-500:#5F6B72;
- --arc-steel-400:#8A9499;
- --arc-steel-300:#E2E6E9;
+ --arc-navy-900:#151515;
+ --arc-navy-800:#000000;   /* marca, cabeceras oscuras */
+ --arc-navy-700:#44423F;
+ --arc-navy-600:#151515;
+ --arc-steel-600:#6B6A69;  /* índigo grisáceo: elementos secundarios */
+ --arc-steel-500:#6B6A69;
+ --arc-steel-400:#8F8B87;
+ --arc-steel-300:#F1F0EF;
 
  /* ------------------------------------------------------------- acciones */
  --arc-accent-700:var(--coco-blue-hover);
@@ -45,16 +44,16 @@
  --arc-accent-50:#F3F8FD;
 
  /* ------------------------------------------------------ neutros y fondo */
- --arc-canvas:#F4F5F7;      /* Neutral workspace, with muted GAMA accents. */
+ --arc-canvas:#FFFFFF;      /* Neutral workspace, with muted GAMA accents. */
  --arc-surface:#FFFFFF;     /* tarjetas y superficies de trabajo */
- --arc-surface-2:#F7F8F9;   /* table headings and inset surfaces */
- --arc-surface-3:#EEF0F2;
- --arc-line:#E2E6E9;        /* decorative surface separators */
- --arc-line-strong:#8A9499; /* interactive boundaries, AA contrast */
+ --arc-surface-2:#F9F8F8;   /* table headings and inset surfaces */
+ --arc-surface-3:#F5F5F4;
+ --arc-line:#F1F0EF;        /* decorative surface separators */
+ --arc-line-strong:#8F8B87; /* interactive boundaries, AA contrast */
 
- --arc-text:#263238;
- --arc-text-muted:#5F6B72;
- --arc-text-subtle:#5F6B72;
+ --arc-text:#151515;
+ --arc-text-muted:#6B6A69;
+ --arc-text-subtle:#6B6A69;
  --arc-text-invert:#FFFFFF;
  --arc-text-on-navy:#FFFFFF;
 
@@ -87,8 +86,8 @@
 
  /* ------------------------------------------------------------- sombras */
  --arc-sh-1:none;
- --arc-sh-2:0 4px 16px rgba(38,35,49,.06);
- --arc-sh-3:0 12px 32px rgba(38,35,49,.12);
+ --arc-sh-2:0 4px 16px rgba(21,21,21,.06);
+ --arc-sh-3:0 12px 32px rgba(21,21,21,.12);
  --arc-sh-nav:none;
 
  /* ---------------------------------------------------------- tipografía */
@@ -119,17 +118,17 @@
  --arc-workspace-title:22px;
  --arc-reading-width:78ch;
  /* Coco reference theme: shared by every module and deferred component. */
- --coco-canvas:#F4F5F7;--coco-surface:#FFFFFF;--coco-inset:#F7F8F9;
- --coco-line:#E2E6E9;--coco-row-line:#E2E6E9;--coco-column-line:#E2E6E9;
- --coco-ink:#263238;--coco-muted:#5F6B72;
- /* Blue actions and green creation share the approved menu palette. */
+ --coco-canvas:#FFFFFF;--coco-surface:#FFFFFF;--coco-inset:#F9F8F8;
+ --coco-line:#F1F0EF;--coco-row-line:#F1F0EF;--coco-column-line:#F1F0EF;
+ --coco-ink:#151515;--coco-muted:#6B6A69;
+ /* Orange actions use dark labels for AA contrast; text links use a darker orange. Original logo assets stay unchanged. */
  --coco-action:var(--coco-blue);--coco-action-top:var(--coco-action);--coco-action-hover:var(--coco-blue-hover);--coco-on-action:#FFFFFF;
  --coco-action-tint:var(--coco-blue-tint);--coco-action-line:var(--arc-info-line);
  --coco-panel-padding:20px;--coco-panel-gap:20px;
  /* Separate form comfort from list density; large screens keep useful data visible. */
  --coco-field-gap:8px;--coco-form-row-gap:20px;--coco-form-column-gap:20px;
- --coco-section-gap:24px;--coco-table-row:52px;--coco-table-heading:42px;
- --coco-table-cell-padding:10px 14px;
+ --coco-section-gap:24px;--coco-table-row:48px;--coco-table-heading:42px;
+ --coco-table-cell-padding:8px 14px;
  --coco-page-gutter:20px;
  --coco-surface-sheen:none;
  --coco-surface-fill:var(--coco-surface-sheen) var(--coco-surface);
@@ -142,7 +141,7 @@
  --coco-motion-feedback:120ms;--coco-motion-state:180ms;--coco-motion-overlay:240ms;
  --coco-ease:cubic-bezier(.16,1,.3,1);
  --coco-icon-surface:var(--coco-inset);
- --coco-icon-color:var(--coco-action);
+ --coco-icon-color:var(--coco-ink);
  --coco-dialog-surface:var(--coco-surface-fill);
  --coco-dialog-shadow:var(--arc-sh-3);
  --coco-scrim:rgb(23 36 59 / .26);
@@ -172,10 +171,10 @@
  --color-text:var(--arc-text);--color-text-secondary:var(--arc-text-muted);
  --radius-sm:var(--arc-r-sm);--radius-md:var(--arc-r-md);--radius-lg:var(--arc-r-lg);
  --shadow-sm:var(--arc-sh-1);--shadow-md:var(--arc-sh-2);
- --arc-card-border:#E2E6E9;--arc-card-shadow:none;
+ --arc-card-border:#F1F0EF;--arc-card-shadow:none;
  /* Home tiles: a visible edge and a lower rim retain depth on desktop displays. */
- --arc-tile-border:#E2E6E9;--arc-tile-border-bottom:#E2E6E9;
- --arc-tile-shadow:none;--arc-tile-border-hover:#8A9499;
+ --arc-tile-border:#F1F0EF;--arc-tile-border-bottom:#F1F0EF;
+ --arc-tile-shadow:none;--arc-tile-border-hover:#8F8B87;
  --arc-tile-shadow-hover:none;
  --arc-control-shadow:none;--arc-field-shadow:none;
 
@@ -191,4 +190,4 @@
  --arc-icon-red:var(--coco-rose);--arc-icon-red-bg:var(--coco-rose-tint);
 }
 
-:root{--coco-create:var(--coco-green);--coco-create-hover:var(--coco-green-hover);--coco-selected:var(--coco-blue-tint)}
+:root{--coco-create:var(--coco-green);--coco-create-hover:var(--coco-green-hover);--coco-selected:var(--coco-blue-tint);--coco-nav-surface:#FDFAF9;--coco-nav-active:var(--coco-blue-tint)}

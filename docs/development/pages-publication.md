@@ -35,6 +35,16 @@ L’approbation crée une étiquette immuable `production/<date>-<sha>`, déplac
 
 Le versionnement décrit ici porte sur le code et la configuration. Les sauvegardes, restaurations et migrations des bases restent des opérations séparées, à tester puis autoriser explicitement pour la production. Un retour arrière passe par un nouveau commit testé, sans effacer les anciennes versions.
 
+### Préparation de la première correction MFA
+
+Le mode normal `development` accepte un SHA exact, testé et appartenant à l’historique de développement ; il ne doit pas nécessairement être sa dernière révision. Le propriétaire peut ainsi conserver des travaux plus récents non approuvés en développement. Ses contrôles d’autorisation, de CI, de version et d’avance sans réécriture restent inchangés.
+
+Le mode manuel distinct `initial-mfa-bootstrap` prépare une seule exception : le commit `8c465ace2b042161eed8f2c25e080c736ce836c0`, issu directement de la production initiale `20272ccbd040a5a00b32d6632ba8ad9eb1b72481`. Il contient uniquement les sept fichiers de la correction MFA examinée dans la PR 291, sans les évolutions Contacts, Openhub ou de palette conservées en développement. Le workflow exige le même propriétaire et la saisie `AUTORISER PRODUCTION`, puis vérifie les parents, l’arbre, les sept chemins et leurs empreintes, l’arbre de fusion réellement testé, et les cinq plus trois contrôles réussis des exécutions fixées `42500077618` et `42500077596`. Aucun SHA de remplacement n’est accepté.
+
+Cette préparation ne constitue pas une autorisation de promouvoir ce code. Après les tests et l’autorisation explicite du propriétaire seulement, le workflow pourra créer l’étiquette immuable `production/initial-mfa-8c465ace2b042161eed8f2c25e080c736ce836c0`, puis avancer la production sans forcer. Une production déjà égale à ce candidat permet de reprendre une publication interrompue ; toute autre version que la base initiale ou ce candidat bloque le mode. GitHub ne permet pas de modifier ces deux références en une transaction : une interruption peut laisser l’étiquette créée avant l’avance de production. Une reprise vérifie et réutilise uniquement l’étiquette correspondant exactement au candidat, sans la déplacer et sans annuler une production ultérieure.
+
+Ce mode ne modifie ni schéma, données, comptes Auth, configuration Cloudflare, ni préparation SQL figée à 362 sources. Il peut relancer la publication Pages existante ; la vérification des marqueurs réels des backends demeure obligatoire et peut encore bloquer le déploiement avant l’activation coordonnée.
+
 ## Vérifier la version servie
 
 Après le déploiement, le workflow contrôle :

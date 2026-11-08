@@ -2,8 +2,16 @@ name: Approve Coco production release
 on:
   workflow_dispatch:
     inputs:
+      promotion_mode:
+        description: Normal development release or the fixed initial MFA snapshot
+        required: true
+        default: development
+        type: choice
+        options:
+          - development
+          - initial-mfa-bootstrap
       release_commit:
-        description: Exact tested development commit (40 characters)
+        description: Exact tested commit (40 characters); bootstrap mode accepts only 8c465ace2b042161eed8f2c25e080c736ce836c0
         required: true
         type: string
       approval:
@@ -25,11 +33,16 @@ jobs:
       contents: write
       actions: write
     steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
       - name: Validate approval and CI, then promote exactly the tested commit
         uses: actions/github-script@v7
         env:
           RELEASE_COMMIT: ${{ inputs.release_commit }}
           RELEASE_APPROVAL: ${{ inputs.approval }}
+          RELEASE_MODE: ${{ inputs.promotion_mode }}
         with:
           script: |
             const {owner,repo}=context.repo;
@@ -37,6 +50,13 @@ jobs:
             const sha=process.env.RELEASE_COMMIT;
             if(process.env.RELEASE_APPROVAL!=='AUTORISER PRODUCTION')throw Error('Explicit production approval is required.');
             if(!/^[a-f0-9]{40}$/.test(sha))throw Error('Select an exact tested commit, not a moving branch or tag.');
+            const mode=process.env.RELEASE_MODE||'development';
+            if(mode==='initial-mfa-bootstrap'){
+              const {promoteInitialMfa}=require(process.env.GITHUB_WORKSPACE+'/scripts/promote-initial-mfa.cjs');
+              await promoteInitialMfa({github,context,core,sha,approval:process.env.RELEASE_APPROVAL});
+              return;
+            }
+            if(mode!=='development')throw Error('Unknown production promotion mode.');
             const current=(await github.rest.git.getRef({owner,repo,ref:'heads/development'})).data.object.sha;
             const comparison=(await github.rest.repos.compareCommitsWithBasehead({owner,repo,basehead:sha+'...'+current})).data;
             if(comparison.merge_base_commit?.sha!==sha)throw Error('The selected commit is not part of development.');

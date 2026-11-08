@@ -30,7 +30,7 @@ h2{font-size:22px;line-height:1.25;letter-spacing:-.01em}
 h3{font-size:var(--arc-fs-section);line-height:var(--arc-lh-section)}
 p{line-height:var(--arc-lh-body)}
 small,.muted{font-size:var(--arc-fs-cap);color:var(--arc-text-muted);line-height:var(--arc-lh-cap)}
-a{color:var(--arc-accent-600)}
+a{color:var(--arc-accent-700)}
 a:hover{color:var(--arc-accent-700)}
 
 /* Un solo anillo de foco en toda la aplicación, y siempre visible. */
@@ -69,6 +69,7 @@ a:hover{color:var(--arc-accent-700)}
 
 /* ============================================================== botones */
 button,.btn{
+ --coco-glyph-color:currentColor;
  font-family:inherit;font-size:var(--arc-fs-body);font-weight:var(--arc-fw-med);
  border-radius:var(--arc-r-md);
  min-height:var(--arc-tap);

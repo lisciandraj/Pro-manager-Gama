@@ -1,16 +1,28 @@
 ---
 name: "Coco ERP — espace CRM clair"
-description: "Gestion quotidienne compacte, navigation blanche, actions charbon et créations vertes."
+description: "Gestion quotidienne compacte, palette des icônes partagée, actions bleues et créations vertes."
 colors:
-  petrol: "#263238"
-  petrol-deep: "#1C252A"
-  brand-blue: "#263238"
-  action: "#263238"
-  action-hover: "#1C252A"
-  brand-orange: "#2F6F42"
-  creation: "#2F6F42"
-  creation-hover: "#265A36"
-  creation-tint: "#E8F2EA"
+  blue: "#2176B8"
+  blue-hover: "#1B659E"
+  blue-tint: "#EAF3FB"
+  green: "#278344"
+  green-hover: "#206B38"
+  green-tint: "#EDF7F0"
+  rose: "#C7476A"
+  rose-hover: "#AB3555"
+  rose-tint: "#FCEEF3"
+  coral: "#CC5139"
+  coral-hover: "#AD402D"
+  coral-tint: "#FFF1EC"
+  petrol: "#2176B8"
+  petrol-deep: "#1B659E"
+  brand-blue: "#2176B8"
+  action: "#2176B8"
+  action-hover: "#1B659E"
+  brand-orange: "#CC5139"
+  creation: "#278344"
+  creation-hover: "#206B38"
+  creation-tint: "#EDF7F0"
   ink: "#263238"
   muted: "#5F6B72"
   surface: "#FFFFFF"
@@ -20,18 +32,20 @@ colors:
   line: "#E2E6E9"
   row-line: "#E2E6E9"
   input-line: "#8A9499"
-  selected: "#EEF0F2"
-  hover: "#F2F7F3"
-  phase-blue: "#A9BFF1"
-  phase-orange: "#F7D7A4"
-  phase-green: "#BAD8BF"
-  phase-red: "#F2BABB"
-  success: "#16785D"
-  success-bg: "#E8F8F2"
-  warning: "#976015"
-  warning-bg: "#FBF2E6"
-  danger: "#BE3848"
-  danger-bg: "#FFF0F1"
+  selected: "#EAF3FB"
+  hover: "#EAF3FB"
+  phase-blue: "#EAF3FB"
+  phase-orange: "#FFF1EC"
+  phase-green: "#EDF7F0"
+  phase-red: "#FCEEF3"
+  success: "#206B38"
+  success-bg: "#EDF7F0"
+  warning: "#AD402D"
+  warning-bg: "#FFF1EC"
+  danger: "#AB3555"
+  danger-bg: "#FCEEF3"
+  info: "#1B659E"
+  info-bg: "#EAF3FB"
 typography:
   headline:
     fontFamily: "Inter, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Arial, sans-serif"
@@ -179,7 +193,7 @@ components:
     textColor: "{colors.petrol-deep}"
   sidebar-link-selected:
     backgroundColor: "{colors.selected}"
-    textColor: "{colors.ink}"
+    textColor: "{colors.blue-hover}"
     rounded: "{rounded.navigation}"
   sidebar-link:
     backgroundColor: "transparent"
@@ -195,7 +209,7 @@ components:
 
 **Creative North Star: "Coco — un bureau de gestion clair"**
 
-Coco ERP privilégie un travail quotidien calme et lisible : choisir un module, repérer ou rechercher une information, puis agir dans les parcours existants. Une toile gris clair, une navigation blanche, des actions charbon et une création verte rendent les données utiles visibles plus tôt. La hiérarchie reprend la sobriété et la densité des références Nozti CRM fournies, en conservant l’identité Coco et les vrais contenus métier. Les formulaires séparent clairement libellés, valeurs et groupes de champs sans élargir les listes opérationnelles.
+Coco ERP privilégie un travail quotidien calme et lisible : choisir un module, repérer ou rechercher une information, puis agir dans les parcours existants. Une toile gris clair, une navigation blanche, des actions bleues et une création verte rendent les données utiles visibles plus tôt. La hiérarchie reprend la sobriété et la densité des références Nozti CRM fournies, en conservant l’identité Coco et les vrais contenus métier. Les formulaires séparent clairement libellés, valeurs et groupes de champs sans élargir les listes opérationnelles.
 
 Ce contrat décrit l’application interne servie par `src/app/index.html`. Il applique la nouvelle direction issue des références Nozti CRM à l’application réelle GitHub Pages ; elle remplace la charte violette du 7 novembre 2026. L’aperçu privé Sites reste distinct. Les références inspirent les rôles visuels et la structure, sans reprendre leurs marques, logos, textes ni données. Les révisions GAMA, Geex et violette restent historiques pour la finition visuelle. Les tokens viennent de `src/styles/tokens.css`, appliqués par `workbench.css`, `design.css`, les contrôles partagés et les feuilles différées. Les fonctions, identifiants, droits, langues FR/ES/EN, favoris, historiques et données métier sont conservés. Le site public possède son propre `DESIGN.md` à la racine.
 
@@ -204,18 +218,22 @@ Ce contrat décrit l’application interne servie par `src/app/index.html`. Il a
 - Toile gris clair, navigation blanche et panneaux blancs à contour fin sans ombre.
 - Inter pour les titres, les valeurs et les contrôles.
 - Libellés proches de leur champ et groupes de formulaire espacés.
-- Actions charbon, créations vertes et destination active sur gris clair.
+- Palette bleu, vert, rose et corail issue du menu ; actions bleues, créations vertes et sélection bleu pâle.
 - Tableaux jointifs à grille fine, Kanban blanc à bandeaux pastel et structures métier conservées.
 
 ## Colors
 
 ### Primary
 
-Les actions normales utilisent `action` charbon et leur survol `action-hover`. La création emploie `creation` vert, `creation-hover` au survol et `creation-tint` pour un fond discret. Le blanc reste le texte des boutons pleins. La destination latérale active combine `selected` gris clair avec texte et icône charbon ; elle ne devient pas un bouton plein. Les noms historiques `petrol`, `brand-blue` et `brand-orange` restent des alias compatibles, sans imposer leurs anciennes teintes.
+Les quatre couleurs des icônes du menu forment la palette commune : bleu `blue` #2176B8, vert `green` #278344, rose `rose` #C7476A et corail `coral` #CC5139. Chaque famille possède une variante sombre (`*-hover`) et une teinte claire (`*-tint`). Les valeurs primitives et leurs alias sémantiques viennent de `src/styles/tokens.css` ; les modules consomment ces rôles plutôt que définir leurs propres palettes.
+
+Les actions normales utilisent `action` bleu et leur survol `action-hover`. La création emploie `creation` vert, `creation-hover` au survol et `creation-tint` pour un fond discret. Le blanc reste le texte des boutons pleins. La destination latérale active combine `selected` bleu pâle avec texte bleu foncé ; elle ne devient pas un bouton plein. Les noms historiques `petrol`, `brand-blue`, `brand-orange` et les anciennes familles restent des alias compatibles, sans imposer leurs anciennes teintes.
 
 ### Reporting and semantic states
 
-Les graphiques et KPI conservent leurs séries, légendes, calculs et valeurs réels ; aucune donnée de la référence n’est reproduite. Les bandes de phase Kanban utilisent `phase-blue`, `phase-orange`, `phase-green` et `phase-red`, avec texte charbon. Elles identifient les étapes existantes ; elles ne remplacent ni les libellés, ni les états métier. Les statuts succès, attention et erreur gardent strictement leurs couleurs et fonds antérieurs.
+Les graphiques et KPI conservent leurs séries, légendes, calculs et valeurs réels. Leurs séries utilisent dans l’ordre le bleu, le vert, le rose, le corail sombre, puis les variantes bleu sombre et rose sombre. Les bandes de phase Kanban utilisent les teintes claires bleu, corail, vert et rose via les alias `phase-blue`, `phase-orange`, `phase-green` et `phase-red`, avec texte charbon. Les phases gardent leurs noms et leur ordre métier.
+
+Les états suivent la même palette : information bleue, succès vert, attention corail sombre et erreur rose. Sur une teinte claire, le texte emploie la variante sombre de sa famille pour atteindre 4,5:1. Libellés, pictogrammes et positions conservent le sens des états ; la couleur ne le porte pas seule. Les couleurs explicitement choisies par les utilisateurs pour leurs données restent prioritaires.
 
 ### Neutral
 
@@ -225,17 +243,17 @@ La toile et les retraits sont gris clair, la navigation et les panneaux blancs. 
 | --- | --- |
 | Texte charbon / blanc | 13,16:1 |
 | Texte secondaire / blanc, puis toile | 5,48:1 / 5,02:1 |
-| Texte charbon / destination active grise | 11,52:1 |
-| Blanc / action charbon, puis survol | 13,16:1 / 15,59:1 |
-| Blanc / création verte, puis survol | 6,05:1 / 8,08:1 |
-| Vert de création / teinte verte | 5,27:1 |
+| Texte bleu foncé / sélection bleu pâle | 5,50:1 |
+| Blanc / action bleue, puis survol | 4,83:1 / 6,17:1 |
+| Blanc / création verte, puis survol | 4,76:1 / 6,52:1 |
+| Texte vert foncé / teinte verte | 5,95:1 |
 | Contour de champ / blanc | 3,10:1 |
-| Succès, attention, erreur / leurs fonds | 4,93:1 / 4,74:1 / 4,93:1 |
-| Texte charbon / bandes bleu, orange, vert, rouge | 7,15:1 / 9,53:1 / 8,56:1 / 7,84:1 |
+| Information, succès, attention, erreur / leurs fonds | 5,50:1 / 5,95:1 / 5,37:1 / 5,53:1 |
+| Texte charbon / phases bleu, corail, vert, rose | 11,73:1 / 11,93:1 / 12,01:1 / 11,70:1 |
 
 Ces calculs de tokens satisfont 4,5:1 pour les textes cités et 3:1 pour le contour des champs. Les bordures légères de surface sont décoratives ; elles ne sont pas le seul repère d’un contrôle. Ce tableau ne certifie pas les styles calculés de chaque état métier ni leur rendu dans un navigateur.
 
-**The Action Rule.** Distinguer l’action normale charbon de la création verte ; garder la destination courante sur une surface grise avec texte charbon.
+**The Action Rule.** Distinguer l’action normale bleue de la création verte ; garder la destination courante sur une teinte bleu pâle avec texte bleu foncé.
 
 ## Typography
 
@@ -303,13 +321,13 @@ Les commandes et champs partagés utilisent `control`, les fonds en retrait `ins
 
 Les pictogrammes de l’ERP suivent désormais le langage de [Upview Icons](https://dribbble.com/shots/27554902-Upview-Icons) : silhouettes pleines originales, coins et terminaisons arrondis, découpes transparentes et une couleur par dessin. Le catalogue partagé `src/ui/icons.js` fournit les mêmes SVG à l’accueil, aux menus, aux utilitaires et aux vues métier. Les dessins restent lisibles sur la grille 24 × 24, y compris à 20 px dans la navigation.
 
-Les couleurs de famille bleu, vert, rose et corail sont réservées aux pictogrammes des tuiles et en-têtes via le token de famille `--coco-glyph-tone`. La navigation, les KPI et les commandes gardent leurs couleurs de contexte et leurs états sélectionnés ; les favoris gardent leur contour au repos et leur remplissage à la sélection. Aucun fond décoratif, raster, ombre ou dégradé n’est ajouté. Le logo, le monogramme et les icônes PWA approuvés ne font pas partie de ce catalogue. Voir [la charte commune](../design-system.md#iconographie-commune--8-novembre-2026) pour les sources et les teintes.
+Les couleurs de famille bleu, vert, rose et corail des pictogrammes deviennent la palette commune de l’ERP. Le token `--coco-glyph-tone` garde le rôle de couleur de famille des icônes ; les actions, états, graphiques et sélections utilisent les alias sémantiques de ces mêmes primitives. Les favoris gardent leur contour au repos et leur remplissage à la sélection. Aucun fond décoratif, raster, ombre ou dégradé n’est ajouté. Le logo, le monogramme et les icônes PWA approuvés ne font pas partie de ce catalogue. La palette ERP ne modifie pas les actifs de marque, le site public, les exports PDF, les codes-barres ni les fonds de carte externes. Voir [la charte commune](../design-system.md#iconographie-commune--8-novembre-2026) pour les sources et les teintes.
 
 ## Components
 
 ### Buttons
 
-L’action normale est charbon unie avec texte blanc ; la création est verte avec texte blanc. Les actions secondaires sont blanches et les commandes discrètes utilisent le charbon. Les contrôles communs conservent une hauteur minimale de 44 px. Les barres métier spécialisées gardent leur densité propre. Le focus visible dans le contenu et les fenêtres utilise un trait vert de 2 px (`--arc-accent-600`, #2F6F42) décalé de 3 px. Les onglets conservent leur décalage intérieur de −3 px ; les menus compacts peuvent utiliser −2 px. Les contrôles généraux hors de ces conteneurs utilisent le vert plus sombre `--arc-accent-700` (#265A36). Les états indisponibles et occupés gardent leur sémantique et ne bougent pas à la pression.
+L’action normale est bleue unie avec texte blanc ; la création est verte avec texte blanc. Les actions secondaires restent blanches et les commandes discrètes utilisent le bleu. Les contrôles communs conservent une hauteur minimale de 44 px. Les barres métier spécialisées gardent leur densité propre. Le focus visible dans le contenu et les fenêtres utilise un trait bleu de 2 px (`--arc-accent-600`, #2176B8) décalé de 3 px. Les onglets conservent leur décalage intérieur de −3 px ; les menus compacts peuvent utiliser −2 px. Les contrôles généraux hors de ces conteneurs utilisent le bleu plus sombre `--arc-accent-700` (#1B659E). Les états indisponibles et occupés gardent leur sémantique et ne bougent pas à la pression.
 
 ### Inputs / Fields
 
@@ -317,13 +335,13 @@ Fond blanc, contour de saisie explicite, libellé persistant et rayon commun. Le
 
 ### Navigation
 
-La navigation latérale conserve groupes, favoris et liens autorisés. La destination courante combine fond gris clair et libellé/icône charbon sur une navigation blanche. Le tiroir fermé est inerte ; ouvert, il retient le focus, rend l’arrière-plan inerte, se ferme avec Échap et rend le focus au déclencheur. Les onglets natifs restent dans leur module avec fond gris clair et libellé charbon pour la sélection. Les favoris de l’accueil et la navigation basse gardent leur accès et leur cible tactile.
+La navigation latérale conserve groupes, favoris et liens autorisés. La destination courante combine fond bleu pâle et libellé bleu foncé sur une navigation blanche. Le tiroir fermé est inerte ; ouvert, il retient le focus, rend l’arrière-plan inerte, se ferme avec Échap et rend le focus au déclencheur. Les onglets natifs restent dans leur module avec fond bleu pâle et libellé bleu foncé pour la sélection. Les favoris de l’accueil et la navigation basse gardent leur accès et leur cible tactile.
 
 ### Lists / Cards / Status
 
 Les listes de travail utilisent des lignes blanches jointives, une grille fine de 1 px, des en-têtes discrets, une hauteur nominale de 52 px et des montants alignés à droite. Les exports papier et grilles spécialisées gardent leurs contrôles. Les fiches mobiles affichent les noms des colonnes avec leurs valeurs. Les statuts portent leur texte et leur couleur sémantique. Tableaux spécialisés, arbres et graphiques conservent leurs contrôles métier.
 
-CRM et Projets placent leurs tâches sur des panneaux blancs bordés, coiffés d’une bande de phase pastel bleue, orange, verte ou rouge avec texte charbon. Les libellés, compteurs et états de glisser-déposer existants restent visibles. Documents et Knowledge séparent un rail blanc de 230 px et une surface principale blanche par 30 px ; les deux zones s’empilent jusqu’à 760 px. Ces finitions sont chargées avec leurs modules.
+CRM et Projets placent leurs tâches sur des panneaux blancs bordés, coiffés d’une bande de phase bleu pâle, corail pâle, vert pâle ou rose pâle avec texte charbon. Les libellés, compteurs et états de glisser-déposer existants restent visibles. Documents et Knowledge séparent un rail blanc de 230 px et une surface principale blanche par 30 px ; les deux zones s’empilent jusqu’à 760 px. Ces finitions sont chargées avec leurs modules.
 
 ### Progressive Editors / History
 

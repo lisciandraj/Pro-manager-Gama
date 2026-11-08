@@ -45,7 +45,7 @@ function bindTopMenu(trigger){
 }
 
 /* ------------------------------------------------------------------ nav */
-function navLink(x){return '<button type="button" class="arcButton arcNavLink" data-gama-module="'+esc(x[1])+'" data-arc-item="'+esc(x[0])+'" title="'+esc(T(x[0]))+'">'
+function navLink(x){return '<button type="button" class="arcButton arcNavLink" data-gama-module="'+esc(x[1])+'" data-arc-fam="'+esc(window.ArcModules?.get?.(x[1])?.accent||'blue')+'" data-arc-item="'+esc(x[0])+'" title="'+esc(T(x[0]))+'">'
  +(window.ArcUI.moduleIcon(x[2])||window.ArcUI.moduleIcon('home'))+'<span class="arcNavLabel">'+esc(T(x[0]))+'</span></button>'}
 function navAllowed(id){
  if(window.gamaMenuVisible)return !!window.gamaMenuVisible(id);

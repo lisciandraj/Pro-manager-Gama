@@ -398,7 +398,7 @@ function absencesTab(){
    Dos ausencias de la misma persona que se pisan van en carriles distintos
    dentro de su fila; si no, la de arriba taparía a la de abajo y parecería que
    sólo hay una. */
-const PLAN_COLORES={vacaciones:'var(--arc-accent-600)',enfermedad:'var(--arc-danger)',permiso:'var(--arc-warning)',formacion:'var(--arc-fam-sales)',otro:'var(--arc-text-muted)'};
+const PLAN_COLORES={vacaciones:'var(--arc-success)',enfermedad:'var(--arc-danger)',permiso:'var(--arc-warning)',formacion:'var(--arc-info)',otro:'var(--arc-text-muted)'};
 
 function planRango(){
  const base=new Date(planAnchor);

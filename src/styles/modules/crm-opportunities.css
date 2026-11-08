@@ -1,12 +1,12 @@
 /* CRM pipeline: real stages, counts, amounts and move controls. */
 #crm [hidden]{display:none!important}
 #crm .crmTablero{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(244px,1fr);gap:14px;overflow-x:auto;padding-bottom:8px;align-items:start}
-#crm .crmTablero .crmCol{--crm-phase:#A9BFF1;min-height:180px;min-width:0;padding:12px;background:#fff;border:1px solid var(--arc-line);border-radius:8px}
-#crm .crmTablero .crmCol:nth-child(4n+2){--crm-phase:#F7D7A4}
-#crm .crmTablero .crmCol:nth-child(4n+3){--crm-phase:#BAD8BF}
-#crm .crmTablero .crmCol:nth-child(4n+4){--crm-phase:#F2BABB}
-#crm .crmTablero .crmCol.ganada{--crm-phase:#BAD8BF}
-#crm .crmTablero .crmCol.perdida{--crm-phase:#F2BABB}
+#crm .crmTablero .crmCol{--crm-phase:var(--arc-info-bg);min-height:180px;min-width:0;padding:12px;background:#fff;border:1px solid var(--arc-line);border-radius:8px}
+#crm .crmTablero .crmCol:nth-child(4n+2){--crm-phase:var(--arc-warning-bg)}
+#crm .crmTablero .crmCol:nth-child(4n+3){--crm-phase:var(--arc-success-bg)}
+#crm .crmTablero .crmCol:nth-child(4n+4){--crm-phase:var(--arc-danger-bg)}
+#crm .crmTablero .crmCol.ganada{--crm-phase:var(--arc-success-bg)}
+#crm .crmTablero .crmCol.perdida{--crm-phase:var(--arc-danger-bg)}
 #crm .crmColCab{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:12px;margin:-12px -12px 12px;background:var(--crm-phase);border:0;border-radius:7px 7px 0 0;color:var(--arc-text)}
 #crm .crmColCab b{flex:1;min-width:0;font-size:13px;font-weight:600;color:inherit}
 #crm .crmColCab i{display:block;margin:0;font-style:normal;font-size:12px;font-weight:600;color:inherit}

@@ -28,16 +28,16 @@
  body[data-app=coco-erp] .arcContent #dashboard :is(.adMetricIcon,.adQuickIcon){width:34px;height:34px;border-radius:0;border:0;background:transparent;color:var(--gama-blue);box-shadow:none}
  body[data-app=coco-erp] .arcContent #dashboard :is(.adMetricIcon,.adQuickIcon) svg{width:28px;height:28px}
  body[data-app=coco-erp] .arcContent #dashboard :is(.adHeading h2,.adQuickActions h2){font-size:16px}
- body[data-app=coco-erp] .adBarInvoice{fill:var(--ad-invoice-fill,var(--gama-orange));background:var(--gama-orange);rx:5px}
- body[data-app=coco-erp] .adBarCash{fill:var(--ad-cash-fill,var(--gama-blue));background:var(--gama-blue);rx:5px}
+ body[data-app=coco-erp] .adBarInvoice{fill:var(--arc-viz-1);background:var(--arc-viz-1);rx:5px}
+ body[data-app=coco-erp] .adBarCash{fill:var(--arc-viz-2);background:var(--arc-viz-2);rx:5px}
  body[data-app=coco-erp] .adGridLine{stroke:var(--coco-row-line);stroke-width:1;stroke-dasharray:none}
  body[data-app=coco-erp] .adChartText{fill:var(--coco-muted);font:12px var(--arc-font)}
  body[data-app=coco-erp] .adLegend{font-size:12px;font-weight:400;gap:16px}
  body[data-app=coco-erp] .adLegend i{width:9px;height:9px;border-radius:50%}
- body[data-app=coco-erp] .adInvoiceTop{stop-color:var(--coco-chart-orange-top)}
- body[data-app=coco-erp] .adInvoiceBottom{stop-color:var(--coco-chart-orange-bottom)}
- body[data-app=coco-erp] .adCashTop{stop-color:var(--coco-chart-blue-top)}
- body[data-app=coco-erp] .adCashBottom{stop-color:var(--coco-chart-blue-bottom)}
+ body[data-app=coco-erp] .adInvoiceTop{stop-color:var(--arc-viz-1)}
+ body[data-app=coco-erp] .adInvoiceBottom{stop-color:var(--arc-viz-1)}
+ body[data-app=coco-erp] .adCashTop{stop-color:var(--arc-viz-2)}
+ body[data-app=coco-erp] .adCashBottom{stop-color:var(--arc-viz-2)}
  body[data-app=coco-erp] i.cocoMetricIcon,body[data-app=coco-erp] .arcContent #dashboard :is(.adMetricIcon,.adQuickIcon),body[data-app=coco-erp] .gamaF2KpiIcon{display:inline-grid;place-items:center;width:34px;height:34px;min-width:34px;padding:0;margin:0;border:0;border-radius:0;background:transparent;color:var(--gama-blue);box-shadow:none}
  body.cocoWorkbench #dashboard .adMetric{border:0;border-radius:var(--arc-r-lg);box-shadow:var(--coco-surface-shadow);background:var(--coco-surface-fill);padding:16px 20px}
  body.cocoWorkbench #dashboard .adMetricBody>strong{font-size:28px;font-weight:600}

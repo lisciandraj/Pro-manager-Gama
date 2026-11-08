@@ -42,7 +42,7 @@
 .grDocs{display:flex;gap:9px;flex-wrap:wrap}
 .grDocs button{min-height:40px}
 .grSteps{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;font-size:12px;color:var(--arc-text-muted);font-weight:700}
-.grSteps span[aria-current=step]{color:var(--arc-accent-600)}
+.grSteps span[aria-current=step]{color:var(--arc-accent-700)}
 .grDl{display:grid;grid-template-columns:auto 1fr;gap:5px 14px;margin:0;font-size:13px}
 .grDl dt{color:var(--arc-text-muted);font-weight:700}
 .grDl dd{margin:0;color:var(--arc-text)}

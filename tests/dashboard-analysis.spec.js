@@ -62,8 +62,10 @@ test('favorites save custom dates and layout across reload and can be deleted',a
 });
 test('chart switches to curves, exports exact values, expands, and selects a period by keyboard',async({page})=>{
  await boot(page);await expect(page.locator('.adAnalysis')).toBeVisible();await page.locator('.adChartOptions>summary').click();await page.selectOption('#ad-chart-type','line');await expect(page.locator('.adChart polyline')).toHaveCount(2);
+ const series=await page.locator('#dashboard .adAnalysis>article:first-child .adLegend i').evaluateAll(nodes=>nodes.map(el=>getComputedStyle(el).backgroundColor));
+ expect(await page.locator('#dashboard .adChart polyline').evaluateAll(nodes=>nodes.map(el=>getComputedStyle(el).stroke))).toEqual(series);
  const download=page.waitForEvent('download');await page.click('#ad-chart-export');const file=await download,body=fs.readFileSync(await file.path(),'utf8');expect(body).toContain('27600');expect(body).toContain('20400');expect(body).toContain('USD');
- await page.click('#ad-chart-expand');await expect(page.locator('.adChartDialog .adChart')).toBeVisible();expect(await page.evaluate(()=>{const ids=[...document.querySelectorAll('[id]')].map(x=>x.id);return ids.length-new Set(ids).size})).toBe(0);await page.locator('.adChartDialog [data-arc-dialog-close]').click();
+ await page.click('#ad-chart-expand');await expect(page.locator('.adChartDialog .adChart')).toBeVisible();expect(await page.locator('.adChartDialog .adLegend i').evaluateAll(nodes=>nodes.map(el=>getComputedStyle(el).backgroundColor))).toEqual(series);expect(await page.locator('.adChartDialog .adChart polyline').evaluateAll(nodes=>nodes.map(el=>getComputedStyle(el).stroke))).toEqual(series);expect(await page.evaluate(()=>{const ids=[...document.querySelectorAll('[id]')].map(x=>x.id);return ids.length-new Set(ids).size})).toBe(0);await page.locator('.adChartDialog [data-arc-dialog-close]').click();
  await page.locator('[data-ad-bucket]').first().press('Enter');await expect(page.locator('#ad-preset')).toHaveValue('custom');
 });
 test('relative date presets calculate company today, week and quarter',async({page})=>{

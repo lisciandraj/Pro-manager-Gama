@@ -110,7 +110,7 @@ test('phone table mode keeps every value under its column header, empty cells in
  expect(await page.locator('#alignTest tbody tr').nth(1).locator('td').evaluateAll(c=>c.filter(x=>getComputedStyle(x).display==='none').length)).toBe(3);
 });
 
-// Los botones muestran iconos blancos al estar activos y carbón al estar inactivos.
+// Los botones seleccionados usan el azul del menú y un icono blanco; los demás conservan tinta carbón.
 test('les boutons d’affichage montrent des icônes et des libellés traduits',async({page})=>{
  await boot(page);await fixtures(page);
  const bar=page.locator('#viewShared .gamaTableViews'),cards=bar.locator('[data-table-view=cards]'),table=bar.locator('[data-table-view=table]');
@@ -118,7 +118,7 @@ test('les boutons d’affichage montrent des icônes et des libellés traduits',
  const expectViewStyles=async()=>{for(const button of [cards,table]){
   const active=await button.getAttribute('aria-pressed')==='true';
   const ink=active?'rgb(255, 255, 255)':'rgb(38, 50, 56)';
-  await expect(button).toHaveCSS('background-color',active?'rgb(38, 50, 56)':'rgb(255, 255, 255)');
+  await expect(button).toHaveCSS('background-color',active?'rgb(33, 118, 184)':'rgb(255, 255, 255)');
   await expect(button).toHaveCSS('color',ink);
   const glyph=button.locator('svg');await expect(glyph).toBeVisible();
   // Check the painted geometry, independently of its paths or layer count.

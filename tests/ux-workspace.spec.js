@@ -105,7 +105,7 @@ test('quote creation action follows the white-on-green reference and retains vis
   return {actionText:s.color,actionBackground:s.backgroundColor,actionContrast:Math.min(...stops.map(c=>contrast(s.color,c))),status:contrast(badge.color,badge.backgroundColor),focus:action.matches(':focus-visible'),outline:parseFloat(s.outlineWidth)};
  });
  // Creation uses the accessible green action with white labels.
- expect(measures.actionText).toBe('rgb(255, 255, 255)');expect(measures.actionBackground).toBe('rgb(47, 111, 66)');
+ expect(measures.actionText).toBe('rgb(255, 255, 255)');expect(measures.actionBackground).toBe('rgb(39, 131, 68)');
  expect(measures.actionContrast).toBeGreaterThanOrEqual(4.5);
  expect(measures.status).toBeGreaterThanOrEqual(4.5);
  expect(measures.focus).toBe(true);expect(measures.outline).toBeGreaterThanOrEqual(2);

@@ -1,0 +1,11 @@
+{
+  "project_ref": "vhutzdfatijjpahsqkne",
+  "source_count": 306,
+  "installation": "6d1c1a9037e2f704399ef93b9db09ddcc0b7d019cde262310c9a309fb5727a1e",
+  "source_prefix_sha256": "5ecd4384331432650afcbfe4953549c254d7b0982ad3a7cda8616e3d62e757fb",
+  "derived_prefix_sha256": "43d6b4d93ae500e3bb5cab2565ca972fe235021a7bf3f77c54903f2f6ec0f25f",
+  "sql_sha256": "669912f4b3ac65163c5389225e53f90db35e2b09887f857073c8e0bb7b33a5b4",
+  "sql_bytes": 9390,
+  "observed_jobs": 3,
+  "observed_attempts": 3
+}

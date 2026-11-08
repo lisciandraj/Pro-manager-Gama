@@ -9,7 +9,7 @@ jetables ; elles ne modifient pas la production.
 | S03 | Remise de ligne en lot et provenance des prix copiés | Implémenté ; validations et document d'origine vérifiés |
 | S04 | Recherche et archivage des modèles avec reprise | Implémenté ; droits, recherche au-delà de 100, idempotence et historique vérifiés |
 | S06 | Comptes, validité et cycle des taxes | Implémenté ; 8 tests serveur et 3 parcours ES/FR/EN réussis |
-| S07 | Comptes comptables des clients et fournisseurs | Implémenté ; 11 tests serveur et parcours FR/ES réussis ; extension EN en validation générale |
+| S07 | Comptes comptables des clients et fournisseurs | Implémenté ; 11 tests serveur et parcours FR/ES/EN réussis |
 
 Le lot Ventes compte huit nouveaux parcours navigateur et deux tests Node.
 Les 89 régressions serveur prioritaires passent : ventes/dossier, comptabilité,
@@ -23,3 +23,7 @@ comme appliquée à la base hébergée.
 
 Écarts structurels restant ouverts dans [features.csv](features.csv), sans
 revendication de parité totale ni score artificiel.
+
+Régression navigateur complémentaire : 58 tests réussis, dont les trois parcours de comptes tiers et les vues comptables existantes. Avec les huit parcours Ventes et trois parcours Taxes, 69 cas distincts ont été vérifiés avant intégration du thème récent. La branche intègre `8569f2e` ; syntaxe, types, documentation, migrations, actifs reproductibles et budgets y sont vérifiés. Les parcours concernés par cette intégration sont revérifiés séparément.
+
+Après intégration de `8569f2e` : **27/27 tests navigateur réussis**, couvrant les 14 nouveaux parcours, les onglets et vues modifiés par main. Les captures S02, S06 et S07 sont actualisées dans `clone-screens/`. Aucune violation Axe ni erreur de console n’a été constatée dans les parcours comptables contrôlés.

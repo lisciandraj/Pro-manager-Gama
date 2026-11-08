@@ -178,3 +178,7 @@ l'archivage avec reprise, les prix copiés et les remises avec taux mixtes.
 La parité exhaustive avec Odoo n'est pas revendiquée : les paiements en ligne,
 signatures, programmes de fidélité et autres écarts restent à distinguer dans la
 matrice Replica.
+
+La [matrice Community du 8 novembre](../../replica/community-2026-11-08/features.csv)
+et l’[audit des ventes restantes](../../replica/community-2026-11-08/remaining-sales.md)
+distinguent les fonctions livrées, partielles, absentes et retirées par choix produit.

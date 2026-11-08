@@ -59,4 +59,3 @@ language plpgsql stable security invoker set search_path='' as $$begin
  return private.coco_history_record_visible_before_sales_templates(p_table,p_id,p_owner);
 end $$;
 commit;
-

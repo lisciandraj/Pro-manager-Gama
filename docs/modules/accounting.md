@@ -277,3 +277,17 @@ utilisent uniquement des bases isolées.
 
 Vérification : `tests/accounting-tax-lifecycle-db.test.cjs` et
 `tests/accounting-tax-lifecycle.spec.js` (FR/ES/EN, téléphone et ordinateur).
+
+## Comptes des clients et fournisseurs
+
+**Comptabilité → Configuration → Comptes des contacts** recherche les clients
+et fournisseurs par pages de 50 et permet de choisir un compte de créances ou
+de dettes dédié, ou le paramétrage général. Ce choix s’applique aux nouvelles
+pièces ; les paiements, avoirs et corrections conservent le compte de la facture
+d’origine. Une affectation d’acompte entre comptes crée un transfert équilibré
+sans nouveau mouvement de trésorerie. Les comptes bancaires et d’attente ne
+peuvent pas être utilisés comme comptes tiers. Les comptes produits/catégories
+restent un écart distinct.
+
+Les droits, les trois modes de paiement, les acomptes historiques, l’historique
+et les limites sont détaillés dans le [contrat des comptes tiers](../../replica/community-2026-11-08/accounting-partner-accounts.md).

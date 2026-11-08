@@ -19,7 +19,8 @@ const CATEGORIAS=[['A','A · Mayorista (por defecto)'],['B','B · Venta al detal
 /* Los campos de cada tipo, en su orden. Lo que tienen en común (nombre,
    teléfono, correo, ciudad…) se conserva al cambiar de tipo antes de guardar. */
 const FIELDS={
- nature:{label:'Particular o empresa',type:'select',options:[['person','Particular'],['company','Empresa']]},
+ nature:{label:'Tipo de ficha',type:'select',options:[['person','Individual'],['company','Empresa']]},
+ company:{label:'Empresa vinculada',type:'select',help:'Opcional. La persona conserva sus propios datos de contacto.'},
  title:{label:'Título de cortesía',maxLength:80},
  mobile:{label:'Móvil',type:'tel',maxLength:80},
  street2:{label:'Complemento de dirección',maxLength:500},
@@ -68,7 +69,7 @@ const LAYOUT={
 };
 const ARCHIVE='contacts',PAGE=20;
 let directoryUnavailable=false,pageRows=[];
-let kindFilter='',qualityFilter='',rows=null,leads=[],grid=null,editing=null,draft={},pendingOpen=null,epoch=0,editorSeq=0,who;
+let kindFilter='',natureFilter='',qualityFilter='',rows=null,leads=[],companies=null,grid=null,editing=null,draft={},pendingOpen=null,epoch=0,editorSeq=0,who;
 let salespeople=[],salespeopleReady=false;
 // Clientes y proveedores son del módulo Contactos; los contactos de prospectos, del CRM.
 const can=id=>!!window.gamaAccessAllowed?.(['prospects','people'].includes(id)?'crm':'contacts');
@@ -77,6 +78,29 @@ const kindOf=id=>KINDS.find(k=>k.id===id);
 const norm=v=>String(v??'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
 const clean=v=>{const s=String(v??'').trim();return s||null};
 const personName=(x={})=>[x.first_name,x.last_name].filter(Boolean).join(' ').trim();
+const natureOf=r=>r.nature??r.record?._contactProfile?.nature??(['people','prospects'].includes(r.kind)?'person':null);
+const natureLabel=v=>T(v==='company'?'Empresa':v==='person'?'Individual':'Sin definir');
+async function companyOptions(request){
+ if(companies)return companies;
+ const result=[],seen=new Set(),token=epoch;
+ for(let page=0;;page++){
+  const data=await window.ArcData.rpc('coco_contact_directory',{p_data:{nature:'company',page,pageSize:100,sort:'name',ascending:true,archived:false}});
+  if(token!==epoch||request!==editorSeq)return [];
+  if(data?.version!==1)throw Error(T('No se pudieron cargar las empresas. Reintenta.'));
+  for(const row of data.items||[])if(row.nature==='company'&&row.active&&!seen.has(row.entity_id)){seen.add(row.entity_id);result.push(row)}
+  if(!data.items?.length||(page+1)*(data.pageSize||100)>=data.total)break;
+ }
+ companies=result;return result;
+}
+async function loadCompanies(request){
+ const field=$('ctf-company');if(!field)return;
+ field.disabled=true;
+ try{const options=await companyOptions(request);if(request!==editorSeq||!field.isConnected)return;
+  field.innerHTML='<option value="">—</option>'+options.filter(r=>r.entity_id!==editing?.record?._contactProfile?.id).map(r=>`<option value="${esc(r.entity_id)}">${esc(r.name)}</option>`).join('');
+  if(draft.company&&!options.some(r=>r.entity_id===draft.company))field.insertAdjacentHTML('beforeend',`<option value="${esc(draft.company)}">${esc(T('Empresa vinculada (no disponible)'))}</option>`);
+  field.value=draft.company||'';field.disabled=false;window.GamaSelectSearch?.scan(field);
+ }catch(e){if(request===editorSeq&&field.isConnected){const help=field.closest('.arcField')?.querySelector('.arcFieldHelp');if(help)help.textContent=T('No se pudieron cargar las empresas. Reintenta.');$('ctMsg').textContent=window.ArcErrors?.message(e)||e.message}}
+}
 function section(){let s=$('contacts');if(!s){s=document.createElement('section');s.id='contacts';(document.querySelector('.wrap')||document.body).append(s)}return s}
 const active=()=>window.ArcRouter.current==='contacts'&&section().classList.contains('active');
 const leadName=l=>String(l.company||'').trim()||[l.first_name,l.last_name].filter(Boolean).join(' ').trim()||T('(sin nombre)');
@@ -107,12 +131,12 @@ async function load(){
  for(const r of out.filter(x=>x.kind==='people')){const parent=out.find(x=>x.kind==='clients'&&x.id===r.record.customer_id);r.ref=parent?.name||'';r.city=r.record.address_mode==='own'?r.record.city:(parent?.city||'')}
  leads=found;rows=out;return rows;
 }
-function refresh(){rows=null;if(grid&&$('ctTable')?.isConnected)grid.refresh()}
+function refresh(){rows=null;companies=null;if(grid&&$('ctTable')?.isConnected)grid.refresh()}
 const matches=(r,terms)=>{if(!terms.length)return true;const h=norm([r.name,r.detail,r.ref,r.phone,r.email,r.city,T(kindOf(r.kind).one)].join(' '));return terms.every(t=>h.includes(t))};
 async function source(req){
  if(!directoryUnavailable){
   const token=epoch;try{
-   const data=await window.ArcData.rpc('coco_contact_directory',{p_data:{...req,kind:kindFilter,quality:qualityFilter,archived:window.GamaArchive.mode(ARCHIVE)==='archived'}});
+   const data=await window.ArcData.rpc('coco_contact_directory',{p_data:{...req,kind:kindFilter,nature:natureFilter,quality:qualityFilter,archived:window.GamaArchive.mode(ARCHIVE)==='archived'}});
    if(token!==epoch)return {items:[],total:0,page:0,pageSize:PAGE};
    if(data?.version===1){
     const E=window.ArcEntities;pageRows=data.items.map(r=>({...r,key:r.kind+':'+r.id,record:r.kind==='clients'?E.customerFromRow(r.record):r.kind==='suppliers'?E.supplierFromRow(r.record):r.record}));
@@ -127,7 +151,7 @@ async function source(req){
  const all=await load(),archived=window.GamaArchive.mode(ARCHIVE)==='archived';
  const box=$('ctArchive');if(box)box.innerHTML=window.GamaArchive.tabs(ARCHIVE,all.filter(r=>r.active).length,all.filter(r=>!r.active).length);
  const terms=norm(req.search).split(/\s+/).filter(Boolean);
- let items=all.filter(r=>r.active!==archived&&matches(r,terms)&&(!kindFilter||r.kind===kindFilter)&&(!qualityFilter||(qualityFilter==='email'?!r.email:!r.phone)));
+ let items=all.filter(r=>r.active!==archived&&matches(r,terms)&&(!kindFilter||r.kind===kindFilter)&&(!natureFilter||natureOf(r)===natureFilter)&&(!qualityFilter||(qualityFilter==='email'?!r.email:!r.phone)));
  const by=Object.fromEntries([...Object.entries({name:r=>r.name,kind:r=>T(kindOf(r.kind).one),city:r=>r.city||'',ref:r=>r.ref||'',phone:r=>r.phone||'',email:r=>r.email||''}),...extraColumns.map(([key,,value])=>[key,value])])[req.sort];
  if(by)items=[...items].sort((a,b)=>window.GamaTable.compare(by(a),by(b),req.ascending===false?'desc':'asc'));
  return {items:items.slice(req.page*req.pageSize,(req.page+1)*req.pageSize),total:items.length,page:req.page,pageSize:req.pageSize};
@@ -159,7 +183,9 @@ const extraColumns=[
 ];
 const columns=()=>[
  {label:'Nombre',sort:'name',html:r=>`<button class="arcButton secondary" type="button" data-ct-open="${esc(r.key)}"><b>${esc(r.name)}</b></button>${r.detail?`<small class="ctSub">${esc(r.detail)}</small>`:''}`},
- {label:'Tipo',sort:'kind',html:r=>(r.roles?.length?r.roles:[r]).map(role=>`<span class="ctBadge" data-kind="${role.kind}">${esc(T(kindOf(role.kind)?.one||role.kind))}</span>`).join(' ')},
+ {label:'Tipo de ficha',sort:'nature',value:r=>natureLabel(natureOf(r))},
+ {label:'Rol comercial',sort:'kind',html:r=>(r.roles?.length?r.roles:[r]).map(role=>`<span class="ctBadge" data-kind="${role.kind}">${esc(T(kindOf(role.kind)?.one||role.kind))}</span>`).join(' ')},
+ {label:'Empresa vinculada',sort:'company',html:r=>r.company?U.button({label:r.company.name,attrs:`data-ct-company="${esc(r.company.kind+':'+r.company.id)}"`}):'—'},
  {label:'Identificación / empresa',sort:'ref',value:r=>r.ref||'—'},
  {label:'Teléfono',sort:'phone',html:r=>r.phone?`<a href="tel:${esc(String(r.phone).replace(/[^+0-9]/g,''))}">${esc(r.phone)}</a>`:'—'},
  {label:'Correo',sort:'email',html:r=>r.email?`<a href="mailto:${esc(encodeURIComponent(r.email))}">${esc(r.email)}</a>`:'—'},
@@ -191,7 +217,7 @@ async function purge(key){
 /* ---- el formulario ---- */
 function fromRecord(kind,x){
  const p=x._contactProfile||{};
- const common={nature:p.nature||'',title:p.title,mobile:p.mobile,street2:p.street2,
+ const common={nature:['people','prospects'].includes(kind)?'person':p.nature||'',company:p.relation==='employee'?p.parent_id||'':'',title:p.title,mobile:p.mobile,street2:p.street2,
   companyRegistry:p.company_registry,reference:p.ref,imageUrl:p.image_url,tags:(p.tags||[]).join(', '),salesperson:p.salesperson_id,
   ident:x.taxId??x.identification,identKind:x.identificationKind||x.identification_kind||'auto',phone:x.phone,phone2:x.phone2,email:x.email,
   address:x.address,city:x.city,province:x.province,postalCode:x.postalCode??x.postal_code,country:x.country,lat:x.lat??'',lng:x.lng??'',
@@ -231,17 +257,21 @@ async function loadSalespeople(request){
   select.value=draft.salesperson||'';select.disabled=false;
  }catch(_){if(request===editorSeq&&$('ctf-salesperson'))$('ctf-salesperson').disabled=true}
 }
-function formLayout(kind){return LAYOUT[kind].filter(entry=>entry!=='salesperson'||!!window.gamaAccessAllowed?.('crm'))}
+function formLayout(kind){const layout=LAYOUT[kind].filter(entry=>(entry!=='salesperson'||!!window.gamaAccessAllowed?.('crm'))&&(entry!=='companyRegistry'||draft.nature!=='person'));if(['clients','suppliers'].includes(kind)&&draft.nature==='person')layout.splice(1,0,'company');return layout}
 function fieldsHtml(kind){
  const layout=formLayout(kind),rendered=layout.map(entry=>{
   const [key,over]=Array.isArray(entry)?entry:[entry,{}];
   const f={...FIELDS[key],...over};
+  if(key==='nature')f.required=!editing;
+  if(key==='name'&&draft.nature==='person')f.label=FIELDS.fullName.label;
+  if(key==='nature'&&['people','prospects'].includes(kind)){f.options=[['person','Individual']];f.disabled=true}
+  if(key==='company'){f.options=(companies||[]).filter(r=>r.entity_id!==editing?.record?._contactProfile?.id).map(r=>[r.entity_id,r.name]);if(draft.company&&!f.options.some(([id])=>id===draft.company))f.options.push([draft.company,T('Empresa vinculada (no disponible)')])}
   const options=key==='salesperson'?salespersonOptions():key==='customer'?(rows||[]).filter(r=>r.kind==='clients'&&(r.active||r.id===draft.customer)).map(r=>({value:r.id,label:r.name})):key==='lead'?leadOptions(draft.lead):(f.options||[]).map(([value,label])=>({value,label:T(label)}));
   return U.field({id:'ctf-'+key,key,label:f.label,type:f.type||'text',value:draft[key]??(f.type==='checkbox'?false:''),required:!!f.required&&!(editing&&((key==='ident'&&!editing.record.taxId)||(key==='terms'&&editing.record.paymentTermsDays==null))),
-   maxLength:f.maxLength,min:f.min,max:f.max,step:f.step,help:f.help||'',options,className:f.type==='textarea'?'ctWide':f.type==='checkbox'?'ctCheck':''});
+   disabled:!!f.disabled,maxLength:f.maxLength,min:f.min,max:f.max,step:f.step,help:f.help||'',options,className:f.type==='textarea'?'ctWide':f.type==='checkbox'?'ctCheck':''});
  });
  const keys=layout.map(e=>Array.isArray(e)?e[0]:e);
- const groups=[['Identidad',['customer','lead','nature','title','name','fullName','ident','identKind','companyRegistry','reference','imageUrl']],['Datos de contacto',['contactName','phone','mobile','phone2','email','website']],['Dirección',['addressMode','address','street2','city','province','postalCode','country']],['Información comercial',['category','terms','jobTitle','role','primary','salesperson','industry','language','tags']],['Observaciones',['notes']]];
+ const groups=[['Identidad',['nature','name','fullName','company','customer','lead','title','ident','identKind','companyRegistry','reference','imageUrl']],['Datos de contacto',['contactName','phone','mobile','phone2','email','website']],['Dirección',['addressMode','address','street2','city','province','postalCode','country']],['Información comercial',['category','terms','jobTitle','role','primary','salesperson','industry','language','tags']],['Observaciones',['notes']]];
  const blocks=groups.map(([label,fields])=>{const html=fields.filter(k=>keys.includes(k)).map(k=>rendered[keys.indexOf(k)]).join('');return html?`<fieldset class="ctGroup"><legend>${tr(label)}</legend><div class="arcFormGrid ctFields">${html}</div></fieldset>`:''}).join('');
  const more=keys.filter(k=>!groups.some(g=>g[1].includes(k))).map(k=>rendered[keys.indexOf(k)]).join('');
  const gpsHint={es:'Para localizar la dirección, indica la calle, el número y la ciudad. Las coordenadas guardadas se utilizan en la planificación TMS. Geocodificación: Photon / © OpenStreetMap contributors.',fr:'Pour localiser l’adresse, renseignez la rue, le numéro et la ville. Les coordonnées enregistrées sont utilisées pour la planification TMS. Géocodage : Photon / © OpenStreetMap contributors.',en:'To locate the address, enter the street, number and city. Saved coordinates are used for TMS planning. Geocoding: Photon / © OpenStreetMap contributors.'}[window.GamaI18n?.language||'es'];
@@ -261,12 +291,15 @@ function readDraft(){
 }
 function paintFields(){
  const kind=$('ctType').value,box=$('ctFields');
+ if(['people','prospects'].includes(kind))draft.nature='person';
  box.innerHTML=fieldsHtml(kind);U.mount(box);
+ $('ctf-nature').onchange=()=>{readDraft();paintFields()};
  for(const id of ['ctf-customer','ctf-lead','ctf-addressMode'])if($(id))$(id).addEventListener('change',parentAddress);parentAddress();
  box.oninput=showDuplicates;box.onchange=showDuplicates;showDuplicates();
  $('ctKindHint').innerHTML=tr(kindOf(kind).hint);
  $('ctNoLeads').hidden=!(kind==='prospects'&&!leadOptions(draft.lead).length);
  loadSalespeople(editorSeq);
+ loadCompanies(editorSeq);
 }
 // Suggestions use only the authorized records already loaded for this editor.
 // Similar names remain a warning: two companies may legitimately share a name.
@@ -294,7 +327,7 @@ function openForm(kind,record=null){
  editorSeq++;editing=record?{kind,id:record.id,record}:null;draft=record?fromRecord(kind,record):{category:'A',addressMode:'parent',nature:['people','prospects'].includes(kind)?'person':'company'};
  box.hidden=false;box.dataset.kind=kind;
  U.render(box,`<form id="ctForm" class="arcPanel arcForm ctForm"><div class="ctFormHead"><h3>${tr(record?'Editar contacto':'Nuevo contacto')}</h3><button type="button" class="arcButton secondary" id="ctClose">${tr('Cerrar')}</button></div>`
-  +`<div class="arcFormGrid">${U.field({id:'ctType',label:'Tipo de contacto',type:'select',required:true,value:kind,disabled:!!record,options:list.map(k=>({value:k.id,label:T(k.one)}))})}</div>`
+  +`<div class="arcFormGrid">${U.field({id:'ctType',label:'Rol comercial',type:'select',required:true,value:kind,disabled:!!record,options:list.map(k=>({value:k.id,label:T(k.one)}))})}</div>`
   +`<p class="gsHint" id="ctKindHint"></p><p class="gsHint" id="ctNoLeads" hidden>${tr('Todavía no hay prospectos: créalos primero en el CRM → Prospectos.')}</p>`
   +`<p class="gsHint">${tr('Los datos comunes se sincronizan entre los roles de la misma identidad. Las condiciones y notas permanecen separadas.')}</p>`
   +`<div id="ctFields"></div><div id="ctDuplicates" class="arcPanel" role="status" aria-live="polite" hidden></div>`
@@ -329,12 +362,18 @@ async function save(){
  const odoo={nature:d.nature||null,title:clean(d.title),mobile:clean(d.mobile),ref:clean(d.reference),image_url:clean(d.imageUrl),
   tags:String(d.tags||'').split(',').map(s=>s.trim()).filter(Boolean)};
  if(own)odoo.street2=clean(d.street2);
- if(['clients','suppliers'].includes(kind))odoo.company_registry=clean(d.companyRegistry);
+ if(['clients','suppliers'].includes(kind)){
+  if(d.nature!=='person')odoo.company_registry=clean(d.companyRegistry);
+  const original=editing?.record?._contactProfile;
+  if(d.nature==='person'&&$('ctf-company')){const parent=clean(d.company);if(parent!==(original?.relation==='employee'?original.parent_id||null:null))odoo.parent_id=parent}
+  else if(d.nature==='company'&&original?.relation==='employee')odoo.parent_id=null;
+ }
  if($('ctf-salesperson')&&!$('ctf-salesperson').disabled&&clean(d.salesperson)!==(editing?.record?._contactProfile?.salesperson_id||null))odoo.salesperson_id=clean(d.salesperson);
  // Do not reinterpret existing tags (which may contain commas), or normalize
  // optional profile values, during an unrelated contact edit.
  if(editing){const original=editing.record._contactProfile||{};
   for(const key of Object.keys(odoo)){
+   if(key==='parent_id')continue; // Its comparison also includes the relationship type above.
    if(key==='tags'?String(d.tags||'')===(original.tags||[]).join(', '):odoo[key]===clean(original[key]))delete odoo[key];
   }
  }
@@ -372,12 +411,14 @@ function render(){
  grid?.dispose();grid=null;
  U.render(s,window.GamaUI.header({title:'Contactos',lead:'Clientes, proveedores y sus personas de contacto en una sola lista.',module:'contacts'})
   +`<div class="ctBar"><input id="ctSearch" type="search" autocomplete="off" aria-label="${esc(T('Buscar contactos'))}" placeholder="${esc(T('Buscar por nombre, tipo, identificación, empresa, ciudad o correo…'))}"><div id="ctArchive"></div><button type="button" class="arcButton secondary" id="ctAging">${tr('Balance por antigüedad')}</button><button type="button" class="arcButton primary" id="ctNew">${tr('Nuevo contacto')}</button></div>`
-  +`<div class="arcToolbar ctFilters"><label>${tr('Tipo de contacto')}<select id="ctKindFilter"><option value="">${esc(T('Todos los tipos'))}</option>${kinds().map(k=>`<option value="${k.id}" ${kindFilter===k.id?'selected':''}>${esc(T(k.one))}</option>`).join('')}</select></label><label>${tr('Datos de contacto')}<select id="ctQualityFilter"><option value="">${esc(T('Todos'))}</option><option value="email" ${qualityFilter==='email'?'selected':''}>${esc(T('Sin correo'))}</option><option value="phone" ${qualityFilter==='phone'?'selected':''}>${esc(T('Sin teléfono'))}</option></select></label></div>`
+  +`<div class="arcToolbar ctFilters"><label>${tr('Tipo de ficha')}<select id="ctNatureFilter"><option value="">${esc(T('Todos los tipos'))}</option>${[['person','Individual'],['company','Empresa']].map(([v,l])=>`<option value="${v}" ${natureFilter===v?'selected':''}>${esc(T(l))}</option>`).join('')}</select></label><label>${tr('Rol comercial')}<select id="ctKindFilter"><option value="">${esc(T('Todos los tipos'))}</option>${kinds().map(k=>`<option value="${k.id}" ${kindFilter===k.id?'selected':''}>${esc(T(k.one))}</option>`).join('')}</select></label><label>${tr('Datos de contacto')}<select id="ctQualityFilter"><option value="">${esc(T('Todos'))}</option><option value="email" ${qualityFilter==='email'?'selected':''}>${esc(T('Sin correo'))}</option><option value="phone" ${qualityFilter==='phone'?'selected':''}>${esc(T('Sin teléfono'))}</option></select></label></div>`
   +`<p class="gsHint ctStatus" id="ctStatus" role="status"></p><div id="ctEditor" class="ctEditor" hidden></div><div id="ctTable" class="ctTable"></div>`);
  window.GamaUI.bindBack(s);
+ $('ctNatureFilter').onchange=e=>{natureFilter=e.target.value;grid?.refresh({page:0})};
  $('ctKindFilter').onchange=e=>{kindFilter=e.target.value;grid?.refresh({page:0})};$('ctQualityFilter').onchange=e=>{qualityFilter=e.target.value;grid?.refresh({page:0})};
  $('ctAging').onclick=async()=>{try{await window.ArcLoadScript('gama-collections.js');await window.GamaCollections.aging()}catch(e){window.gamaToast?.(window.ArcErrors.message(e))}};$('ctNew').onclick=async()=>{const token=epoch,req=++editorSeq;await load();if(token===epoch&&req===editorSeq&&active())openForm(kinds()[0]?.id)};
- grid=U.dataTable($('ctTable'),{contextKey:'contacts',columns:columns(),primaryColumns:['name','kind','phone','email','city','active'],source,searchInput:$('ctSearch'),className:'ctList',empty:T('Ningún contacto en esta lista.'),initial:{pageSize:PAGE,sort:'name',ascending:true},actions:{
+ grid=U.dataTable($('ctTable'),{contextKey:'contacts',columns:columns(),primaryColumns:['name','nature','kind','company','phone','email','city','active'],source,searchInput:$('ctSearch'),className:'ctList',empty:T('Ningún contacto en esta lista.'),initial:{pageSize:PAGE,sort:'name',ascending:true},actions:{
+  'data-ct-company':async key=>{const [kind,id]=key.split(':');try{await window.ArcLoadScript('coco-contact-hub.js');await window.CocoContactHub.open(kind,id)}catch(e){window.gamaToast?.(window.ArcErrors.message(e))}},
   'data-ct-edit':async key=>{const r=find(key);if(r){await load();await openRecord(r.kind,r.id)}},
   'data-ct-open':async key=>{const r=find(key);if(!r)return;try{await window.ArcLoadScript('coco-contact-hub.js');await window.CocoContactHub.open(r.kind,r.id)}catch(e){window.gamaToast?.(window.ArcErrors.message(e))}},
   'data-ct-dossier':async key=>{const r=find(key);if(!r)return;try{await window.ArcLoadScript('coco-contact-hub.js');await window.CocoContactHub.open(r.kind,r.id)}catch(e){window.gamaToast?.(window.ArcErrors.message(e))}},
@@ -406,7 +447,8 @@ function edit(kind,id){pendingOpen={kind,id};if(active()){flush();return true}re
 window.GamaArchive.register(ARCHIVE,()=>grid?.refresh({page:0}));
 window.addEventListener('gama:data-change',e=>{if(['customers','suppliers','crm_contacts','crm_leads'].includes(e.detail?.table))refresh()});
 window.addEventListener('gama:language-change',()=>{if(active())render()});
-window.addEventListener('gama:auth-change',e=>{if(e.detail?.event==='TOKEN_REFRESHED')return;epoch++;rows=null;pageRows=[];directoryUnavailable=false;who=undefined;salespeople=[];salespeopleReady=false;closeForm()});
+window.addEventListener('gama:modules-change',()=>{epoch++;rows=null;companies=null;pageRows=[];closeForm();if(active())render()});
+window.addEventListener('gama:auth-change',e=>{if(e.detail?.event==='TOKEN_REFRESHED')return;epoch++;rows=null;companies=null;pageRows=[];natureFilter='';directoryUnavailable=false;who=undefined;salespeople=[];salespeopleReady=false;closeForm()});
 window.ArcRouter.onEnter('contacts',()=>{
  // Los contactos del CRM no llegan en tiempo real: al entrar se leen de nuevo.
  for(const t of ['crm_contacts','crm_leads'])window.ArcData.invalidate(t);

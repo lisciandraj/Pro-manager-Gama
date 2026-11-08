@@ -1,0 +1,93 @@
+name: Publish approved initial Coco public catalogue
+on:
+  push:
+    branches: [maintenance/coco-cloudflare-production-20261108]
+    paths:
+      - .github/workflows/publish-initial-coco-catalogue.yml
+      - scripts/publish-initial-coco-catalogue.mjs
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: coco-initial-public-catalogue
+  cancel-in-progress: false
+jobs:
+  publish-approved-initial-catalogue:
+    if: github.repository == 'lisciandraj/Pro-manager-Gama' && github.actor == github.repository_owner && github.ref == 'refs/heads/maintenance/coco-cloudflare-production-20261108'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out reviewed release controls
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          path: release-control
+          persist-credentials: false
+      - name: Check out the frozen initial production source
+        uses: actions/checkout@v4
+        with:
+          ref: 20272ccbd040a5a00b32d6632ba8ad9eb1b72481
+          path: approved-source
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: approved-source/package-lock.json
+      - name: Test the reviewed release guards without remote calls
+        run: node release-control/scripts/publish-initial-coco-catalogue.test.mjs
+      - name: Verify Cloudflare credentials and the existing project without mutations
+        id: preflight
+        working-directory: approved-source
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          GITHUB_TOKEN: ${{ github.token }}
+        run: node ../release-control/scripts/publish-initial-coco-catalogue.mjs preflight
+      - name: Require the ready and empty production database before any Cloudflare mutation
+        working-directory: approved-source
+        run: node ../release-control/scripts/publish-initial-coco-catalogue.mjs ready
+      - name: Build the frozen public assets
+        working-directory: approved-source
+        run: |
+          test "$(git rev-parse HEAD)" = 20272ccbd040a5a00b32d6632ba8ad9eb1b72481
+          npm ci
+          npm run build
+          npm run build:storefront
+          node --test tests/storefront-server.test.mjs tests/storefront-progressive.test.cjs
+          node ../release-control/scripts/publish-initial-coco-catalogue.mjs receipt
+      - name: Install the pinned Pages CLI locally
+        run: npm install --prefix "$RUNNER_TEMP/coco-pages-cli" --no-audit --no-fund --save-exact wrangler@4.158.0
+      - name: Freeze automatic Git production deployments without changing preview settings
+        working-directory: approved-source
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          GITHUB_TOKEN: ${{ github.token }}
+        run: node ../release-control/scripts/publish-initial-coco-catalogue.mjs freeze
+      - name: Publish assets and Pages Functions to the existing production branch
+        working-directory: approved-source
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          COCO_PRODUCTION_BRANCH: ${{ steps.preflight.outputs.production_branch }}
+          WRANGLER_SEND_METRICS: 'false'
+        run: |
+          # Cloudflare documents this as preserving the last deployed dashboard
+          # configuration. Do not replace existing bindings with a partial config.
+          mv wrangler.jsonc "$RUNNER_TEMP/coco-approved-wrangler.jsonc"
+          node "$RUNNER_TEMP/coco-pages-cli/node_modules/wrangler/bin/wrangler.js" pages deploy dist-storefront --project-name gama-coco --branch "$COCO_PRODUCTION_BRANCH" --commit-hash 20272ccbd040a5a00b32d6632ba8ad9eb1b72481 --commit-message 'Approved initial empty Coco production catalogue' --commit-dirty=true
+      - name: Verify the live production catalogue and preserved Cloudflare settings
+        working-directory: approved-source
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          GITHUB_TOKEN: ${{ github.token }}
+        run: node ../release-control/scripts/publish-initial-coco-catalogue.mjs verify
+      - name: Preserve the public source version receipt
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: approved-initial-catalogue-version
+          path: approved-source/dist-storefront/coco-storefront-build.json
+          retention-days: 30

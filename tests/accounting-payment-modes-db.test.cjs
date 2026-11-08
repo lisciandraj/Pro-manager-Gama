@@ -31,7 +31,7 @@ test('Odoo 19 payment modes preserve residuals, cash, matching and immutable his
   await q("select set_config('request.jwt.claim.sub',$1,false)",[ids.admin]);
   await db.exec("update company_settings set configured=true,legal_name='Isolated payment fixture',country='EC',currency='USD',address='Quito'");
   await q("insert into customers(id,name,address,payment_terms_days) values($1,'Isolated customer','Quito',30)",[ids.customer]);
-  await q("insert into products(id,name,reference,sale_price,purchase_price,tax_rate) values($1,'Isolated item','PAYMENT-MODES',50,20,0)",[ids.product]);
+  await q("insert into products(id,name,reference,barcode,sale_price,purchase_price,tax_rate) values($1,'Isolated item','PAYMENT-MODES','PAYMENT-MODES',50,20,0)",[ids.product]);
   await q("insert into suppliers(id,name) values($1,'Isolated supplier')",[ids.supplier]);
   chart=Object.fromEntries((await q("select code,id from accounting_accounts where code in('1000','1200','2000','2090')")).rows.map(r=>[r.code,r.id]));
   await q("insert into financial_accounts(id,name,kind,account_id) values($1,'Isolated bank','bank',$2)",[ids.bank,chart['1000']]);
@@ -103,7 +103,12 @@ test('Odoo 19 payment modes preserve residuals, cash, matching and immutable his
   await scenario('an ordinary payment consumes the residual after a return credit',async()=>{
    const inv=await invoice();await db.exec('reset role');
    const order=await v('select order_id from external_invoices where id=$1',[inv.id]);
-   const returned=await v("insert into return_orders(kind,customer_id,order_id,invoice_id,reason,created_by) values('customer',$1,$2,$3,'commercial',$4) returning id",[ids.customer,order,inv.id,ids.admin]);await db.exec('set role authenticated');
+   const tms=await v("insert into tms_deliveries(customer_id,customer,address,created_by) values($1,'Isolated customer','Quito',$2) returning id",[ids.customer,ids.admin]);
+   const shipment=await v('insert into sales_deliveries(order_id,request_key,tms_delivery_id,created_by) values($1,gen_random_uuid(),$2,$3) returning id',[order,tms,ids.admin]);
+   const line=await v('insert into sales_delivery_lines(delivery_id,order_line_id,location_id,quantity) select $1,l.id,w.id,2 from sales_order_lines l cross join lateral (select id from warehouse_locations where active limit 1) w where l.order_id=$2 returning id',[shipment,order]);
+   const returned=await v("insert into return_orders(kind,customer_id,order_id,invoice_id,reason,created_by) values('customer',$1,$2,$3,'commercial',$4) returning id",[ids.customer,order,inv.id,ids.admin]);
+   await q('insert into return_lines(return_id,product_id,delivery_line_id,quantity,unit_price,tax_rate) values($1,$2,$3,1,50,0)',[returned,ids.product,line]);
+   await db.exec('set role authenticated');
    await rpc('gama_returns_action','credit',{id:returned,amount:30});assert.equal((await balance(inv)).balance,70);
    await denied(()=>pay(inv,71),/PAYMENT_EXCEEDS_BALANCE/);assert.equal((await balance(inv)).payments.length,0);
    await pay(inv,70);assert.equal((await balance(inv)).balance,0);

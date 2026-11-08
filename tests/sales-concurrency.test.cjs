@@ -1,4 +1,5 @@
 // Runs against a disposable PostgreSQL service in CI, never the connected ERP.
+const {configureLegalInformation}=require('./helpers/storefront-legal.cjs');
 const {test}=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),{randomUUID:uuid}=require('node:crypto'),{Client}=require('pg'),{fixtureMigration}=require('../scripts/fresh-migration.cjs');
 test('separate PostgreSQL sessions serialize credit, confirmation, invoicing and payment retries',{skip:!process.env.COCO_TEST_DATABASE_URL,timeout:120000},async()=>{
  const url=new URL(process.env.COCO_TEST_DATABASE_URL);
@@ -12,6 +13,7 @@ test('separate PostgreSQL sessions serialize credit, confirmation, invoicing and
    let sql=fs.readFileSync(path.join(directory,name),'utf8').replace(/create extension if not exists (pgcrypto|pg_cron|pg_net)(?: with schema \w+)?;/gi,'');
    try{await root.query(fixtureMigration(name,sql))}catch(e){throw Error(name+': '+e.message,{cause:e})}
   }
+  await configureLegalInformation(root);
   await root.query('insert into auth.users(id,email,email_confirmed_at) values($1,$2,now())',[admin,'concurrent@example.invalid']);
   await root.query("update profiles set role='administrador',active=true where id=$1",[admin]);
   await root.query("select set_config('request.jwt.claim.sub',$1,false)",[admin]);
@@ -39,8 +41,9 @@ test('separate PostgreSQL sessions serialize credit, confirmation, invoicing and
   const payments=await Promise.all(clients.map(c=>rpc(c,'gama_payment_action','payment',payment)));
   assert.equal(Number((await root.query("select count(*) from external_invoice_payments where invoice_id=$1 and status='confirmed'",[invoices[0].id])).rows[0].count),1);
   assert.equal(Number((await root.query('select sum(amount) amount from external_invoice_payments where invoice_id=$1',[invoices[0].id])).rows[0].amount),30);
-  // Separate returns share one invoice cap. Hold the existing customer posting
-  // lock until both sessions wait: one on that lock, the other on the invoice.
+  // A historical invoice without frozen tax components still shares its cap.
+  // Both legacy returns wait while the first credit takes the posting lock.
+  await root.query("update external_invoices set document_snapshot=document_snapshot-'tax_calculation' where id=$1",[invoices[0].id]);
   const returns=[];
   for(let n=0;n<2;n++)returns.push((await root.query("insert into return_orders(kind,customer_id,order_id,invoice_id,reason,created_by) values('customer',$1,$2,$3,'commercial',$4) returning id",[customer,id,invoices[0].id,admin])).rows[0].id);
   const pids=[];for(const c of clients){await c.query("set statement_timeout='8s'");pids.push((await c.query('select pg_backend_pid() pid')).rows[0].pid)}
@@ -99,7 +102,9 @@ test('separate PostgreSQL sessions serialize credit, confirmation, invoicing and
    await c.query('reset role');await c.query("select set_config('request.jwt.claim.sub','',false)");
    await c.query("select set_config('request.headers',$1,false)",[JSON.stringify({'x-coco-site-token':connection.token})]);await c.query('set role anon');
   }
-  const inquiry={contact_name:'Quota fixture',email:'quota-race@example.invalid',company:'QA',consent:true,lines:[{product_id:product,quantity:1}]};
+  const publicSettings=await rpc(clients[0],'gama_storefront','bootstrap',{});
+  assert.equal(publicSettings.collection_ready,true);
+  const inquiry={policy_version:publicSettings.policies.version,contact_name:'Quota fixture',email:'quota-race@example.invalid',company:'QA',consent:true,lines:[{product_id:product,quantity:1}]};
   for(let i=0;i<4;i++)await rpc(clients[0],'gama_storefront','submit',{...inquiry,request_key:uuid(),visitor:'198.51.100.7'});
   const requests=clients.map((_,i)=>({...inquiry,request_key:uuid(),visitor:'198.51.100.'+(10+i)}));
   await root.query('begin');await root.query('select pg_advisory_xact_lock(741932,1)');

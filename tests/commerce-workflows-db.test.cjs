@@ -67,7 +67,7 @@ test('commerce: verified reviews, guest idempotency, tenant isolation and two-st
   await as(admin);await catalogue('save',{customer_id:customer,restricted:true,references:'COM-PAPER'});
   await as(requester);assert.equal((await b2b('catalog')).total,1);
   assert.equal((await favorite('ids')).includes(product),false);assert.equal((await favorite('list')).items.some(p=>p.id===product),false);
-  await assert.rejects(favorite('set',{product_id:product,favorite:true}),/COMMERCE_CATALOG_RESTRICTED/);
+  await assert.rejects(favorite('set',{product_id:product,favorite:true}),/PRODUCT_NOT_FOUND/);
   await favorite('set',{product_id:product,favorite:false});
   await assert.rejects(b2b('preview',{lines:[{product_id:product,quantity:1}]}),/COMMERCE_CATALOG_RESTRICTED/);
   await assert.rejects(one('select public.gama_b2b_storefront($1,$2::jsonb)',['product',JSON.stringify({id:product})]),/WEBSITE_PRODUCT_NOT_FOUND/);

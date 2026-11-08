@@ -45,14 +45,15 @@ test('column visibility persists across render and language, is isolated by user
 });
 test('sorts all contacts before pagination, keeps hidden columns after page changes, and persists after reload',async({page})=>{
  await boot(page);await page.evaluate(()=>ArcRouter.open('contacts'));const host=page.locator('#ctTable');await expect(host.locator('tbody tr')).toHaveCount(20);
- await host.locator('thead th').nth(3).click();await expect(host.locator('thead th').nth(3)).toHaveAttribute('aria-sort','ascending');await host.locator('thead th').nth(3).click();
+ const phone=host.locator('th[data-column-key="phone"]'),phoneIndex=await phone.evaluate(th=>th.cellIndex);
+ await phone.click();await expect(phone).toHaveAttribute('aria-sort','ascending');await phone.click();
  await expect(host.locator('tbody tr').first()).toContainText('1024');await expect(host.locator('tbody tr').first()).toContainText('Adresse 24');await expect(host.locator('tbody tr').first()).toContainText('Note fournisseur 24');
  await host.locator('.gamaColumnHeading').click();await host.getByRole('checkbox',{name:'Téléphone',exact:true}).uncheck();
  await host.locator('[data-arc-page="1"]').click();await expect(host.locator('tbody tr')).toHaveCount(5);await expect(host.locator('tbody tr').first()).toContainText('1004');
- await expect(host.locator('tbody tr').first().locator('td').nth(3)).toBeHidden();
+ await expect(host.locator('tbody tr').first().locator('td').nth(phoneIndex)).toBeHidden();
  await host.locator('[data-ct-edit]').first().click();await expect(page.locator('#ctf-name')).toHaveValue('Fournisseur 4');
  await page.reload();await page.waitForFunction(()=>window.ArcRouter);await page.evaluate(()=>ArcRouter.open('contacts'));
- await expect(host.locator('tbody tr').first()).toContainText('1024');await expect(host.locator('thead th').nth(3)).toHaveAttribute('aria-sort','descending');await expect(host.locator('tbody tr').first().locator('td').nth(3)).toBeHidden();
+ await expect(host.locator('tbody tr').first()).toContainText('1024');await expect(phone).toHaveAttribute('aria-sort','descending');await expect(host.locator('tbody tr').first().locator('td').nth(phoneIndex)).toBeHidden();
 });
 test('product server sorting includes all data columns and sorts beyond the first page',async({page})=>{
  await boot(page);await page.evaluate(()=>ArcRouter.open('products'));const host=page.locator('#productsTable');await expect(host.locator('tbody tr')).toHaveCount(20);
@@ -169,7 +170,7 @@ test('reordered columns retain numeric sorting, hidden columns, search, form val
 });
 test('server columns keep their sort key and personal order on every page',async({page})=>{
  await boot(page);await page.evaluate(()=>ArcRouter.open('contacts'));const host=page.locator('#ctTable');await expect(host.locator('tbody tr')).toHaveCount(20);
- const phone=host.locator('thead th').nth(3),name=host.locator('thead th').first();await phone.dragTo(name);
+ const phone=host.locator('th[data-column-key="phone"]'),name=host.locator('th[data-column-key="name"]');await phone.dragTo(name);
  await expect(host.locator('thead th').first()).toContainText('Téléphone');
  await host.locator('thead th').first().locator('.arcSort').press('Enter');await expect(host.locator('thead th').first()).toHaveAttribute('aria-sort','ascending');
  await host.locator('thead th').first().locator('.arcSort').press('Enter');await expect(host.locator('tbody tr').first().locator('td').first()).toHaveText('1024');

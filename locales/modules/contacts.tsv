@@ -17,3 +17,15 @@ Etiquetas separadas por comas	Étiquettes séparées par des virgules	Comma-sepa
 Comercial responsable	Commercial responsable	Salesperson
 Comercial asignado (no disponible)	Commercial attribué (indisponible)	Assigned salesperson (unavailable)
 Título de cortesía	Civilité	Title
+Tipo de ficha	Type de fiche	Record type
+Individual	Individuel	Individual
+Rol comercial	Rôle commercial	Commercial role
+Empresa vinculada	Entreprise liée	Linked company
+Empresa vinculada (no disponible)	Entreprise liée (indisponible)	Linked company (unavailable)
+Opcional. La persona conserva sus propios datos de contacto.	Facultatif. La personne conserve ses propres coordonnées.	Optional. The person keeps their own contact details.
+No se pudieron cargar las empresas. Reintenta.	Les entreprises n’ont pas pu être chargées. Réessaie.	Companies could not be loaded. Try again.
+Sin definir	Non défini	Unspecified
+El contacto debe ser una persona.	Ce contact doit être de type individuel.	This contact must be an individual.
+Selecciona una empresa para vincular a una persona.	Sélectionne une entreprise à rattacher à une personne.	Select a company to link to an individual.
+La empresa seleccionada no está disponible. Actualiza la ficha y elige otra empresa.	L’entreprise sélectionnée n’est pas disponible. Actualise la fiche et choisis une autre entreprise.	The selected company is unavailable. Refresh the record and select another company.
+Esta empresa tiene personas vinculadas. Reasigna sus contactos antes de cambiar el tipo.	Cette entreprise a des personnes rattachées. Réaffecte ces contacts avant de changer son type.	This company has linked individuals. Reassign these contacts before changing its type.

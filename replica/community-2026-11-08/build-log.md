@@ -44,6 +44,13 @@ fichiers revérifiés. La validation complète du commit livré et les deux scé
 de concurrence PostgreSQL sont les contrôles GitHub de la PR ; ils restent des
 conditions de fusion.
 
+Après intégration de development (Contacts, palette et gel du bootstrap),
+14 fichiers SQL fiscaux/achats/retours et 5 fichiers factures/escompte/remboursement
+passent. Un scénario société/particulier lié conserve leurs identités financières
+distinctes. Les 71 cas Contacts/bootstrap/promotion, 17 parcours navigateur ciblés
+et 12 cas factures internes/outils passent aussi. La devise figée est vérifiée
+à l’écran, dans le PDF et dans le texte copié, indépendamment de la société.
+
 Les résultats détaillés et les commandes reproductibles sont dans
 [verification.json](verification.json). La [première livraison](../../docs/history/odoo-community-first-delivery-2026-11-08.md)
 est conservée séparément.

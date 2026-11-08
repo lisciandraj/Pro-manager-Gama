@@ -8,13 +8,13 @@ async function setup(page){
   window.GamaInternalInvoices={pdf:async i=>__calls.push(['pdf',i.id]),link:async(id,done)=>__calls.push(['link',id,done===window.__done]),view:async(id,done)=>__calls.push(['view',id,done===window.__done])};
   window.GamaAccounting={openSri:id=>__calls.push(['sri',id])};window.CocoInvoiceDeferrals={showPlans:async(side,id)=>__calls.push(['deferrals',side,id])};window.CocoSalesRewards={invoice:(id,done)=>{__calls.push(['rewards',id]);window.__rewardDone=done}};window.CocoInvoiceCheckout={open:i=>__calls.push(['payment',i.id])};
   Object.defineProperty(navigator,'clipboard',{value:{writeText:async text=>__calls.push(['copy',text])},configurable:true});window.__done=()=>{};
-  window.__invoice={id:'i1',number:'INV-1',issue_date:'2026-11-08',subtotal:10,tax:1.5,total:11.5,document_snapshot:{customer:'Andes',customer_identification:'0991',quote_number:'Q-1',order_number:'SO-1',lines:[{name:'Toner',reference:'TN',qty:1,price:10,taxRate:15,subtotal:10,tax:1.5}]}};
+  window.__invoice={id:'i1',number:'INV-1',issue_date:'2026-11-08',subtotal:10,tax:1.5,total:11.5,document_snapshot:{currency:'EUR',customer:'Andes',customer_identification:'0991',quote_number:'Q-1',order_number:'SO-1',lines:[{name:'Toner',reference:'TN',qty:1,price:10,taxRate:15,subtotal:10,tax:1.5}]}};
   window.__dialog=()=>{const d=document.createElement('dialog');d.innerHTML='<div class="gsActions"><button id="giLink" disabled>Link</button><button id="giPdf" disabled>PDF</button><button id="giCopy" disabled>Copy</button></div><textarea id="giText"></textarea><p id="giCopyStatus"></p><p id="gsFormError"></p>';document.body.append(d);d.showModal();return d};
  });
 }
 test('lazy invoice tools preserve exports, copy data, payment and gift refresh',async({page})=>{
  await setup(page);await page.addScriptTag({path:modulePath});await page.evaluate(()=>CocoInvoiceTools.attach(__invoice,__dialog(),__done));
- await expect(page.locator('#giPdf')).toBeEnabled();await expect(page.locator('#giText')).toHaveValue(/FACTURA INTERNA INV-1[\s\S]*Toner\tTN/);await page.click('#giCopy');await expect(page.locator('#giCopyStatus')).toHaveText('Datos copiados.');await page.click('#giPdf');await page.click('#giPaymentLink');await page.click('#giRewards');await page.evaluate(()=>__rewardDone());
+ await expect(page.locator('#giPdf')).toBeEnabled();await expect(page.locator('#giText')).toHaveValue(/FACTURA INTERNA INV-1[\s\S]*Toner\tTN/);await expect(page.locator('#giText')).toHaveValue(/TOTAL EUR: 11.5/);await page.click('#giCopy');await expect(page.locator('#giCopyStatus')).toHaveText('Datos copiados.');await page.click('#giPdf');await page.click('#giPaymentLink');await page.click('#giRewards');await page.evaluate(()=>__rewardDone());
  expect(await page.evaluate(()=>__calls)).toEqual(expect.arrayContaining([['pdf','i1'],['payment','i1'],['rewards','i1'],['view','i1',true],['load','coco-invoice-checkout.js'],['load','coco-sales-rewards.js']]));
  await page.evaluate(()=>CocoInvoiceTools.attach(__invoice,__dialog(),__done));await page.locator('dialog[open] #giLink').click();expect(await page.evaluate(()=>__calls.at(-1))).toEqual(['link','i1',true]);
 });

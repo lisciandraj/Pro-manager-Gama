@@ -137,5 +137,16 @@
     "npm run update",
     "PLAYWRIGHT_CHROMIUM_PATH=/usr/bin/chromium npx playwright test --workers=2"
   ],
-  "initial_delivery_archive": "../../docs/history/odoo-community-first-verification-2026-11-08.json"
+  "initial_delivery_archive": "../../docs/history/odoo-community-first-verification-2026-11-08.json",
+  "post_merge_compatibility": {
+    "development_commit": "aae3ba9c76fd40daa1aac8293a63ad9aef1fd2b9",
+    "tax_purchase_returns_test_files": 14,
+    "direct_invoice_discount_refund_test_files": 5,
+    "linked_individual_company_financial_identity_scenarios": 1,
+    "contacts_and_immutable_bootstrap_cases": 71,
+    "signature_payments_refunds_contacts_browser_cases": 17,
+    "internal_invoice_and_lazy_tools_browser_cases": 12,
+    "failed": 0,
+    "notes": "Canonical build, source/type/documentation/migration checks, generated reproducibility and original startup budgets pass. Frozen invoice currency is verified independently from the current company currency."
+  }
 }

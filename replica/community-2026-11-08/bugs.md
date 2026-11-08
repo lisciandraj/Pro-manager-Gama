@@ -12,6 +12,22 @@
 | B08 | S3 | Intégration de deux extensions d'historique : remplacement de chaîne devenu inopérant après le premier wrapper | Branche explicite des comptes tiers ; test sous rôle authentifié et lien vers l'onglet |
 | B09 | S2 | Devise figée différente de celle courante : devis affiché avec un autre symbole que son export | Devise de l'instantané appliquée à l'affichage et au PDF ; assertion EUR du parcours pro forma |
 
-Les écarts fonctionnels de [features.csv](features.csv) restent ouverts ; ils ne
-sont pas transformés en défauts corrigés par ces tests. Les services de signature,
-banque, paiement et fiscalité ne sont pas simulés comme des intégrations réelles.
+## Corrections lors de la finalisation
+
+| ID | Effet corrigé | Preuve |
+| --- | --- | --- |
+| B10 | Acompte avancé qui contournait la création des reports de revenu | tax-deposit-deferrals-integration |
+| B11 | Avoir direct partiel qui retirait toute la base fiscale d’origine | direct-credit-tax-base-integration |
+| B12 | Allocation fournisseur sur plusieurs comptes en conflit avec une clé de plan unique | direct-invoices-db, scénario fournisseur réparti |
+| B13 | Prix taxes incluses de 0,04 perdant un centime | advanced-tax-engine-db |
+| B14 | Acompte avec taxe fixe et TVA composée : escompte dû 29,32 au lieu de 29,33 | advanced-tax-deposits-db |
+| B15 | Dernier centime déplacé lorsque deux retours sont traités dans l’ordre inverse | sales-commercial-db |
+| B16 | Risque de double affectation des fonds entre paiement, portefeuille et virement | checkout-payments-db et sales-rewards-db |
+| B17 | Avoir déjà payé sans remboursement canonique, ou double restitution argent/portefeuille | direct-paid-refunds-db et sales-rewards-db |
+| B18 | Chiffre d’affaires sans les avoirs et retours pourtant comptabilisés | revenue-ledger-projection-db |
+| B19 | Projections privées non lisibles par les fonctions invoker du tableau de bord | dashboard-db et p1-finance-db |
+
+La [matrice actuelle](features.csv) distingue l’implémentation et la configuration
+externe requise. Les événements Stripe de test ne créent aucun encaissement ; le
+virement déclaré ne vaut pas preuve bancaire. Aucune activation externe ou de
+production n’a été effectuée.

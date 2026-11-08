@@ -1,32 +1,26 @@
-# Écarts Ventes encore présents après le lot du 8 novembre 2026
+# Finalisation des écarts Ventes
 
-Audit statique des sources canoniques de Coco ERP, comparées aux comportements documentés d’Odoo **19.0**. Ces constats complètent `features.csv` ; ils ne certifient ni une parité exhaustive, ni l’appartenance de chaque extension à une édition. Aucun code source Odoo consulté ou repris. Aucun essai sur les données de production.
+L’[audit initial](../../docs/history/odoo-community-sales-gaps-initial-2026-11-08.md)
+constatait les absences du premier lot. Les parcours suivants sont désormais
+implémentés dans les sources canoniques et vérifiés sur des bases jetables.
 
-Les mentions « absent » désignent un parcours absent des sources examinées, et non une impossibilité de saisir manuellement un produit ou une écriture pour obtenir un montant voisin.
+| Fonction | Implémentation et preuve |
+| --- | --- |
+| Remise globale fixe ou en pourcentage | Lignes négatives ventilées par taxe, factures partielles au centime ; `tests/sales-commercial-db.test.cjs` |
+| Livraison facturée | Règles de prix, gratuité, ligne de service et facturation groupée ; même suite |
+| Refacturation des dépenses | Dépenses approuvées, coût/prix de vente, lien source unique ; même suite |
+| Suggestions automatiques d’options | Association produit/option ou alternative, sélection explicite ; `tests/sales-commercial.spec.js` |
+| Coupons, promotions et fidélité | Règles, limites, points sur facture, avoirs et annulations ; `tests/sales-rewards-db.test.cjs` |
+| Cartes cadeaux et portefeuilles | Financement par reçu réel, dette, consommation et contre-passation ; même suite |
+| PDF enrichi | Import privé, champs associés, modèles, brochures et fusion réelle ; `tests/quote-document-compose.test.cjs`, `tests/quote-documents-db.test.cjs` |
+| Signature commerciale distante | PDF figé et empreinte vérifiée, trois méthodes, confirmation native et reprise idempotente ; `tests/sales-checkout-db.test.cjs`, `tests/sales-checkout.spec.js` |
 
-## Résultats
+La couche de paiement prestataire et ses vérifications sont consignées dans le
+[contrat courant](../../docs/modules/sales-accounting-community.md) et dans
+`verification.json`. Une clé ou un compte marchand manquant est une configuration
+à fournir avant activation, jamais un paiement à simuler.
 
-| Fonction à comparer | État Coco vérifié | Preuves et écart restant |
-| --- | --- | --- |
-| Promotions, coupons, fidélité et cartes cadeaux | **Partiel : promotions de prix existantes ; coupons, points et soldes cadeaux absents** | `supabase/migrations/20261015185009_sales_terms_and_pricing_rules.sql:52` définit `erp_price_calculate` : choix de tarifs approuvés selon produit/catégorie, client, date et quantité, priorité des tarifs `promotion`, remise/formule/arrondi. Ce mécanisme ne crée pas de code utilisable, de points, de récompense, de carte ou de solde. La recherche ciblée `coupon`, `loyal`, `fidélité`, `gift card`, `carte cadeau`, `ewallet`, `wallet`, `promo code`, `discount program` dans `src/`, `supabase/migrations/` et `tests/` ne trouve aucun moteur correspondant ; les seuls faux positifs initiaux provenaient des libellés du plan comptable. |
-| Transport facturé au client | **Absent ; calcul des coûts internes existant** | `src/features/transport/dispatch.js:87` enregistre carburant, temps du conducteur, péages et coûts du véhicule, avec répartition entre clients. `supabase/migrations/20261005065015_ec_delivery_cost_per_customer.sql:1` décrit expressément une attribution des coûts en lecture seule ; `gama_tms_customer_costs` retourne coûts et compteurs. Aucun de ces parcours ne calcule un tarif commercial de livraison, ne crée une ligne dans le devis/commande, ni ne transmet cette ligne à la facture. Le champ `freight` des consultations fournisseurs appartient aux achats, pas à la livraison facturée aux clients. |
-| Refacturation des dépenses au client | **Absente ; dépenses, validation et remboursement existants** | `supabase/migrations/20260917162640_accounting_module.sql:111` définit les dépenses avec fournisseur, catégorie, montants et projet. `supabase/migrations/20261020193647_business_modules_contracts_expenses_sourcing.sql:25` ajoute les notes de frais liées à un employé/véhicule et leur état. La branche d’approbation vers la ligne 232 comptabilise la dépense ; le paiement rembourse l’employé. `src/features/finance/business-modules.js:68` expose ces champs. Aucun lien dépense → commande client, politique « au coût / prix de vente », indicateur de montant refacturé ou création idempotente de ligne de vente n’est présent dans ce parcours. Un rattachement analytique au projet n’établit pas la refacturation. |
-| PDF enrichi et fiches produits | **Partiel : PDF commercial paginé existant ; composition documentaire absente** | `src/features/sales/quote-pdf.js:10` construit un nouveau document jsPDF ; les lignes 16–42 dessinent en-tête, client, tableau, totaux, sections, options et conditions, puis produisent un blob. Aucun import/fusion de pages PDF, sélection de couvertures/brochures par modèle/produit ni remplissage de champs PDF n’y est implémenté. `supabase/migrations/20260919221254_service_and_documents.sql:45` offre séparément des documents liés à une commande ; ce stockage ne les assemble pas dans le PDF de devis. |
-| Produits optionnels saisis sur un devis | **Existant** | `src/features/sales/editor.js:108` affiche les blocs optionnels ; les lignes 113–116 permettent l’ajout manuel puis la conversion en ligne tarifée. `supabase/migrations/20261015183402_sales_dossier_lifecycle.sql:184` valide et enregistre les blocs `section`, `note`, `option` ; `quote-pdf.js:37` les imprime hors total. Cet existant doit rester crédité dans la matrice. |
-| Suggestions automatiques d’options liées au produit principal | **Absentes ; options manuelles existantes** | L’ajout de produit de `src/features/sales/editor.js:80` à `:106` résout uniquement produit, quantité et prix ; le parcours option de `:116` demande au commercial de choisir lui-même dans la liste des produits. Aucun catalogue d’associations produit principal → options ni déclenchement automatique de suggestions n’a été trouvé dans les sources Ventes et leurs migrations. Ne pas présenter l’ajout manuel de blocs comme cette fonction complète. |
-
-## Références fonctionnelles publiques
-
-- [Remises Odoo 19](https://www.odoo.com/documentation/19.0/applications/sales/sales/products_prices/prices/discounts.html) : distingue le pourcentage sur toutes les lignes, la ligne de remise globale en pourcentage et le montant fixe. Le lot Coco couvre le premier mode ; les deux autres restent à implémenter.
-- [Programmes de promotions et fidélité Odoo 19](https://www.odoo.com/documentation/19.0/applications/sales/sales/products_prices/loyalty_discount.html) : programmes, conditions, récompenses et codes.
-- [E-wallets et cartes cadeaux Odoo 19](https://www.odoo.com/documentation/19.0/fr/applications/sales/sales/products_prices/ewallets_giftcards.html) : programmes, génération et utilisation des soldes/codes.
-- [Méthodes de livraison Odoo 19](https://www.odoo.com/documentation/19.0/applications/inventory_and_mrp/inventory/shipping_receiving/setup_configuration/new_delivery_method.html) : frais calculés dans la commande, tarif fixe ou règles. Les connexions aux transporteurs sont des intégrations distinctes.
-- [Refacturation des dépenses Odoo 19](https://www.odoo.com/documentation/19.0/applications/finance/expenses/reinvoice_expenses.html) : liaison à la commande et politique de refacturation, approbation/comptabilisation avant facturation.
-- [Composition des devis PDF Odoo 19](https://www.odoo.com/documentation/19.0/applications/sales/sales/sales_quotations/pdf_quote_builder.html) : assemblage de documents fournis par l’utilisateur, couvertures et champs dynamiques.
-- [Produits optionnels Odoo 19](https://www.odoo.com/documentation/19.0/applications/sales/sales/sales_quotations/optional_products.html) : associations configurées sur le produit et suggestions lors de son ajout au devis.
-
-## Conséquence pour la matrice
-
-Remplacer les trois états `to_audit` par des états étayés : promotions/fidélité/cartes cadeaux **partial**, transport/refacturation **partial** pour les modules de support mais **no** pour leurs parcours de facturation, PDF enrichi **partial**. Idéalement séparer transport facturé et refacturation en deux lignes, et ajouter une ligne « suggestions automatiques de produits optionnels » à **no**, sans déclasser la ligne existante « sections, notes et produits optionnels ».
-
-Les extensions nécessaires aux parcours de dépense, transport ou paiement constituent des dépendances fonctionnelles à traiter ; leur présence dans la documentation générale ne prouve pas leur frontière Community/Enterprise. Les catégories ci-dessus ne doivent donc pas être exclues automatiquement sous un motif d’édition non vérifié.
+La [matrice](features.csv) conserve le portail historique comme retrait produit
+intentionnel. Les sources fonctionnelles Odoo sont listées dans [recon.md](recon.md).
+Aucune migration hébergée, connexion marchande ou promotion de production n’est
+effectuée par ces vérifications locales.

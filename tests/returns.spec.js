@@ -48,6 +48,7 @@ async function boot(page,{role='admin',rows=CUSTOMER_ROWS,rights=RIGHTS,detail=D
   window.__RET={responses:RESPONSES,calls:[],error:null};
  },{role,RESPONSES});
  await page.route('**/gama-supabase.js*',r=>r.fulfill({contentType:'text/javascript',body:cloud}));
+ await page.route('**/gama-returns.js*',r=>r.fulfill({contentType:'text/javascript',body:fs.readFileSync(__dirname+'/../src/features/service/returns.js','utf8')}));
  await page.route('**/@supabase/**',r=>r.abort());
  await page.goto('/index.html');
  await page.waitForFunction(()=>window.GamaReturns&&window.GamaCloud&&window.GamaCurrency);
@@ -67,6 +68,11 @@ async function boot(page,{role='admin',rows=CUSTOMER_ROWS,rights=RIGHTS,detail=D
 }
 const calls=page=>page.evaluate(()=>window.__RET.calls);
 const lastCall=async(page,action)=>(await calls(page)).filter(c=>c.p_action===action).pop();
+
+test('supplier credit explicitly links the original invoice for frozen tax components',async({page})=>{
+ const detail={...DETAIL,id:'r9',kind:'supplier',status:'shipped',customer_id:null,order_id:null,invoice_id:null,supplier_id:'s1',purchase_order_id:'po1',supplier_invoice_id:'bill1',supplier_invoices:[{id:'bill1',number:'SUP-ORIGINAL',total:121},{id:'bill2',number:'SUP-SECOND',total:50}],amount:30.25};
+ await boot(page,{rows:SUPPLIER_ROWS,detail});await page.locator('#gdfTabPRP').click();await page.locator('[data-gr-open=r9]').click();await page.locator('#grSupplierCredit').click();const d=page.locator('dialog[open]');await expect(d.locator('#grScInvoice')).toHaveValue('bill1');await d.locator('#grScInvoice').selectOption('bill2');await d.locator('#grScRef').fill('SUP-CREDIT');await d.getByRole('button',{name:'Validar',exact:true}).click();expect((await lastCall(page,'supplier_credit')).p_data).toMatchObject({id:'r9',supplier_invoice_id:'bill2',supplier_reference:'SUP-CREDIT',amount:30.25});
+});
 
 test('la lista abre con los cuatro indicadores, la tabla del pliego y sus filtros',async({page})=>{
  await boot(page);

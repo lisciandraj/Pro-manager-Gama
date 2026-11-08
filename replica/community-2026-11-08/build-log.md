@@ -1,52 +1,49 @@
-# Livraison du 8 novembre 2026
+# Finalisation Ventes et Comptabilité — 8 novembre 2026
 
-Les vérifications ciblées sont réalisées sur les actifs compilés et des bases
-jetables ; elles ne modifient pas la production.
+Les écarts recensés dans la [matrice](features.csv) sont implémentés dans le
+[contrat courant](../../docs/modules/sales-accounting-community.md). Les moyens
+externes restent désactivés jusqu’à leur configuration sécurisée. Cette livraison
+vise `development` ; aucune migration hébergée ni promotion de production n’est
+réalisée.
 
-| Écran | Changement | État |
-| --- | --- | --- |
-| S02 | Pro forma distincte du devis et de la facture, devise figée | Implémenté ; exports 390/1440 et test du générateur PDF réussis |
-| S03 | Remise de ligne en lot et provenance des prix copiés | Implémenté ; validations et document d'origine vérifiés |
-| S04 | Recherche et archivage des modèles avec reprise | Implémenté ; droits, recherche au-delà de 100, idempotence et historique vérifiés |
-| S06 | Comptes, validité et cycle des taxes | Implémenté ; 8 tests serveur et 3 parcours ES/FR/EN réussis |
-| S07 | Comptes comptables des clients et fournisseurs | Implémenté ; 11 tests serveur et parcours FR/ES/EN réussis |
+## Parcours vérifiés
 
-Le lot Ventes compte huit nouveaux parcours navigateur et deux tests Node.
-Les 89 régressions serveur prioritaires passent : ventes/dossier, comptabilité,
-configuration, paiements, chaîne vente → banque et instantanés SRI. La validation
-commune complète et les régressions navigateur complémentaires sont consignées
-ci-dessous après leur fin.
+| Périmètre | Vérifications ciblées |
+| --- | --- |
+| Remises, frais, suggestions, copie et retours | Parcours SQL réels jusqu’aux écritures, transport exclu du retour, centimes cumulés et comptes figés ; UI mobile/bureau |
+| Fidélité et valeur stockée | 11 tests SQL ; reçus réels, consommation, retours, remboursement mixte argent/portefeuille et droits |
+| Factures autonomes | 12 tests SQL ; 7 remboursements après règlement ; facture sans commande, banque, SRI figé et reports ; E2E FR mobile/EN bureau |
+| Escompte | 16 tests SQL et 6 cas navigateur ; trois traitements fiscaux, compensation des avoirs et taxes physiques composées |
+| Moteur fiscal | 10 calculs et parcours facture/fournisseur/acompte ; sous-centimes, arrondi global, positions fiscales, rapports figés et confirmation d’un changement de règle |
+| Comptes produits/catégories | 7 tests SQL et 3 parcours FR/EN/ES ; héritage indépendant, reset, conflit concurrent et droits |
+| PDF enrichis | 4 tests unitaires, 6 SQL et 3 parcours navigateur ; vrais PDF relus, champs, annexes privées et gel des sélections |
+| Signature | 7 tests SQL, portée native, 3 Edge et 4 parcours navigateur ; trois méthodes, réponse perdue, PDF altéré et commande unique |
+| Paiements à distance | 10 tests SQL, 8 Edge, 3 parcours publics et 1 configuration ; HMAC, mode test sans argent, virement vérifié, réservations partagées et revue des litiges |
+| Chiffre d’affaires | 8 tests SQL comparant mois/client/produit au grand livre ; avoirs, retours, contrepassations et reports |
+| Régressions des écrans existants | 90 cas prioritaires et 14 cas supplémentaires de configuration/rapprochement |
 
-La revue indépendante a conduit à corriger les problèmes décrits dans
-[bugs.md](bugs.md). Trois migrations sont ajoutées ; aucune n'est présentée
-comme appliquée à la base hébergée.
+Les captures sélectionnées figurent dans `clone-screens/`. Les tests utilisent des
+bases locales jetables et des identités synthétiques. Les appels prestataires
+sont remplacés uniquement dans les tests ; aucun paiement fictif n’est déclaré
+réel dans l’application.
 
-Écarts structurels restant ouverts dans [features.csv](features.csv), sans
-revendication de parité totale ni score artificiel.
+## Contrôles d’intégration
 
-Régression navigateur complémentaire : 58 tests réussis, dont les trois parcours de comptes tiers et les vues comptables existantes. Avec les huit parcours Ventes et trois parcours Taxes, 69 cas distincts ont été vérifiés avant intégration du thème récent. La branche intègre `8569f2e` ; syntaxe, types, documentation, migrations, actifs reproductibles et budgets y sont vérifiés. Les parcours concernés par cette intégration sont revérifiés séparément.
+Sources, dépendances auditées, types, documentation, migrations, génération
+reproductible et budget de démarrage sont contrôlés. Les scripts de première
+installation de production restent liés à leur historique revu de 362 migrations
+et refusent les ajouts de développement ; le test reconstruit séparément cet
+historique figé et vérifie que le refus reste effectif.
 
-Après intégration de `8569f2e` : **27/27 tests navigateur réussis**, couvrant les 14 nouveaux parcours, les onglets et vues modifiés par main. Les captures S02, S06 et S07 sont actualisées dans `clone-screens/`. Aucune violation Axe ni erreur de console n’a été constatée dans les parcours comptables contrôlés.
+Une exécution locale complète de 905 cas pendant l’intégration avait 22 écarts
+et deux cas PostgreSQL ignorés localement. Les écarts provenaient de migrations
+encore modifiées en parallèle, de champs désormais obligatoires dans des fixtures
+qui désactivent les triggers, d’attentes historiques et de trois vues du tableau
+de bord privées d’autorisation de lecture. Ces points sont corrigés et leurs
+fichiers revérifiés. La validation complète du commit livré et les deux scénarios
+de concurrence PostgreSQL sont les contrôles GitHub de la PR ; ils restent des
+conditions de fusion.
 
-## Suite complète et correction du contrat historique
-
-La suite Node complète a exécuté **790 tests** : 787 réussites, une attente de
-compatibilité obsolète et deux tests de concurrence ignorés sans serveur
-PostgreSQL local. L’unique écart était la comparaison de `tax_save` avec son
-ancienne erreur SQL brute et l’absence historique des nouveaux champs de taxe.
-Le test conserve ses assertions sur l’ancien comportement, puis attend
-explicitement `TAX_NAME_INVALID`, `valid_to` et `version`. Le fichier complet
-`standardization-db.test.cjs` a ensuite réussi **3/3**, sans changement serveur.
-
-Les deux scénarios de concurrence ont été exécutés sur PostgreSQL par GitHub :
-[job ventes](https://github.com/lisciandraj/Pro-manager-Gama/actions/runs/42496954621)
-et [job comptabilité](https://github.com/lisciandraj/Pro-manager-Gama/actions/runs/42496954535/job/128781239671)
-réussis. Le contrôle général GitHub est relancé avec l’attente corrigée ; son
-résultat doit rester une condition de fusion. Aucune fusion ni publication
-n’est effectuée par cette livraison.
-
-La suite complète utilise l’arbre métier `e161896`. Les sources Ventes,
-Comptabilité et migrations de l’intégration sont identiques hors lignes blanches ;
-les modifications de thème de `8569f2e` ont leurs contrôles communs et les 27 tests
-navigateur distincts de l’intégration. Voir [verification.json](verification.json)
-pour les limites et empreintes des migrations.
+Les résultats détaillés et les commandes reproductibles sont dans
+[verification.json](verification.json). La [première livraison](../../docs/history/odoo-community-first-delivery-2026-11-08.md)
+est conservée séparément.

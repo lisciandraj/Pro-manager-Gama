@@ -266,14 +266,13 @@ après archivage ou changement de compte. Les rapports conservent les lignes
 historiques après ces changements. La validité se contrôle à la date du document,
 y compris lorsqu’un verrou décale la date comptable.
 
-Le compte de taxe collectée peut être configuré mais les ventes actuelles,
-fondées sur des taux par ligne sans identifiant de taxe, continuent d’utiliser
-le compte global. Les taxes incluses, fixes, composées, les positions fiscales
-et la facture client autonome restent des écarts identifiés dans la
-[comparaison Odoo Community](../../replica/community-2026-11-08/recon.md).
-Cette livraison ne change pas l’émission SRI. La migration additive doit être
-appliquée avant utilisation du nouveau parcours sur une instance ; les tests
-utilisent uniquement des bases isolées.
+Le [moteur fiscal et les factures clients autonomes](sales-accounting-community.md)
+étendent ce parcours : taxes fixes, incluses et composées, arrondi global,
+positions fiscales et comptes figés par composante. Les sélections simples
+existantes restent compatibles. La préparation SRI conserve ses contrôles de
+correspondance fiscale ; un document interne ne devient pas fiscal par la seule
+présence d’un calcul de taxes. Les migrations additives doivent être appliquées
+avant utilisation sur une instance ; les tests utilisent des bases isolées.
 
 Vérification : `tests/accounting-tax-lifecycle-db.test.cjs` et
 `tests/accounting-tax-lifecycle.spec.js` (FR/ES/EN, téléphone et ordinateur).
@@ -286,8 +285,15 @@ de dettes dédié, ou le paramétrage général. Ce choix s’applique aux nouve
 pièces ; les paiements, avoirs et corrections conservent le compte de la facture
 d’origine. Une affectation d’acompte entre comptes crée un transfert équilibré
 sans nouveau mouvement de trésorerie. Les comptes bancaires et d’attente ne
-peuvent pas être utilisés comme comptes tiers. Les comptes produits/catégories
-restent un écart distinct.
+peuvent pas être utilisés comme comptes tiers.
+
+**Configuration → Comptes des produits et catégories** définit séparément les
+comptes de ventes et d’achats. L’ordre est produit, catégorie, puis société ;
+vider un côté fait hériter ce côté sans supprimer l’autre préférence. La
+recherche est paginée et les modifications concurrentes sont refusées. Les
+nouvelles pièces figent le compte retenu, y compris lors de l’application d’une
+position fiscale. Les paiements, avoirs et contre-passations conservent ensuite
+les comptes de la pièce d’origine.
 
 Les droits, les trois modes de paiement, les acomptes historiques, l’historique
 et les limites sont détaillés dans le [contrat des comptes tiers](../../replica/community-2026-11-08/accounting-partner-accounts.md).

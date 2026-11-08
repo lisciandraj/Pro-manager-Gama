@@ -5,6 +5,7 @@ validateManifest();
 // The owned CRDT entry is canonical source too; keep the local vendor bundle,
 // license and integrity reproducible on every normal build.
 execFileSync(process.execPath,[path.join(root,'scripts/build-workhub-vendor.cjs')],{cwd:root,stdio:'inherit'});
+execFileSync(process.execPath,[path.join(root,'scripts/build-quote-documents-vendor.cjs')],{cwd:root,stdio:'inherit'});
 execFileSync('python3',[path.join(root,'scripts/build-i18n.py'),'--catalog-only'],{cwd:root,stdio:'inherit'});
 for(const {source,output} of manifest.scripts)fs.writeFileSync(path.join(root,output),runtimeScript(source));
 for(const {source,output} of manifest.styles){
@@ -30,8 +31,8 @@ const versionHtml=(html,options)=>secureHtml(html.replace(/\b(src|href)="([^"?#]
  return key+'="'+file+'?v='+hash(file)+'"';
 }),options);
 fs.writeFileSync(path.join(root,'index.html'),versionHtml(fs.readFileSync(path.join(root,'src/app/index.html'),'utf8'),{roadRoutes:true}));
-for(const file of ['gama-site.html','camera-check.html','tms-tracking.html','tms-driver.html']){
- fs.writeFileSync(path.join(root,file),versionHtml(fs.readFileSync(path.join(root,'src/app/'+file),'utf8')));
+for(const file of ['gama-site.html','camera-check.html','tms-tracking.html','tms-driver.html','coco-checkout.html']){
+ fs.writeFileSync(path.join(root,file),versionHtml(fs.readFileSync(path.join(root,'src/app/'+file),'utf8'),{pdfFrames:file==='coco-checkout.html'}));
 }
 const b2bConfig={...JSON.parse(fs.readFileSync(path.join(root,'config/storefront-runtime.json'),'utf8')),pdf_template:'gama-pdf-template.js'};
 const catalogueUrl=new URL(b2bConfig.catalogue_url);
@@ -44,7 +45,7 @@ const sw=fs.readFileSync(path.join(root,'src/app/service-worker.js'),'utf8')
 fs.writeFileSync(path.join(root,'sw.js'),sw);
 const out=path.join(root,'dist');fs.rmSync(out,{recursive:true,force:true});fs.mkdirSync(out);
 // Publish only web assets. Tests, build configuration, source code and notes are not copied.
-const publicFiles=[...runtimeFiles(),'architect-assets.js','sw.js','index.html','gama-site.html','gama-b2b.html','camera-check.html','tms-tracking.html','tms-driver.html','manifest.json',
+const publicFiles=[...runtimeFiles(),'architect-assets.js','sw.js','index.html','coco-checkout.html','gama-site.html','gama-b2b.html','camera-check.html','tms-tracking.html','tms-driver.html','manifest.json',
  ...fs.readdirSync(root).filter(f=>/\.(png|jpg|jpeg|webp|svg|ico|webmanifest)$/.test(f))];
 for(const file of publicFiles)fs.copyFileSync(path.join(root,file),path.join(out,file));
 for(const folder of ['assets','config/localizations','fonts'])if(fs.existsSync(path.join(root,folder)))fs.cpSync(path.join(root,folder),path.join(out,folder),{recursive:true});

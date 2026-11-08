@@ -1,7 +1,7 @@
 # Architecture du complément Community
 
 Le [recon](recon.md) et la [matrice](features.csv) distinguent existant,
-implémentation à vérifier et écarts restants. Le périmètre étudié et les sources
+implémentation vérifiée et configuration opérationnelle restante. Le périmètre étudié et les sources
 Odoo sont explicites ; aucune ressource graphique ou implémentation Odoo n'est copiée.
 
 ## Décisions

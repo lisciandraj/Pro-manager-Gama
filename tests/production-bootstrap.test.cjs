@@ -3,9 +3,18 @@ const {PGlite}=require('@electric-sql/pglite');
 const {pg_trgm}=require('@electric-sql/pglite/contrib/pg_trgm');
 const {unaccent}=require('@electric-sql/pglite/contrib/unaccent');
 const {productionMigration}=require('../scripts/production-bootstrap-sql.cjs');
-const {prepare}=require('../scripts/prepare-production-verification.cjs');
-const {prepare:prepareBootstrap}=require('../scripts/bootstrap-production.cjs');
+const {prepare:prepareCurrent}=require('../scripts/prepare-production-verification.cjs');
+const {prepare:prepareBootstrapCurrent}=require('../scripts/bootstrap-production.cjs');
+const {prepare,prepareBootstrap,reviewedCount}=require('./helpers/reviewed-production-bootstrap.cjs');
 const root=path.resolve(__dirname,'..'),target='vhutzdfatijjpahsqkne';
+
+test('development schema additions cannot silently change the reviewed production first installation',()=>{
+ const current=fs.readdirSync(path.join(root,'supabase/migrations')).filter(f=>/^\d{14}_[a-z0-9_]+\.sql$/.test(f)).length;
+ if(current>reviewedCount){
+  assert.throws(()=>prepareCurrent(target),/migration count changed/);
+  assert.throws(()=>prepareBootstrapCurrent(target),/final reviewed migration/);
+ }
+});
 
 test('first-install preparation refuses development and invalid resume positions',()=>{
  assert.throws(()=>prepare('mknsaibrewksgomuslev'),/authorized new production/);

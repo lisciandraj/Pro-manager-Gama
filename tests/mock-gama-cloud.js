@@ -548,6 +548,29 @@
         return chain;
       },
       rpc: async (fn, args) => {
+        if(fn==='coco_early_discounts'&&args?.p_action==='creation_context')return {data:{rights:{edit:true},accounts:(window.__DB.accounting_accounts||[]).filter(a=>a.active!==false&&a.type===(args.p_data?.side==='customer'?'expense':'income')).map(a=>({id:a.id,code:a.code,name:a.name}))}};
+        // Legacy UI fixtures now request the shared tax preview. Keep their
+        // original percentage arithmetic coherent; named/fixed/compound rules
+        // are verified by real PostgreSQL fixtures, never approximated here.
+        if(fn==='coco_tax_engine'){
+          const action=args?.p_action,data=args?.p_data||{},round=n=>Math.round((Number(n)+Number.EPSILON)*100)/100;
+          if(action==='context')return {data:{positions:[],taxes:[],rounding:'line',accounts:[],assignments:[]}};
+          const calculate=lines=>{
+            if(lines.some(l=>Array.isArray(l.tax_ids)&&l.tax_ids.length))throw Error('LEGACY_FIXTURE_REQUIRES_REAL_NAMED_TAX_ENGINE');
+            const computed=lines.map((l,i)=>{const subtotal=round(Number(l.quantity)*Number(l.unit_price)*(1-Number(l.discount||0)/100)),rate=Number(l.tax_rate||0),base=round(subtotal*Number(l.tax_base_factor??1)),tax=round(base*rate/100);return {...l,key:l.key||String(i),subtotal,tax,total:round(subtotal+tax),taxes:[{id:null,code:'LEGACY-'+rate,name:'IVA '+rate+'%',rate,base,amount:tax}],rules:[]}}),taxes=[];
+            for(const line of computed)for(const tax of line.taxes){const old=taxes.find(t=>t.code===tax.code);if(old){old.base=round(old.base+tax.base);old.amount=round(old.amount+tax.amount)}else taxes.push({...tax})}
+            const subtotal=round(computed.reduce((n,l)=>n+l.subtotal,0)),tax=round(computed.reduce((n,l)=>n+l.tax,0));return {schema:'coco.tax.v1',rounding:data.rounding||'line',fiscal_position_id:null,lines:computed,taxes,subtotal,tax,total:round(subtotal+tax)};
+          };
+          if(action==='preview')return {data:calculate(data.lines||[])};
+          if(action==='invoice_preview'){
+            const client=await window.GamaCloud.db(),preview=await client.rpc('gama_sales_workspace',{p_action:'invoice_preview',p_data:data});
+            if(preview.error)return preview;if(!Array.isArray(preview.data))return {error:{message:'LEGACY_TAX_FIXTURE_REQUIRES_INVOICE_LINES'}};
+            const rows=preview.data.filter(l=>!Array.isArray(data.lines)||data.lines.some(x=>x.line_id===l.line_id&&Number(x.quantity)>0)),calculation=calculate(rows.map(l=>({key:l.line_id,product_id:l.product_id,quantity:Array.isArray(data.lines)?Number(data.lines.find(x=>x.line_id===l.line_id).quantity):Number(l.quantity),unit_price:Number(l.unit_price),discount:0,tax_rate:Number(l.tax_rate||0)})));
+            return {data:{items:rows,calculation,previous_calculation:calculation,tax_rules_changed:false,confirmation_key:'legacy-percentage-preview'}};
+          }
+          return {error:{message:'UNSUPPORTED_LEGACY_TAX_FIXTURE_ACTION'}};
+        }
+
         if(['coco_contact_record','coco_contact_save'].includes(fn)){
   const db=window.__DB,table={clients:'customers',suppliers:'suppliers',people:'crm_contacts',prospects:'crm_contacts',leads:'crm_leads'}[args.p_kind];
   const versions=window.__CONTACT_VERSIONS||(window.__CONTACT_VERSIONS={});

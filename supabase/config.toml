@@ -14,3 +14,13 @@ verify_jwt = false
 # Private road-matrix adapter; caller authorization and TMS/MFA checks run before routing.
 [functions.tms-routing]
 verify_jwt = true
+
+# Single-purpose quote capability. Database checks enforce production-only
+# public access; development previews require a caller-bound verified admin.
+[functions.coco-checkout]
+verify_jwt = false
+
+# Official hosted payments adapter; HMAC verifies webhooks, caller-bound RPCs
+# authorize checkout sessions before any privileged service access.
+[functions.coco-checkout-payments]
+verify_jwt = false

@@ -1,28 +1,28 @@
 feature,area,priority,original,clone,notes
-Devis et confirmation en commande,ventes,must,documented,existing,"Moteurs existants ; tests/sales-workspace-db.test.cjs et tests/sales-dossier-db.test.cjs"
-Sections notes et produits optionnels,ventes,must,documented,existing,"Éditeur existant ; tests/sales-dossier-db.test.cjs"
-Tarifs paliers conditionnements et prix manuels,ventes,must,documented,existing,"Moteur commun existant ; tests/sales-workspace-db.test.cjs"
-Facturation commandé livré partielle et groupée,ventes,must,documented,existing,"Registre existant ; tests/sales-dossier-db.test.cjs"
-Acomptes et déduction,ventes,must,documented,existing,"Mapping SRI des acomptes toujours distinct et bloqué si non configuré"
-Pro forma commerciale,ventes,must,documented,yes,"S02 ; aucune facture ni preuve de paiement ; tests/sales-community-parity.spec.js"
-Recherche et archivage des modèles de devis,ventes,must,documented,yes,"S04 ; template_delete existant ; conservation des documents"
-Remise en pourcentage sur toutes les lignes,ventes,must,documented,yes,"S03 ; remplace les remises de ligne via le moteur existant"
-Copie cohérente des prix manuels recalculés,ventes,must,documented,yes,"S03 ; nouveau tarif automatique et document source inchangé"
-Remise globale de montant fixe ou ligne de remise,ventes,should,documented,no,"La remise livrée est un pourcentage sur les lignes ; pas de faux équivalent montant fixe"
-Paiement en ligne des devis ou factures,ventes,should,service_dependent,no,"Compte marchand prestataire et webhooks non raccordés"
-Signature électronique distante,ventes,should,edition_and_service_review,no,"Ne pas confondre accord commercial et signature certifiée"
-Promotions de prix,ventes,should,documented,existing,"Tarifs promotionnels existants ; voir remaining-sales.md"
-Coupons fidélité portefeuilles et cartes cadeaux,ventes,should,documented,no,"Aucun programme de récompenses ou solde de carte ; tarifs promotionnels ne suffisent pas"
-Transport facturé,ventes,should,documented,no,"Coûts TMS internes ne créent pas de ligne facturable ; voir remaining-sales.md"
-Refacturation de dépenses,ventes,should,documented,no,"Dépenses approuvées et remboursements existants mais lien dépense-commande absent"
-Assemblage PDF enrichi et fiches produits,ventes,should,documented,partial,"PDF paginé avec conditions et options ; fusion brochures et champs PDF absente"
-Suggestions automatiques de produits optionnels,ventes,should,documented,no,"Options manuelles existantes ; association de suggestions aux produits absente"
-Portail client historique,ventes,could,documented,intentionally_removed,"Choix produit courant explicite ; aucune réactivation"
-Comptes dates et archivage des taxes,comptabilite,must,documented,yes,"S06 ; tests/accounting-tax-lifecycle-db.test.cjs et tests/accounting-tax-lifecycle.spec.js"
-Facture client autonome sans commande,comptabilite,must,documented,no,"Contrats commande obligatoires dans factures lignes paiements retours et SRI à faire évoluer ensemble"
-Taxes fixes incluses composées et arrondi global,comptabilite,must,documented,partial,"Taxes simples existantes ; configuration ne remplace pas moteur de calcul"
-Positions fiscales et substitutions,comptabilite,must,documented,no,"Substitution comptes et taxes à intégrer aux calculs et instantanés"
-Escompte avec traitement fiscal,comptabilite,must,documented,no,"Échéances et écritures au règlement à implémenter"
-Héritage comptes produits catégories et tiers,comptabilite,must,documented,partial,"S07 comptes clients/fournisseurs intégrés ; produits et catégories restent à développer"
-Factures fournisseurs avoirs et paiements,comptabilite,must,documented,existing,"Tests comptables et flux vente-banque existants ; pas de nouvelle revendication exhaustive"
-Comptabilité complète rapports et banque avancée,comptabilite,could,enterprise_scope,separate_matrix,"Voir replica/accounting/features.csv ; ne pas utiliser son score comme score Community"
+Devis et confirmation en commande,ventes,must,documented,existing,Moteurs existants ; tests/sales-workspace-db.test.cjs et tests/sales-dossier-db.test.cjs
+Sections notes et produits optionnels,ventes,must,documented,existing,Éditeur existant ; tests/sales-dossier-db.test.cjs
+Tarifs paliers conditionnements et prix manuels,ventes,must,documented,existing,Moteur commun existant ; tests/sales-workspace-db.test.cjs
+Facturation commandé livré partielle et groupée,ventes,must,documented,existing,Registre existant ; tests/sales-dossier-db.test.cjs
+Acomptes et déduction,ventes,must,documented,existing,Mapping SRI des acomptes toujours distinct et bloqué si non configuré
+Pro forma commerciale,ventes,must,documented,yes,S02 ; aucune facture ni preuve de paiement ; tests/sales-community-parity.spec.js
+Recherche et archivage des modèles de devis,ventes,must,documented,yes,S04 ; template_delete existant ; conservation des documents
+Remise en pourcentage sur toutes les lignes,ventes,must,documented,yes,S03 ; remplace les remises de ligne via le moteur existant
+Copie cohérente des prix manuels recalculés,ventes,must,documented,yes,S03 ; nouveau tarif automatique et document source inchangé
+Remise globale de montant fixe ou ligne de remise,ventes,should,documented,yes,"Montant fixe/pourcentage ventilés par composante ; facturation partielle, copie et retours au centime ; sales-commercial-db"
+Paiement en ligne des devis ou factures,ventes,should,service_dependent,config_required,"Virement vérifié et adaptateur Stripe hébergé avec HMAC, montants/devise, idempotence, réservations et mode test sans argent ; compte marchand, secrets et rappels à configurer"
+Signature électronique distante,ventes,should,documented,yes,"Signature commerciale saisie/dessin/PNG sur PDF figé et hashé ; lien expirant/révocable, confirmation native, aperçu développement admin ; sales-checkout-db et navigateur"
+Promotions de prix,ventes,should,documented,existing,Tarifs promotionnels existants ; voir remaining-sales.md
+Coupons fidélité portefeuilles et cartes cadeaux,ventes,should,documented,yes,"Programmes, codes, points sur facture, reçus réels, dette, consommation et remboursement partagé avec argent ; sales-rewards-db"
+Transport facturé,ventes,should,documented,yes,Tarifs fixes/poids/volume/distance et gratuité ; lignes de service facturées ; sales-commercial-db
+Refacturation de dépenses,ventes,should,documented,yes,"Dépenses approuvées au coût/prix de vente, origine unique et paiement inchangé ; sales-commercial-db"
+Assemblage PDF enrichi et fiches produits,ventes,should,documented,yes,"Bibliothèque privée, champs associés, modèles, annexes et composition réelle ; sélection figée ; quote-documents-db et PDF réels"
+Suggestions automatiques de produits optionnels,ventes,should,documented,yes,Relations produit/option/alternative et choix explicite dans le catalogue ; sales-commercial navigateur
+Portail client historique,ventes,could,documented,intentionally_removed,Choix produit courant explicite ; aucune réactivation
+Comptes dates et archivage des taxes,comptabilite,must,documented,yes,S06 ; tests/accounting-tax-lifecycle-db.test.cjs et tests/accounting-tax-lifecycle.spec.js
+Facture client autonome sans commande,comptabilite,must,documented,yes,"Brouillon/validation, paiement, avoir après règlement, remboursement natif et banque sans commande ni retour fictifs ; direct-invoices et direct-paid-refunds"
+Taxes fixes incluses composées et arrondi global,comptabilite,must,documented,yes,"Composantes exactes figées ; prix inclus subcentimes, taxes physiques, acomptes et escomptes combinés ; advanced-tax-engine et advanced-tax-deposits"
+Positions fiscales et substitutions,comptabilite,must,documented,yes,"Substitutions taxes/comptes, affectation tiers et règle pays/usage/priorité ; validation des changements avant nouvelle facture"
+Escompte avec traitement fiscal,comptabilite,must,documented,yes,"Échéance, trois traitements fiscaux, cash réel et ajustement fiscal figé ; compensation des avoirs et remboursements ; accounting-early-discounts"
+Héritage comptes produits catégories et tiers,comptabilite,must,documented,yes,"Produit→catégorie→société, par côté ; AR/AP du tiers, écritures/avoirs/stock et paiements sur comptes d’origine ; accounting-product-accounts et frozen-posting"
+Factures fournisseurs avoirs et paiements,comptabilite,must,documented,existing,Tests comptables et flux vente-banque existants ; pas de nouvelle revendication exhaustive
+Comptabilité complète rapports et banque avancée,comptabilite,could,enterprise_scope,separate_matrix,Voir replica/accounting/features.csv ; ne pas utiliser son score comme score Community

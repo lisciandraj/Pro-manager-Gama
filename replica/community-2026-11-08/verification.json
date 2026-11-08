@@ -1,75 +1,141 @@
 {
-  "reference": "Odoo 19.0 Community, explicit baseline, not a claim of latest version or complete parity",
-  "integrated_main": "8569f2e52c2e0fcdd5d036a73fb039522b49841a",
-  "full_suite": {
-    "command": "npm run update",
-    "business_tree": "e161896",
-    "tests": 790,
-    "passed": 787,
-    "failed": 1,
-    "skipped": 2,
-    "failure": "Historic tax_save error and tax metadata characterization expectation",
-    "follow_up": {
-      "command": "node --test tests/standardization-db.test.cjs",
-      "tests": 3,
-      "passed": 3,
-      "failed": 0,
-      "server_changes": false
+  "reference": "Odoo 19.0 documented functional baseline; feature matrix scope, not a claim of exhaustive edition parity",
+  "repository": "lisciandraj/Pro-manager-Gama",
+  "pull_request": 288,
+  "base_branch": "development",
+  "production": {
+    "modified": false,
+    "hosted_migrations_applied": false,
+    "providers_activated": false,
+    "bootstrap_reviewed_migration_count": 362
+  },
+  "feature_status_source": "features.csv",
+  "external_setup": "Wire instructions and Stripe merchant secrets/webhook/public return URL must be configured before activation; all providers default disabled.",
+  "final_gates": [
+    "npm run check",
+    "npm run check:vendors",
+    "npm run typecheck",
+    "npm run check:docs",
+    "npm run verify:migrations",
+    "npm run check:generated",
+    "npm run check:startup"
+  ],
+  "isolated_feature_validation": {
+    "sales_commercial_and_returns": {
+      "cases": 19,
+      "passed": 19
+    },
+    "frozen_purchase_and_expense": {
+      "cases": 5,
+      "passed": 5
+    },
+    "rewards_and_stored_value": {
+      "cases": 11,
+      "passed": 11
+    },
+    "direct_invoices": {
+      "cases": 12,
+      "passed": 12
+    },
+    "paid_direct_credit_refunds": {
+      "cases": 7,
+      "passed": 7
+    },
+    "early_discounts": {
+      "cases": 16,
+      "passed": 16
+    },
+    "tax_arithmetic": {
+      "cases": 10,
+      "passed": 10
+    },
+    "tax_flows_and_deposits": "Passed actual quote/order/invoice, supplier, fiscal position, component report, fixed-tax deposit and earned-discount integration fixtures.",
+    "product_category_accounts": {
+      "cases": 7,
+      "passed": 7
+    },
+    "pdf_composition_unit": {
+      "cases": 4,
+      "passed": 4
+    },
+    "pdf_documents_database": {
+      "cases": 6,
+      "passed": 6
+    },
+    "quote_signature_database": {
+      "cases": 7,
+      "passed": 7
+    },
+    "quote_signature_edge": {
+      "cases": 3,
+      "passed": 3
+    },
+    "hosted_and_wire_database": {
+      "cases": 10,
+      "passed": 10
+    },
+    "hosted_payment_edge": {
+      "cases": 8,
+      "passed": 8
+    },
+    "ledger_revenue": {
+      "cases": 8,
+      "passed": 8
+    },
+    "infrastructure_and_frozen_bootstrap": {
+      "cases": 8,
+      "passed": 8
+    },
+    "dashboard_rls_compatibility": {
+      "cases": 2,
+      "passed": 2
     }
   },
-  "priority_server_regressions": {
-    "passed": 89,
-    "failed": 0
-  },
-  "browser_before_main_integration": {
-    "distinct_cases": 69,
-    "failed": 0
-  },
-  "browser_after_main_integration": {
-    "cases": 27,
-    "failed": 0,
-    "overlap_with_before": 14,
+  "browser": {
+    "existing_priority_cases": 90,
+    "existing_additional_distinct_cases": 14,
+    "existing_failed_after_followup": 0,
     "languages": [
       "es",
       "fr",
       "en"
     ],
-    "screenshots": "clone-screens/"
+    "viewports": [
+      390,
+      768,
+      1440
+    ],
+    "new_flow_files": [
+      "sales-commercial.spec.js",
+      "sales-rewards.spec.js",
+      "direct-invoices.spec.js",
+      "direct-paid-refunds.spec.js",
+      "accounting-early-discounts.spec.js",
+      "advanced-tax-engine.spec.js",
+      "accounting-product-accounts.spec.js",
+      "quote-documents.spec.js",
+      "sales-checkout.spec.js",
+      "checkout-payments.spec.js",
+      "invoice-tools.spec.js"
+    ],
+    "signature_cases": 4,
+    "hosted_and_wire_cases": 4,
+    "paid_credit_refund_cases": 2,
+    "invoice_tools_cases": 4,
+    "evidence": "clone-screens/"
   },
-  "integrated_checks_passed": [
-    "check",
-    "check:vendors",
-    "typecheck",
-    "check:docs",
-    "verify:migrations",
-    "check:generated",
-    "check:startup"
-  ],
-  "postgres_concurrency_ci": {
-    "sales_run": 42496954621,
-    "sales_conclusion": "success",
-    "accounting_job": 128781239671,
-    "accounting_conclusion": "success"
+  "initial_local_full_attempt": {
+    "status": "During active integration; superseded by corrected targeted files and the required final GitHub validation.",
+    "tests": 905,
+    "passed": 881,
+    "failed": 22,
+    "skipped": 2
   },
-  "migrations": [
-    {
-      "file": "supabase/migrations/20261108152013_accounting_tax_lifecycle.sql",
-      "sha256": "748ebd7172cad6cdf7a45bb3ad8ddb5d7a00c18c29c2e99f84f83b7ea249f1a4",
-      "production_applied_by_this_task": false
-    },
-    {
-      "file": "supabase/migrations/20261108152346_sales_template_archive_permissions.sql",
-      "sha256": "1f018249c08bb5410fd90745d29d57895cebe13d50e625451a385e9b801fa985",
-      "production_applied_by_this_task": false
-    },
-    {
-      "file": "supabase/migrations/20261108152655_accounting_partner_accounts.sql",
-      "sha256": "75f784e966d734fac9d5cf9679456d04b4bdc583e0ba6227798b44ba2297e621",
-      "production_applied_by_this_task": false
-    }
+  "final_full_validation": "See required GitHub checks on the PR head; full suite and real PostgreSQL concurrency remain merge gates.",
+  "reproducible_commands": [
+    "npm ci",
+    "npm run update",
+    "PLAYWRIGHT_CHROMIUM_PATH=/usr/bin/chromium npx playwright test --workers=2"
   ],
-  "production_published": false,
-  "parity_complete": false,
-  "remaining_features": "features.csv",
-  "general_ci": "Rerun with corrected characterization expectation; must pass before merge"
+  "initial_delivery_archive": "../../docs/history/odoo-community-first-verification-2026-11-08.json"
 }

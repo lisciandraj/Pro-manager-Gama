@@ -1,3 +1,5 @@
+> Mise à jour de finalisation : les écarts identifiés ci-dessous sont implémentés dans le [contrat courant](../../docs/modules/sales-accounting-community.md) et la [matrice](features.csv). Les paiements restent désactivés jusqu’à la configuration du prestataire ; la production conserve sa version figée.
+
 # Ventes et facturation — référence Community
 
 Demande : compléter les modules Ventes et Comptabilité de **Coco ERP**, dépôt
@@ -15,7 +17,7 @@ dans le dépôt ; ce document ne présente pas 19.0 comme la dernière version.
 | [Modèles de devis](https://www.odoo.com/documentation/19.0/applications/sales/sales/sales_quotations/quote_template.html) | Réutilisation de contenu commercial |
 | [Remises](https://www.odoo.com/documentation/19.0/applications/sales/sales/products_prices/prices/discounts.html) | Trois modes distincts ; le lot livre le pourcentage sur toutes les lignes |
 | [Taxes](https://www.odoo.com/documentation/19.0/applications/finance/accounting/taxes.html) | Configuration, activation et comptes de taxes |
-| [Positions fiscales](https://www.odoo.com/documentation/19.0/applications/finance/accounting/taxes/fiscal_positions.html) | Substitutions de comptes et taxes ; reste à construire dans Coco |
+| [Positions fiscales](https://www.odoo.com/documentation/19.0/applications/finance/accounting/taxes/fiscal_positions.html) | Substitutions de comptes et taxes ; implémentées dans la finalisation du moteur fiscal |
 | [Factures clients](https://www.odoo.com/documentation/19.0/applications/finance/accounting/customer_invoices.html) | Création et traitement des pièces clients |
 
 La matrice [historique comptable](../accounting/features.csv) porte sur un

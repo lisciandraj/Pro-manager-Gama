@@ -344,7 +344,7 @@ VIEWS.receivables={
     ${kpi('Pendiente',money(d.metrics.balance))}${kpi('Vencido',money(d.metrics.overdue),'',Number(d.metrics.overdue)>0?'gaDown':'')}</div>
    <h3>${tr('Balance de antigüedad')}</h3>${agingBlock(d.aging)}
    <div class="gaScroll"><table class="arcTable gaTable"><thead><tr>
-    ${['Cliente','Factura','Fecha','Vencimiento','Total','Pagado','Pendiente','Retraso','Estado'].map(h=>`<th class="${['Total','Pagado','Pendiente','Retraso'].includes(h)?'gaNum':''}">${tr(h)}</th>`).join('')}
+    ${['Cliente','Factura','Fecha','Vencimiento','Total','Pagado','Pendiente','Retraso','Estado','Acciones'].map(h=>`<th class="${['Total','Pagado','Pendiente','Retraso'].includes(h)?'gaNum':''}">${tr(h)}</th>`).join('')}
     </tr></thead><tbody>${d.rows.map(r=>`<tr>
      <td><b>${esc(r.customer_name)}</b></td>
      <td>${esc(r.number)}${r.external_number?'<br><small>'+esc(r.external_number)+'</small>':''}</td>
@@ -352,11 +352,11 @@ VIEWS.receivables={
      <td class="gaNum">${money(r.total)}</td><td class="gaNum">${money(r.paid)}</td>
      <td class="gaNum"><b>${money(r.balance)}</b></td>
      <td class="gaNum">${r.days_remaining!=null&&r.days_remaining<0?esc(num(-r.days_remaining,0))+' '+tr('días'):'—'}</td>
-     <td>${badge(r.payment_status)}</td></tr>`).join('')||`<tr><td colspan="9">${tr('No hay facturas para este filtro.')}</td></tr>`}
+     <td>${badge(r.payment_status)}</td><td>${scope==='all'&&r.payment_status!=='cancelled'?`<button type="button" class="arcButton secondary" data-ga-early="customer|${esc(r.id)}">${tr('Descuento por pronto pago')}</button>`:''}</td></tr>`).join('')||`<tr><td colspan="10">${tr('No hay facturas para este filtro.')}</td></tr>`}
    </tbody></table></div>
    <p class="gaHint">${tr('Los cobros se registran en Pagos de clientes; aquí se consultan y se agrupan por antigüedad.')}</p></div>`;
  },
- bind(){bindFilters(()=>go(),()=>state.rows,'cuentas-por-cobrar');$('gaScheduledCollections').onclick=()=>window.CocoPlanning.collections()}
+ bind(){bindFilters(()=>go(),()=>state.rows,'cuentas-por-cobrar');$('gaScheduledCollections').onclick=()=>window.CocoPlanning.collections();bindEarlyDiscounts()}
 };
 
 VIEWS.payables={
@@ -375,13 +375,14 @@ VIEWS.payables={
      <td>${esc(r.issue_date)}</td><td>${esc(r.due_date||'—')}</td>
      <td class="gaNum">${money(r.total)}</td><td class="gaNum">${money(r.paid)}</td>
      <td class="gaNum"><b>${money(r.balance)}</b></td><td>${badge(r.payment_status)}</td>
-     <td>${rights?.create&&rights?.pay!==false&&Number(r.balance)>0&&r.status!=='cancelled'?`<button class="arcButton secondary" data-ga-pay="${esc(r.id)}">${tr('Registrar pago')}</button>`:''}</td>
+     <td>${rights?.create&&rights?.pay!==false&&Number(r.balance)>0&&r.status!=='cancelled'?`<button class="arcButton secondary" data-ga-pay="${esc(r.id)}">${tr('Registrar pago')}</button>`:''}${scope==='all'&&r.status!=='cancelled'?`<button type="button" class="arcButton secondary" data-ga-early="supplier|${esc(r.id)}">${tr('Descuento por pronto pago')}</button>`:''}</td>
     </tr>`).join('')||`<tr><td colspan="9">${tr('No hay facturas de proveedor para este filtro.')}</td></tr>`}
    </tbody></table></div></div>`;
  },
  bind(){bindFilters(()=>go(),()=>state.rows,'cuentas-por-pagar');
-  document.querySelectorAll('[data-ga-pay]').forEach(b=>b.onclick=()=>act(b,()=>supplierPaymentForm(state.rows.find(r=>r.id===b.dataset.gaPay))))}
+  document.querySelectorAll('[data-ga-pay]').forEach(b=>b.onclick=()=>act(b,()=>supplierPaymentForm(state.rows.find(r=>r.id===b.dataset.gaPay))));bindEarlyDiscounts()}
 };
+function bindEarlyDiscounts(){document.querySelectorAll('[data-ga-early]').forEach(b=>b.onclick=()=>act(b,async()=>{const [side,id]=b.dataset.gaEarly.split('|');await window.ArcLoadScript('coco-early-discounts.js');await window.CocoEarlyDiscounts.open(side,id,()=>go())}))}
 
 /* ------------------------------------------------------------------ gastos */
 const METHODS={transfer:'Transferencia',cash:'Efectivo',card:'Tarjeta',check:'Cheque',other:'Otro'};
@@ -443,10 +444,11 @@ function purchaseTaxAmount(base,rate){
  return (Number((BigInt(cents)*BigInt(scaledRate)+500000n)/1000000n)/100).toFixed(2);
 }
 async function expenseForm(row){
+ await window.ArcLoadScript('coco-tax-engine.js');
  const token=opening,taxes=(await rpc('taxes')).rows;
  if(token!==opening||!allowed()||!(row?rights?.edit:rights?.create))return;
  const key=crypto.randomUUID(),cats=state.categories||[],accs=(state.accounts||[]).filter(a=>a.active);
- GamaSales.modal(row?'Editar el gasto':'Registrar un gasto',`<div class="gaGrid">
+ const taxDialog=GamaSales.modal(row?'Editar el gasto':'Registrar un gasto',`<div class="gaGrid">
   ${field('Fecha',`<input id="gaDate" type="date" required max="${day()}" value="${esc(row?.expense_date||day())}">`)}
   ${field('Categoría',`<select id="gaCategory"><option value="">—</option>${options(cats,row?.category_id)}</select>`)}
   ${field('Importe sin impuestos',`<input id="gaUntaxed" type="number" required min="0" step="0.01" value="${esc(row?.amount_untaxed??'')}">`)}
@@ -462,10 +464,11 @@ async function expenseForm(row){
  <p class="gaHint">${tr('El total se calcula solo desde el importe sin impuestos y el impuesto; puedes corregirlo.')}</p>`,
   row?'Guardar':'Registrar',async el=>{
    const v=id=>el.querySelector('#'+id).value;
+   await window.CocoTaxEngine.ensurePurchaseReady(el);
    await mutate('expense_save',{id:row?.id||null,request_key:row?null:key,expense_date:v('gaDate'),
     category_id:v('gaCategory'),description:v('gaDescription'),amount_untaxed:Number(v('gaUntaxed')),
     tax_id:v('gaDocumentTax')||null,tax_amount:Number(v('gaTax')||0),amount_total:Number(v('gaTotal')),payment_method:v('gaMethod'),
-    financial_account_id:v('gaAccount'),notes:v('gaNotes')});
+    financial_account_id:v('gaAccount'),notes:v('gaNotes'),...window.CocoTaxEngine.purchasePayload(el)});
    if(row?.source_reviewed===false){const r=await window.ArcData.rawRpc('gama_flow_finance',{p_action:'expense_review',p_data:{id:row.id,reviewed:el.querySelector('#gaSourceReviewed').checked}});if(r.error)throw r.error}
    await go();
   });
@@ -474,6 +477,7 @@ async function expenseForm(row){
  const selectedTax=()=>{const selected=taxes.find(t=>t.id===$('gaDocumentTax').value);$('gaTax').readOnly=!!selected;if(selected)$('gaTax').value=purchaseTaxAmount($('gaUntaxed').value,selected.rate);recalc()};
  $('gaUntaxed').oninput=selectedTax;$('gaTax').oninput=recalc;$('gaDocumentTax').onchange=selectedTax;
  $('gaTax').readOnly=!!row?.tax_id;
+ await window.CocoTaxEngine.attachPurchase({dialog:taxDialog,expense:true,initial:row||{}});
 }
 async function receiptForm(id){
  let list=[];
@@ -553,6 +557,8 @@ async function billForm(context={}){
  if(token!==opening||!allowed()||!rights?.create)return;
  const purchase=context.purchaseOrderId&&purchases.data.find(p=>p.id===context.purchaseOrderId&&p.status!=='cancelled');
  if(context.purchaseOrderId&&!purchase)throw Error('DOCUMENT_NOT_FOUND');
+ await Promise.all([window.ArcLoadScript('coco-tax-engine.js'),window.ArcLoadScript('coco-early-discounts.js')]);
+ const earlyFields=await window.CocoEarlyDiscounts.creationFields('supplier');
  const key=crypto.randomUUID(),sup=state.suppliers||[];
  const el=GamaSales.modal('Registrar una factura de proveedor',`<div class="gaGrid">
   ${field('Proveedor',`<select id="gaSupplier" required><option value="">—</option>${options(sup)}</select>`)}
@@ -564,22 +570,25 @@ async function billForm(context={}){
   ${field('Tipo de impuesto (opcional)',`<select id="gaDocumentTax">${purchaseTaxOptions(taxes)}</select>`)}
   ${field('Impuesto',`<input id="gaTaxAmount" type="number" min="0" step="0.01" value="0">`)}
   ${field('Total',`<input id="gaTotal" type="number" required min="0.01" step="0.01">`)}
- </div>${window.CocoInvoiceDeferrals.editor()}<label class="gsField">${tr('Comentario')}<textarea id="gaNotes" maxlength="2000"></textarea></label>
+ </div>${window.CocoInvoiceDeferrals.editor()}${earlyFields}<label class="gsField">${tr('Comentario')}<textarea id="gaNotes" maxlength="2000"></textarea></label>
  <p class="gaHint">${tr('Al guardar se crea el asiento en el diario de compras y la factura aparece en cuentas por pagar.')}</p>`,
   'Registrar',async el=>{
    const v=id=>el.querySelector('#'+id).value;
    if(!v('gaSupplier'))throw Error('Selecciona un proveedor.');
+   await window.CocoTaxEngine.ensurePurchaseReady(el);
    await mutate('supplier_invoice_save',{request_key:key,supplier_id:v('gaSupplier'),number:v('gaNumber'),
     purchase_order_id:v('gaPurchase')||null,issue_date:v('gaDate'),payment_terms_days:v('gaTerms'),subtotal:Number(v('gaSubtotal')),
-    tax_id:v('gaDocumentTax')||null,tax:Number(v('gaTaxAmount')||0),total:Number(v('gaTotal')),notes:v('gaNotes'),deferral_lines:window.CocoInvoiceDeferrals.readEditor(el)});
+    tax_id:v('gaDocumentTax')||null,tax:Number(v('gaTaxAmount')||0),total:Number(v('gaTotal')),notes:v('gaNotes'),deferral_lines:window.CocoInvoiceDeferrals.readEditor(el),early_discount:window.CocoEarlyDiscounts.readCreation(el),...window.CocoTaxEngine.purchasePayload(el)});
    await go();
   });
  window.CocoInvoiceDeferrals.bindEditor(el);
+ window.CocoEarlyDiscounts.bindCreation(el);
  const recalc=()=>{const s=Number($('gaSubtotal').value||0),t=Number($('gaTaxAmount').value||0);
   if(s>0)$('gaTotal').value=(s+t).toFixed(2)};
  const selectedTax=()=>{const selected=taxes.find(t=>t.id===$('gaDocumentTax').value);$('gaTaxAmount').readOnly=!!selected;if(selected)$('gaTaxAmount').value=purchaseTaxAmount($('gaSubtotal').value,selected.rate);recalc()};
  $('gaSubtotal').oninput=selectedTax;$('gaTaxAmount').oninput=recalc;$('gaDocumentTax').onchange=selectedTax;
  if(purchase){$('gaPurchase').value=purchase.id;$('gaSupplier').value=purchase.supplier_id}
+ await window.CocoTaxEngine.attachPurchase({dialog:el});
 }
 async function supplierPaymentForm(row){
  if(!row)return;
@@ -612,14 +621,14 @@ VIEWS.sales={
    <tbody>${list.map(r=>`<tr><td>${esc(r.key||'—')}</td><td class="gaNum"><b>${money(r.amount)}</b></td></tr>`).join('')}</tbody></table></div>`
    :`<p class="gaHint">${tr('No hay datos en este periodo.')}</p>`}</div>`;
   const total=d.by_month.reduce((a,r)=>a+Number(r.amount||0),0);
-  return `<div class="arcPanel gaCard"><h3>${tr('Cifra de negocio')}</h3>${filters({dates:true})}
+  return `<div class="arcPanel gaCard"><h3>${tr('Cifra de negocio')}</h3>${scope==='all'?`<button type="button" class="arcButton primary" id="gaDirectInvoices">${tr('Facturas de clientes sin pedido')}</button>`:''}${filters({dates:true})}
    <div class="gaKpis">${kpi('Total del periodo',money(total))}${kpi('Meses con actividad',num(d.by_month.length,0))}</div>
-   <p class="gaHint">${tr('Importes sin impuestos, desde las facturas registradas. Las anuladas y rechazadas no cuentan.')}</p></div>
+   <p class="gaHint">${esc(({es:'Movimientos contabilizados de ingresos, con abonos, devoluciones y reversiones en su fecha contable.',fr:'Mouvements comptabilisés des produits, avec avoirs, retours et contrepassations à leur date comptable.',en:'Posted revenue movements, including credits, returns and reversals on their accounting date.'})[window.GamaI18n?.language||'es'])}</p></div>
    ${top(d.by_month.map(r=>({key:r.key,amount:r.amount})),'Por mes')}
    ${top(d.by_customer,'Por cliente')}
    ${top(d.by_product,'Por producto')}`;
  },
- bind(){bindFilters(()=>go(),()=>state.rows,'cifra-de-negocio')}
+ bind(){bindFilters(()=>go(),()=>state.rows,'cifra-de-negocio');$('gaDirectInvoices')?.addEventListener('click',()=>act($('gaDirectInvoices'),async()=>{await window.ArcLoadScript('coco-direct-invoices.js');await window.CocoDirectInvoices.open(()=>go())}))}
 };
 
 /* ------------------------------------------------------------------ pagos */
@@ -923,13 +932,14 @@ async function entryForm(){
 /* ------------------------------------------------------------- impuestos */
 VIEWS.taxes={
  async load(){
+  await window.ArcLoadScript('coco-tax-engine.js');
   const [data,chart,settings]=await Promise.all([rpc('taxes',{from:state.from||monthStart(),to:state.to||day()}),rpc('chart'),rpc('settings')]);
   return {...data,chart:chart.rows,settings};
  },
  render(d){
-  state.rows=d.rows;state.taxAccounts=d.chart;state.taxSettings=d.settings;
+  state.rows=d.rows;state.taxComponents=d.components||[];state.taxAccounts=d.chart;state.taxSettings=d.settings;
   const balance=Number(d.summary.collected)-Number(d.summary.deductible);
-  return `<div class="arcPanel gaCard"><h3>${tr('Resumen de impuestos')}</h3>${filters({dates:true})}
+  return `${window.CocoTaxEngine.renderReport(d.components,rights?.export)}<div class="arcPanel gaCard"><h3>${tr('Resumen de impuestos')}</h3>${filters({dates:true})}
    <div class="gaKpis">${kpi('Impuesto recaudado',money(d.summary.collected))}
     ${kpi('Impuesto deducible',money(d.summary.deductible))}
     ${kpi('Saldo estimado',money(balance),balance>=0?'A pagar':'A favor')}</div>
@@ -939,7 +949,7 @@ VIEWS.taxes={
    <div class="gaScroll"><table class="arcTable gaTable"><thead><tr>
     ${['Nombre','Código','Tipo','Uso','País','Vigente desde','Vigente hasta','Estado','Acciones'].map(h=>`<th class="${h==='Tipo'?'gaNum':''}">${tr(h)}</th>`).join('')}
    </tr></thead><tbody>${d.rows.map(t=>`<tr><td><b>${esc(t.name)}</b></td><td>${esc(t.code)}</td>
-    <td class="gaNum">${esc(num(t.rate,4))} %</td>
+    <td class="gaNum">${esc(window.CocoTaxEngine.taxAmountLabel(t))}</td>
     <td>${tr({collected:'Recaudado',deductible:'Deducible',both:'Ambos'}[t.kind]||t.kind)}</td>
     <td>${esc(t.country||'—')}</td><td>${esc(t.valid_from||'—')}</td><td>${esc(t.valid_to||'—')}</td>
     <td>${t.active?tr('Activo'):tr('Inactivo')}</td>
@@ -949,6 +959,7 @@ VIEWS.taxes={
  },
  bind(){
   bindFilters(()=>go(),()=>state.rows,'impuestos');
+  window.CocoTaxEngine.bindReport(document.querySelector('#gaMain'),state.taxComponents||[]);
   $('gaNewTax')?.addEventListener('click',()=>taxForm(null));
   document.querySelectorAll('[data-ga-tax]').forEach(b=>b.onclick=()=>taxForm(state.rows.find(t=>t.id===b.dataset.gaTax)));
  }

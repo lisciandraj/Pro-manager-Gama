@@ -20,10 +20,8 @@ test('las prioridades de hoy separan lo vencido de lo que vence esta semana',asy
    select set_config('request.jwt.claim.sub','${admin}',false);
    insert into sales_orders(id,number,customer_id,customer_name,created_by,request_key,status) values('${order}','PRIO-001','${customer}','Cliente prioridades','${admin}',gen_random_uuid(),'confirmed');
    set session_replication_role=replica;
-   insert into external_invoices(id,request_key,order_id,number,issue_date,due_date,subtotal,tax,fiscal_status,issuer_ruc,document_kind,payment_terms_days,payment_delivery_date,created_by) values
-    ('${id(9820)}',gen_random_uuid(),'${order}','PRIO-VENCIDA',${tz}-40,${tz}-10,100,15,'authorized','1234567890001','external',30,${tz}-40,'${admin}'),
-    ('${id(9821)}',gen_random_uuid(),'${order}','PRIO-SEMANA',${tz}-25,${tz}+3,100,15,'authorized','1234567890001','external',30,${tz}-27,'${admin}'),
-    ('${id(9822)}',gen_random_uuid(),'${order}','PRIO-LEJOS',${tz},${tz}+40,100,15,'authorized','1234567890001','external',40,${tz},'${admin}');
+   insert into external_invoices(id,request_key,order_id,number,issue_date,due_date,subtotal,tax,fiscal_status,issuer_ruc,document_kind,payment_terms_days,payment_delivery_date,created_by,customer_id) values
+    ('${id(9820)}',gen_random_uuid(),'${order}','PRIO-VENCIDA',${tz}-40,${tz}-10,100,15,'authorized','1234567890001','external',30,${tz}-40,'${admin}',(select customer_id from public.sales_orders where id='${order}')),('${id(9821)}',gen_random_uuid(),'${order}','PRIO-SEMANA',${tz}-25,${tz}+3,100,15,'authorized','1234567890001','external',30,${tz}-27,'${admin}',(select customer_id from public.sales_orders where id='${order}')),('${id(9822)}',gen_random_uuid(),'${order}','PRIO-LEJOS',${tz},${tz}+40,100,15,'authorized','1234567890001','external',40,${tz},'${admin}',(select customer_id from public.sales_orders where id='${order}'));
    insert into supplier_invoices(id,number,supplier_id,issue_date,due_date,subtotal,tax,total,status) values
     ('${id(9830)}','PROV-VENCIDA','${supplier}',${tz}-60,${tz}-2,100,0,100,'posted'),
     ('${id(9831)}','PROV-SEMANA','${supplier}',${tz}-20,${tz}+5,100,0,100,'posted'),

@@ -24,7 +24,7 @@ function paymentMethods(root,context,{account,method,direction='in',preferred=nu
  const pref=rows.find(r=>r.id===(preferred||context.preferred_method_id)&&r.direction===direction&&r.active!==false);if(pref)a.value=pref.financial_account_id;
  refresh();if(pref){m.value=pref.name?pref.id:pref.method;onChange(selection())}return selection;
 }
-function sourceLabel(s){return s?.label||({customer_payment:t('Cobro de factura','Règlement de facture','Invoice payment'),customer_receipt:t('Anticipo cliente','Acompte client','Customer advance'),supplier_payment:t('Pago a proveedor','Règlement fournisseur','Vendor payment'),expense:t('Gasto','Dépense','Expense'),ledger_entry:t('Asiento contable','Écriture comptable','Journal entry')})[s?.kind]||t('Origen','Origine','Source')}
+function sourceLabel(s){return s?.label||({customer_payment:t('Cobro de factura','Règlement de facture','Invoice payment'),customer_receipt:t('Anticipo cliente','Acompte client','Customer advance'),supplier_payment:t('Pago a proveedor','Règlement fournisseur','Vendor payment'),expense:t('Gasto','Dépense','Expense'),ledger_entry:t('Asiento contable','Écriture comptable','Journal entry'),return_refund:t('Reembolso cliente','Remboursement client','Customer refund')})[s?.kind]||t('Origen','Origine','Source')}
 async function reconcile(){try{
  const opening=epoch,accounts=await window.ArcData.rpc('gama_accounting_action',{p_action:'accounts',p_data:{}});if(opening!==epoch)return;
  const options=accounts.rows.filter(x=>x.active).map(x=>({id:x.id,name:x.name+' · '+x.currency}));let state=null,key=null,preview=null;

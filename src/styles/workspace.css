@@ -1,9 +1,6 @@
 /* Coco workspace, using the verified Openhub surface and grid language.
    Shared surfaces and layouts only; domain states and permissions stay in JS. */
 body[data-app="coco-erp"]{
- --coco-blue:var(--coco-ink);--coco-blue-dark:var(--arc-navy-800);--coco-orange:var(--coco-action);
- --coco-grid:var(--arc-line);
- --coco-blue-tint:var(--coco-selected);--coco-orange-tint:var(--coco-nav-active);
  background:var(--coco-canvas);color:var(--coco-ink)}
 .arcNavFavorites .arcNavGroup{display:flex;align-items:center;gap:7px;border-top:0;color:var(--arc-text)}
 .arcNavFavorites .arcNavGroup .arcIco{width:14px;height:14px;flex:none}
@@ -87,7 +84,7 @@ body .arcContent .gamaTableSwitch button{gap:7px}
 #warehouses .ivKpis{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-bottom:18px}
 #warehouses .ivKpi{padding:18px;border:1px solid var(--arc-line);background:var(--arc-info-bg);border-radius:12px;box-shadow:none;min-width:0}
 #warehouses .ivKpi:nth-child(2){background:var(--arc-warning-bg);border-color:var(--arc-warning-line);color:var(--arc-text)}
-#warehouses .ivKpi:nth-child(3){background:#FCE9E7;border-color:#F3BDB8;color:#B3261E}
+#warehouses .ivKpi:nth-child(3){background:var(--arc-danger-bg);border-color:#F3BDB8;color:var(--arc-danger)}
 #warehouses .ivKpi b{font-size:28px;margin-top:9px;display:block;line-height:1.2}
 #warehouses .ivKpi span{font-size:13px;font-weight:600}
 #warehouses .ivFiltros{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:0}
@@ -215,10 +212,10 @@ body .arcContent .gamaTableSwitch button{gap:7px}
 /* Native controls in the approved mockups retain their accessible names. */
 #mainmenu .gamaF2Card .cocoModuleOpen{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;flex:1;width:100%;padding:0;min-height:100px;background:transparent;border:0;box-shadow:none;color:inherit}
 #mainmenu .gamaF2Icon svg.arcHomeIllustration{fill:none;stroke:currentColor}
-#mainmenu .cocoModuleFavorite{position:absolute;right:12px;top:12px;width:30px;height:30px;min-height:30px;padding:4px;margin:0;border:0;background:transparent;box-shadow:none;color:var(--coco-muted)}
+#mainmenu .cocoModuleFavorite{position:absolute;right:12px;top:12px;width:30px;height:30px;min-height:30px;padding:4px;margin:0;border:0;background:transparent;box-shadow:none;color:var(--coco-blue-hover)}
 #mainmenu .cocoModuleFavorite svg{width:22px;height:22px;stroke:currentColor;stroke-width:1.5;fill:none}
 #mainmenu .cocoModuleFavorite[aria-pressed=true]{color:var(--arc-text)}
-#mainmenu .cocoModuleFavorite[aria-pressed=true] svg{fill:#FFD8B8}
+#mainmenu .cocoModuleFavorite[aria-pressed=true] svg{fill:var(--coco-blue-tint)}
 #dashboard .adPersonal{order:3;font-size:13px;color:var(--arc-accent-700)}
 #dashboard .adPersonal>summary{cursor:pointer;padding:12px 0}
 #dashboard .adQuickList>button{display:flex;align-items:center;gap:12px;width:100%;padding:14px 0;background:transparent;border:0;border-bottom:1px solid var(--arc-line);box-shadow:none;text-align:left;font-size:13px;color:var(--arc-text)}
@@ -243,7 +240,7 @@ body .arcContent .gamaTableSwitch button{gap:7px}
 #sri .gaSriInspector .arcButton{font-size:12px;padding:9px 10px}
 #sri .gaSriInspectorBody>p.gaHint{font-size:12px;line-height:1.55}
 #sri .gaSriChecks [data-validation=valid]{color:var(--arc-success)}
-#sri .gaSriChecks [data-validation=error]{color:#B3261E}
+#sri .gaSriChecks [data-validation=error]{color:var(--arc-danger)}
 #sri .gaSriBatch>span:first-child{font-weight:600;color:var(--arc-accent-700)}
 .cocoProofSteps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));list-style:none;padding:0;gap:10px;margin:8px 0 22px}
 .cocoProofSteps li{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--coco-muted)}
@@ -404,7 +401,7 @@ body .arcContent .gamaColumnHeading{max-width:100%;white-space:normal;text-align
 #sales-orders .gsMilestones{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));column-gap:28px;row-gap:28px;margin:0;padding:0;list-style:none}
 #sales-orders .gsMilestones li{gap:12px;align-items:flex-start;z-index:0}
 #sales-orders .gsMilestones li:not(:nth-child(4n)):after{content:'';position:absolute;height:1px;background:var(--arc-line);left:46px;right:-16px;top:20px;z-index:-1}
-#sales-orders .gsMilestones li[data-state=done]:after{background:#76B895}
+#sales-orders .gsMilestones li[data-state=done]:after{background:var(--coco-green)}
 #sales-orders .gsMilestones li>span:last-child{background:var(--coco-surface);padding-right:6px;min-width:0}
 #sales-orders .gsMilestoneDot{width:38px;height:38px;font-size:17px;outline:6px solid var(--coco-surface)}
 #sales-orders .gsMilestones strong{font-size:14px;background:var(--coco-surface);margin-top:2px}
@@ -433,18 +430,18 @@ body .arcContent .gamaColumnHeading{max-width:100%;white-space:normal;text-align
 #sales-orders .gsOrderPanel td,#sales-orders .gsOrderPanel th{padding:12px 16px;font-size:13px}
 #sales-orders .gsOrderPanel .ivSub{display:none}
 #sales-orders .gsOrderTotal{max-width:300px;padding:16px 18px;font-size:14px;margin-top:16px}
-#sales-orders .gsOrderTotal>div:last-child{margin-top:8px;border-top:1px solid var(--arc-line);padding-top:12px;font-size:18px;font-weight:650}
+#sales-orders .gsOrderTotal>div:last-child{margin-top:8px;border-top:1px solid var(--arc-info-line);padding-top:12px;font-size:18px;font-weight:650}
 #sales-orders .gsOrderNext{border:1px solid var(--arc-warning-line);padding:20px;background:var(--arc-warning-bg)}
 #sales-orders .gsNextMessage{display:flex;align-items:center;gap:18px;margin:12px 0 18px}
-#sales-orders .gsNextIcon{width:68px;height:68px;flex:none;background:#FFE5D2;color:#DE5E08;border-radius:50%;display:grid;place-items:center}
+#sales-orders .gsNextIcon{width:68px;height:68px;flex:none;background:var(--arc-warning-bg);color:var(--arc-warning);border-radius:50%;display:grid;place-items:center}
 #sales-orders .gsNextIcon svg{width:38px;height:38px}
 #sales-orders .gsNextMessage p{font-size:14px;line-height:1.65;margin:0}
-#sales-orders .gsNextOwner{display:flex;gap:10px;align-items:center;border-top:1px solid #EADCCE;padding-top:14px;font-size:13px}
+#sales-orders .gsNextOwner{display:flex;gap:10px;align-items:center;border-top:1px solid var(--arc-warning-line);padding-top:14px;font-size:13px}
 #sales-orders .gsNextOwner svg{width:20px;height:20px}
 #sales-orders .gsNextOwner span{color:var(--coco-muted)}
 #sales-orders .gsNextOwner strong{margin-left:10px}
 #sales-orders .gsOrderHistory{padding:20px;margin:0}
-#sales-orders .gsHistoryList li{border-left:1px solid #69B38B;padding:0 0 22px 28px;margin-left:13px}
+#sales-orders .gsHistoryList li{border-left:1px solid var(--arc-success-line);padding:0 0 22px 28px;margin-left:13px}
 #sales-orders .gsHistoryList li:last-child{border-color:transparent;padding-bottom:0}
 #sales-orders .gsHistoryList li:before{content:'✓';display:grid;place-items:center;width:22px;height:22px;left:-11px;top:0;background:var(--arc-success);color:white;font-size:13px;outline:4px solid white}
 #sales-orders .gsHistoryList strong{font-size:14px;color:var(--arc-text)}
@@ -515,7 +512,7 @@ body .arcContent .gamaColumnHeading{max-width:100%;white-space:normal;text-align
 #sri .gaSriChecks li{gap:10px}
 #sri .gaSriChecks li>span{font-size:17px;color:var(--coco-muted)}
 #sri .gaSriChecks [data-validation=valid]>span{color:var(--arc-success)}
-#sri .gaSriChecks [data-validation=error]>span{color:#B3261E}
+#sri .gaSriChecks [data-validation=error]>span{color:var(--arc-danger)}
 #sri .gaSriValidation dl{border-top:1px solid var(--arc-line);padding-top:8px;font-size:12px;margin:0}
 #sri .gaSriDocs{border:1px solid var(--arc-line);border-radius:10px;margin:12px 0;font-size:11px}
 #sri .gaSriDocs h4{font-size:14px;margin-bottom:10px}

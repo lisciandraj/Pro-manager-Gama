@@ -3,19 +3,27 @@
 @font-face{font-family:Poppins;src:url("fonts/poppins-latin-medium.woff2") format("woff2");font-style:normal;font-weight:500;font-display:swap}
 @font-face{font-family:Poppins;src:url("fonts/poppins-latin-semibold.woff2") format("woff2");font-style:normal;font-weight:600 900;font-display:swap}
 /* Coco ERP — shared design tokens.
-   Openhub reference: ivory navigation, white workspaces, orange actions and pastel states.
+   Openhub layout with the shared blue, green, rose and coral menu palette.
    Historical variable names remain public aliases for existing modules.
    src/styles/design.css supplies the scoped application/theme overrides.
    Keep semantic states labelled: color alone must not carry information. */
 :root{
- /* ------------------------------------------- colores de marca */
- --arc-coco-blue:#151515;    /* azul petróleo */
- --arc-coco-violet:#B93B00;  /* historical alias */
- --arc-coco-teal:#B93B00;    /* turquesa */
- --arc-coco-orange:#B93B00;  /* historical alias */
+ /* Menu palette shared by actions, status, navigation and charts. */
+ --coco-blue:#2176B8;--coco-blue-hover:#1B659E;--coco-blue-tint:#EAF3FB;
+ --coco-green:#278344;--coco-green-hover:#206B38;--coco-green-tint:#EDF7F0;
+ --coco-rose:#C7476A;--coco-rose-hover:#AB3555;--coco-rose-tint:#FCEEF3;
+ --coco-coral:#CC5139;--coco-coral-hover:#AD402D;--coco-coral-tint:#FFF1EC;
+ --coco-blue-dark:var(--coco-blue-hover);--coco-orange:var(--coco-coral-hover);--coco-orange-tint:var(--coco-coral-tint);
+ --gama-blue:var(--coco-blue);--gama-blue-dark:var(--coco-blue-hover);--coco-grid:var(--coco-line);
 
- --arc-coco-blue-text:#151515;   --arc-coco-violet-text:#B93B00;
- --arc-coco-teal-text:#B93B00;   --arc-coco-orange-text:#B93B00;
+ /* ------------------------------------------- colores de marca */
+ --arc-coco-blue:var(--coco-blue);    /* azul petróleo */
+ --arc-coco-violet:var(--coco-rose);  /* historical alias */
+ --arc-coco-teal:var(--coco-green);    /* turquesa */
+ --arc-coco-orange:var(--coco-coral-hover);  /* historical alias */
+
+ --arc-coco-blue-text:var(--coco-blue-hover);   --arc-coco-violet-text:var(--coco-rose-hover);
+ --arc-coco-teal-text:var(--coco-green-hover);   --arc-coco-orange-text:var(--coco-coral-hover);
 
  /* ---------------------------------------------------------------- marca */
  --arc-navy-900:#151515;
@@ -28,12 +36,12 @@
  --arc-steel-300:#F1F0EF;
 
  /* ------------------------------------------------------------- acciones */
- --arc-accent-700:#943000;
- --arc-accent-600:#B93B00;
- --arc-accent-500:#EE5400;  /* el azul del logo, para lo decorativo */
- --arc-accent-400:#E5B6A1;
- --arc-accent-100:#FBF2ED;
- --arc-accent-50:#FDF7F2;
+ --arc-accent-700:var(--coco-blue-hover);
+ --arc-accent-600:var(--coco-blue);
+ --arc-accent-500:var(--coco-blue);  /* el azul del logo, para lo decorativo */
+ --arc-accent-400:#84B4D8;
+ --arc-accent-100:var(--coco-blue-tint);
+ --arc-accent-50:#F3F8FD;
 
  /* ------------------------------------------------------ neutros y fondo */
  --arc-canvas:#FFFFFF;      /* Neutral workspace, with muted GAMA accents. */
@@ -50,24 +58,24 @@
  --arc-text-on-navy:#FFFFFF;
 
  /* --------------------------------------------------------- funcionales */
- --arc-success:#02710F;   --arc-success-bg:#D9FCDD;   --arc-success-line:#B8E6BF;
- --arc-warning:#775600;   --arc-warning-bg:#FFF0CA;   --arc-warning-line:#E9D79F;
- --arc-danger:#BE3848;    --arc-danger-bg:#FFF0F1;    --arc-danger-line:#ECC2C8;
- --arc-info:#0C2E4E;      --arc-info-bg:#D9EBFC;      --arc-info-line:#BDD8F1;
+ --arc-success:var(--coco-green-hover);   --arc-success-bg:var(--coco-green-tint);   --arc-success-line:#BEDFC8;
+ --arc-warning:var(--coco-coral-hover);   --arc-warning-bg:var(--coco-coral-tint);   --arc-warning-line:#E8BEB3;
+ --arc-danger:var(--coco-rose-hover);    --arc-danger-bg:var(--coco-rose-tint);    --arc-danger-line:#EDBDCB;
+ --arc-info:var(--coco-blue-hover);      --arc-info-bg:var(--coco-blue-tint);      --arc-info-line:#BCD7EC;
 
  /* Familias de módulos. Los nombres históricos se conservan por compatibilidad. */
- --arc-fam-analytics:#151515;   --arc-fam-analytics-bg:#F5F5F4;   /* C azul: pilotaje */
- --arc-fam-sales:#151515;     --arc-fam-sales-bg:#F5F5F4;       /* naranja: ventas y clientes */
- --arc-fam-logistics:#151515;   --arc-fam-logistics-bg:#F5F5F4;   /* C turquesa: stock, compras y logística */
- --arc-fam-purchase:#151515;    --arc-fam-purchase-bg:#F5F5F4;
- --arc-fam-finance:#151515;   --arc-fam-finance-bg:#F5F5F4;     /* O naranja: administración */
- --arc-fam-people:#151515;    --arc-fam-people-bg:#F5F5F4;
- --arc-fam-system:#151515;    --arc-fam-system-bg:#F5F5F4;
+ --arc-fam-analytics:var(--coco-blue);   --arc-fam-analytics-bg:var(--coco-blue-tint);   /* C azul: pilotaje */
+ --arc-fam-sales:var(--coco-rose);     --arc-fam-sales-bg:var(--coco-rose-tint);       /* naranja: ventas y clientes */
+ --arc-fam-logistics:var(--coco-green);   --arc-fam-logistics-bg:var(--coco-green-tint);   /* C turquesa: stock, compras y logística */
+ --arc-fam-purchase:var(--coco-green);    --arc-fam-purchase-bg:var(--coco-green-tint);
+ --arc-fam-finance:var(--coco-coral-hover);   --arc-fam-finance-bg:var(--coco-coral-tint);     /* O naranja: administración */
+ --arc-fam-people:var(--coco-coral-hover);    --arc-fam-people-bg:var(--coco-coral-tint);
+ --arc-fam-system:var(--coco-blue);    --arc-fam-system-bg:var(--coco-blue-tint);
 
  /* Series de gráfico. Se distinguen por tono Y por claridad, y nunca van
     solas: toda serie lleva su etiqueta y su cifra al lado. */
- --arc-viz-1:#EE5400; --arc-viz-2:#151515; --arc-viz-3:#5C81B0;
- --arc-viz-4:#A78ABE; --arc-viz-5:#AFCDB5; --arc-viz-6:#BE3848;
+ --arc-viz-1:var(--coco-blue); --arc-viz-2:var(--coco-green); --arc-viz-3:var(--coco-rose);
+ --arc-viz-4:var(--coco-coral-hover); --arc-viz-5:var(--coco-blue-hover); --arc-viz-6:var(--coco-rose-hover);
 
  /* ------------------------------------------------------------- espacio */
  --arc-s1:4px;  --arc-s2:8px;  --arc-s3:12px; --arc-s4:16px;
@@ -99,7 +107,7 @@
  --arc-topbar-h:88px;
  --coco-catalog-width:64rem;--coco-catalog-card-width:20rem;--coco-catalog-line:1px;
  --arc-tap:44px;            /* zona táctil mínima */
- --arc-focus:0 0 0 3px #FBF2ED;
+ --arc-focus:0 0 0 3px var(--coco-blue-tint);
  --arc-content-max:1600px;
  /* Operational workspaces: Odoo layout references, Coco brand roles. */
  --arc-workspace-radius:var(--arc-r-lg);
@@ -113,9 +121,9 @@
  --coco-canvas:#FFFFFF;--coco-surface:#FFFFFF;--coco-inset:#F9F8F8;
  --coco-line:#F1F0EF;--coco-row-line:#F1F0EF;--coco-column-line:#F1F0EF;
  --coco-ink:#151515;--coco-muted:#6B6A69;
- /* Orange actions use dark labels for AA contrast; text links use a darker orange. Original logo assets stay unchanged. */
- --coco-action:#EE5400;--coco-action-top:var(--coco-action);--coco-action-hover:#E54E00;--coco-on-action:#151515;
- --coco-action-tint:#FBF2ED;--coco-action-line:#E5D7CF;
+ /* Filled actions use white labels; orange controls use the dark coral for AA contrast. */
+ --coco-action:var(--coco-blue);--coco-action-top:var(--coco-action);--coco-action-hover:var(--coco-blue-hover);--coco-on-action:#FFFFFF;
+ --coco-action-tint:var(--coco-blue-tint);--coco-action-line:var(--arc-info-line);
  --coco-panel-padding:20px;--coco-panel-gap:20px;
  /* Separate form comfort from list density; large screens keep useful data visible. */
  --coco-field-gap:8px;--coco-form-row-gap:20px;--coco-form-column-gap:20px;
@@ -138,15 +146,15 @@
  --coco-dialog-shadow:var(--arc-sh-3);
  --coco-scrim:rgb(23 36 59 / .26);
  --coco-kanban-surface:transparent;
- --coco-chart-orange-top:#EE5400;--coco-chart-orange-bottom:#EE5400;
- --coco-chart-blue-top:#151515;--coco-chart-blue-bottom:#151515;
+ --coco-chart-orange-top:var(--coco-coral-hover);--coco-chart-orange-bottom:var(--coco-coral-hover);
+ --coco-chart-blue-top:var(--coco-blue);--coco-chart-blue-bottom:var(--coco-blue);
 }
 
 /* One solid glyph tone per module family, tuned for white ERP surfaces. */
-[data-arc-fam=blue]{--coco-glyph-tone:#2176B8}
-:is([data-arc-fam=teal],[data-arc-fam=cyan]){--coco-glyph-tone:#278344}
-[data-arc-fam=violet]{--coco-glyph-tone:#C7476A}
-[data-arc-fam=orange]{--coco-glyph-tone:#CC5139}
+[data-arc-fam=blue]{--coco-glyph-tone:var(--coco-blue)}
+:is([data-arc-fam=teal],[data-arc-fam=cyan]){--coco-glyph-tone:var(--coco-green)}
+[data-arc-fam=violet]{--coco-glyph-tone:var(--coco-rose)}
+[data-arc-fam=orange]{--coco-glyph-tone:var(--coco-coral)}
 
 /* El movimiento es decoración: quien lo ha desactivado en su sistema no lo
    recibe. */
@@ -170,16 +178,16 @@
  --arc-tile-shadow-hover:none;
  --arc-control-shadow:none;--arc-field-shadow:none;
 
- --arc-icon-blue:#151515;--arc-icon-blue-bg:#F5F5F4;
- --arc-icon-violet:#151515;--arc-icon-violet-bg:#F5F5F4;
- --arc-icon-teal:#151515;--arc-icon-teal-bg:#F5F5F4;
- --arc-icon-orange:#151515;--arc-icon-orange-bg:#F5F5F4;
+ --arc-icon-blue:var(--coco-blue);--arc-icon-blue-bg:var(--coco-blue-tint);
+ --arc-icon-violet:var(--coco-rose);--arc-icon-violet-bg:var(--coco-rose-tint);
+ --arc-icon-teal:var(--coco-green);--arc-icon-teal-bg:var(--coco-green-tint);
+ --arc-icon-orange:var(--coco-coral);--arc-icon-orange-bg:var(--coco-coral-tint);
  /* Alias históricos para los iconos de módulos. */
- --arc-icon-indigo:#151515;--arc-icon-indigo-bg:#F5F5F4;
- --arc-icon-pink:#151515;--arc-icon-pink-bg:#F5F5F4;
- --arc-icon-cyan:#151515;--arc-icon-cyan-bg:#F5F5F4;
- --arc-icon-green:#151515;--arc-icon-green-bg:#F5F5F4;
- --arc-icon-red:#151515;--arc-icon-red-bg:#F5F5F4;
+ --arc-icon-indigo:var(--coco-blue);--arc-icon-indigo-bg:var(--coco-blue-tint);
+ --arc-icon-pink:var(--coco-rose);--arc-icon-pink-bg:var(--coco-rose-tint);
+ --arc-icon-cyan:var(--coco-green);--arc-icon-cyan-bg:var(--coco-green-tint);
+ --arc-icon-green:var(--coco-green);--arc-icon-green-bg:var(--coco-green-tint);
+ --arc-icon-red:var(--coco-rose);--arc-icon-red-bg:var(--coco-rose-tint);
 }
 
-:root{--coco-create:#EE5400;--coco-create-hover:#E54E00;--coco-selected:#F5F5F4;--coco-nav-surface:#FDFAF9;--coco-nav-active:#FBF2ED}
+:root{--coco-create:var(--coco-green);--coco-create-hover:var(--coco-green-hover);--coco-selected:var(--coco-blue-tint);--coco-nav-surface:#FDFAF9;--coco-nav-active:var(--coco-blue-tint)}

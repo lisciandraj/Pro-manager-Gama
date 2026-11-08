@@ -16,7 +16,7 @@
 .ivEstado.bajo{background:var(--arc-warning-bg);color:var(--arc-warning)}
 .ivEstado.agotado{background:var(--arc-danger-bg);color:var(--arc-danger)}
 .ivEstado.sobre{background:var(--arc-surface-3);color:var(--arc-text-muted)}
-.ivEstado.reservado{background:var(--arc-accent-100);color:var(--arc-accent-600)}
+.ivEstado.reservado{background:var(--arc-accent-100);color:var(--arc-accent-700)}
 .ivSub{color:var(--arc-text-muted);font-size:11.5px}
 .ivForm{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
 .ivForm label{margin-top:0}

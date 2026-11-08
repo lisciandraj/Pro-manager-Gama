@@ -2,18 +2,14 @@
  * No database connection, data deletion, environment assignment or activation.
  */
 const fs=require('node:fs'),path=require('node:path');
-const {productionMigration,digest}=require('./production-bootstrap-sql.cjs');
-const root=path.resolve(__dirname,'..'),target='vhutzdfatijjpahsqkne',sourceCount=362;
+const {digest}=require('./production-bootstrap-sql.cjs');
+const {loadSnapshot,sourceCount,installation}=require('./production-bootstrap-snapshot.cjs');
+const root=path.resolve(__dirname,'..'),target='vhutzdfatijjpahsqkne';
 const literal=s=>"'"+String(s).replaceAll("'","''")+"'";
 function prepare(project,{outputDirectory=path.join(root,'.build/production-verification')}={}){
  if(project!==target)throw Error('Only the authorized new production project may be verified');
  const directory=path.join(root,'supabase/migrations');
- const sources=fs.readdirSync(directory).filter(f=>/^\d{14}_[a-z0-9_]+\.sql$/.test(f)).sort().map(file=>{
-  const original=fs.readFileSync(path.join(directory,file),'utf8'),derived=productionMigration(file,original);
-  return {file,sha256:digest(original),derived_sha256:digest(derived)};
- });
- if(sources.length!==sourceCount)throw Error('First-installation migration count changed; review it before regenerating');
- const installation=digest(sources.map(x=>x.file+':'+x.sha256).join('\n'));
+ const snapshot=loadSnapshot(directory),sources=snapshot.sources.map(({sql,...source})=>source);
  const derived=digest(sources.map(x=>x.file+':'+x.derived_sha256).join('\n'));
  const guardFile=path.join(directory,sources.at(-1).file),guard=fs.readFileSync(guardFile,'utf8');
  const list=guard.match(/defaults text\[\]:=array\[([\s\S]*?)\];/);
@@ -60,7 +56,7 @@ select jsonb_build_object('project_ref',${literal(target)},'source_count',${sour
 `;
  fs.mkdirSync(outputDirectory,{recursive:true});
  fs.writeFileSync(path.join(outputDirectory,'verify.sql'),sql);
- fs.writeFileSync(path.join(outputDirectory,'manifest.json'),JSON.stringify({project_ref:target,source_count:sourceCount,installation,derived_fingerprint:derived,verification_sha256:digest(sql),sources},null,2)+'\n');
+ fs.writeFileSync(path.join(outputDirectory,'manifest.json'),JSON.stringify({project_ref:target,source_count:sourceCount,installation,derived_fingerprint:derived,verification_sha256:digest(sql),excluded_migrations:snapshot.excluded,follow_up:'Apply excluded migrations separately after the immutable first installation is verified.',sources},null,2)+'\n');
  return {project_ref:target,source_count:sourceCount,installation,derived_fingerprint:derived,directory:outputDirectory};
 }
 if(require.main===module){try{console.log(JSON.stringify(prepare(process.argv[2])));}catch(error){console.error(error.message);process.exitCode=1;}}

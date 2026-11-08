@@ -11,13 +11,12 @@
  body.cocoWorkbench .arcSidebar .arcLogo{display:block;max-width:124px}
  body.cocoWorkbench .arcSidebar .arcLogoMark{display:none}
  body.cocoWorkbench .arcSidebar .arcNav{padding:0 0 20px}
- body.cocoWorkbench .arcSidebar .arcNavLink{--gama-blue:var(--coco-ink);--gama-orange:var(--coco-ink);position:relative;display:grid;grid-template-columns:36px minmax(0,1fr);justify-content:start;gap:12px;min-height:44px;padding:10px 16px 10px 8px;margin:0;border:0;border-radius:0;background:transparent;box-shadow:none;color:var(--coco-ink);font-size:13px;font-weight:400}
+ body.cocoWorkbench .arcSidebar .arcNavLink{position:relative;display:grid;grid-template-columns:36px minmax(0,1fr);justify-content:start;gap:12px;min-height:44px;padding:10px 16px 10px 8px;margin:0;border:0;border-radius:0;background:transparent;box-shadow:none;color:var(--coco-ink);font-size:13px;font-weight:400;--coco-glyph-color:var(--coco-glyph-tone,var(--coco-blue))}
  body.cocoWorkbench .arcSidebar .arcNavLink.aclHidden{display:none}
- body.cocoWorkbench .arcSidebar .arcNavLink>svg{justify-self:center;color:var(--coco-ink);width:21px;height:21px;flex:none}
+ body.cocoWorkbench .arcSidebar .arcNavLink>svg{justify-self:center;width:21px;height:21px;flex:none}
  body.cocoWorkbench .arcSidebar .arcNavLink:hover{background:var(--coco-selected)}
- body.cocoWorkbench .arcSidebar .arcNavLink[aria-current=page]{--gama-blue:var(--coco-action);--gama-orange:var(--coco-action);background:linear-gradient(90deg,var(--coco-nav-active) 52px,var(--coco-selected) 52px);color:var(--coco-ink);font-weight:600;box-shadow:none}
+ body.cocoWorkbench .arcSidebar .arcNavLink[aria-current=page]{background:linear-gradient(90deg,var(--coco-nav-active) 52px,var(--coco-selected) 52px);color:var(--coco-blue-hover);font-weight:600;box-shadow:none}
  body.cocoWorkbench .arcSidebar .arcNavLink[aria-current=page]:before{content:"";position:absolute;inset:0 auto 0 0;width:3px;border-radius:0 3px 3px 0;background:var(--coco-action)}
- body.cocoWorkbench .arcSidebar .arcNavLink[aria-current=page]>svg{color:var(--coco-action)}
  body.cocoWorkbench .arcSidebar .arcNavLabel{display:block}
  body.cocoWorkbench .arcSidebar :is(.arcFootBrand,.arcFootVersion){display:none}
  body.cocoWorkbench .arcSidebar .arcNavGroup{height:auto;border:0;font-size:11px;font-weight:500;letter-spacing:0;text-transform:none;padding:14px 16px 7px 56px;margin:10px 0 4px;color:var(--arc-text-muted)}
@@ -57,7 +56,7 @@
  /* These remain native buttons inside the business module, with one title. */
  body.cocoWorkbench .arcContent section .cocoModuleNav{position:static;display:flex!important;align-items:center;flex-wrap:nowrap!important;gap:8px!important;overflow-x:auto;overflow-y:hidden;max-width:100%;min-width:0;margin:0 0 20px!important;padding:4px 6px 4px 0!important;box-sizing:border-box;border:0;border-radius:0;background:transparent;scrollbar-width:thin;scroll-padding-inline:12px;overscroll-behavior-x:contain}
  body.cocoWorkbench .arcContent section .cocoModuleNav>button{flex:0 0 auto!important;min-width:0!important;min-height:44px;max-width:none;padding:10px 16px!important;margin:0;white-space:nowrap!important;line-height:1.4;font-size:13px;font-weight:400;border:1px solid transparent!important;border-radius:8px!important;background:transparent!important;box-shadow:none!important;color:var(--coco-ink)!important}
- body.cocoWorkbench .arcContent section .cocoModuleNav>button:is(.active,.on,.sel,[aria-selected=true],[aria-current=page],[aria-current=true],[aria-pressed=true]){border-color:var(--coco-line)!important;background:var(--coco-selected)!important;color:var(--coco-ink)!important;font-weight:500}
+ body.cocoWorkbench .arcContent section .cocoModuleNav>button:is(.active,.on,.sel,[aria-selected=true],[aria-current=page],[aria-current=true],[aria-pressed=true]){border-color:var(--coco-line)!important;background:var(--coco-selected)!important;color:var(--coco-blue-hover)!important;font-weight:500}
  body.cocoWorkbench .arcContent section .cocoModuleNav>button:hover{background:var(--coco-inset)!important;color:var(--coco-ink)!important}
  body.cocoWorkbench .arcContent section .cocoModuleNav>button:focus-visible{outline-offset:-3px}
  body.cocoWorkbench .arcContent section:not(#mainmenu) .gamaStdHeader{min-height:44px;height:auto;margin:0 0 20px;padding:0;border:0;gap:12px;align-items:center;flex-wrap:wrap;background:transparent;box-shadow:none}

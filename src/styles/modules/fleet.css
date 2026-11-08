@@ -36,7 +36,7 @@
 .gfCards{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
 .gfGrid[hidden],.gfCard[hidden]{display:none}
 .arcButton.gfVeh{border:1px solid var(--arc-line-strong);border-radius:13px;background:#fff;padding:0;overflow:hidden;text-align:left;cursor:pointer;font:inherit;color:inherit;display:flex;flex-direction:column;align-items:stretch;justify-content:flex-start;gap:0}
-.gfVeh:hover,.gfVeh:focus-visible{border-color:var(--arc-accent-600);box-shadow:0 0 0 2px rgba(59,108,249,.16)}
+.gfVeh:hover,.gfVeh:focus-visible{border-color:var(--arc-accent-600);box-shadow:0 0 0 2px var(--coco-blue-tint)}
 .gfVeh figure{margin:0;width:100%;height:140px;flex-shrink:0;align-self:stretch;background:var(--arc-surface-3);display:flex;align-items:center;justify-content:center;font-size:38px;overflow:hidden}
 .gfVeh figure img{display:block;width:100%;height:100%;object-fit:contain}
 .gfVeh figure .gfVehIcon{width:56px;height:56px;fill:none;stroke:currentColor;stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round;color:var(--arc-text-subtle)}

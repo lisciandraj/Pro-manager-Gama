@@ -32,8 +32,8 @@ réel dans l’application.
 Sources, dépendances auditées, types, documentation, migrations, génération
 reproductible et budget de démarrage sont contrôlés. Les scripts de première
 installation de production restent liés à leur historique revu de 362 migrations
-et refusent les ajouts de développement ; le test reconstruit séparément cet
-historique figé et vérifie que le refus reste effectif.
+et excluent les ajouts de développement de cet historique figé. Les contrôles
+vérifient son empreinte et l’exclusion des migrations ultérieures.
 
 Une exécution locale complète de 905 cas pendant l’intégration avait 22 écarts
 et deux cas PostgreSQL ignorés localement. Les écarts provenaient de migrations

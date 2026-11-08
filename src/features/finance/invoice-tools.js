@@ -1,6 +1,7 @@
 /* Optional invoice actions load when the invoice dialog is opened. */
 (function(){'use strict';
 let epoch=0;const attached=new WeakMap(),L=(es,fr,en)=>({es,fr,en}[window.GamaI18n?.language||'es']||es);
+async function blob(i){await window.GamaCompany?.load(true);await window.GamaPdf.ready();const s=i.document_snapshot,d=s.details||{};const blob=GamaQuotePdf.build({...d,companySnapshot:s.company,documentType:'internal_invoice',number:i.number,dateLabel:i.issue_date,notes:(i.invoice_origin==='direct'?L('Factura de cliente sin pedido','Facture client sans commande','Customer invoice without an order'):'Presupuesto: '+(s.quote_number||'Pedido directo')+' · Pedido: '+s.order_number)+'\nVencimiento: '+(i.due_date||'—')+'\n'+(d.notes||''),items:s.lines,sub:i.subtotal,tax:i.tax,total:i.total,taxCalculation:s.tax_calculation,currency:s.currency||s.company?.currency});return blob}
 function text(i){const s=i.document_snapshot,d=s.details||{};return ['FACTURA INTERNA '+i.number,'Sin validez fiscal',...(i.invoice_origin==='direct'?[L('Factura de cliente sin pedido','Facture client sans commande','Customer invoice without an order')]:['Presupuesto: '+(s.quote_number||'Pedido directo'),'Pedido: '+(s.order_number||'—')]),'Cliente: '+s.customer,'Identificación: '+s.customer_identification,'Dirección: '+(d.clientAddress||''),'Email: '+(d.clientEmail||''),'Fecha: '+i.issue_date,'Vencimiento: '+(i.due_date||''),'Producto\tReferencia\tCantidad\tPrecio lista\tDescuento %\tPrecio neto\tIVA %\tSubtotal\tIVA',...s.lines.map(l=>[l.name,l.reference,l.qty,l.listPrice??l.price,l.discount||0,l.price,l.taxRate,l.subtotal,l.tax].join('\t')),'Subtotal: '+i.subtotal,'IVA: '+i.tax,'TOTAL USD: '+i.total,'Pago: '+(d.payment||''),'Condiciones: '+(d.terms||''),...(d.customer_comment?['Comentario del cliente: '+d.customer_comment]:[])].join('\n')}
 const owner=()=>{try{const s=JSON.parse(localStorage.getItem('gama_session_v1')||'{}');return [s.userId||s.id||s.email||s.username||s.name||'',s.role||''].join(':')}catch{return ''}};
 window.addEventListener('gama:auth-change',event=>{if(event.detail?.event==='TOKEN_REFRESHED')return;epoch++;document.querySelectorAll('[data-coco-invoice-tool]').forEach(button=>button.remove())});
@@ -30,5 +31,5 @@ function attach(invoice,dialog,onDone){
  const lang=window.GamaI18n?.language;
  button('giPaymentLink',lang==='fr'?'Lien de paiement':lang==='en'?'Payment link':'Enlace de pago','accounting','coco-invoice-checkout.js',()=>window.CocoInvoiceCheckout.open(invoice));
 }
-window.CocoInvoiceTools=Object.freeze({attach});
+window.CocoInvoiceTools=Object.freeze({attach,blob});
 })();

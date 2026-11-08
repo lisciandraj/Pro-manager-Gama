@@ -34,7 +34,8 @@ function visibleStreets(left,top,right,bottom){
  for(let x=Math.floor(left/GRID);x<=Math.floor(right/GRID);x++)for(let y=Math.floor(top/GRID);y<=Math.floor(bottom/GRID);y++)for(const id of streetNetwork.index.get(x+','+y)||[])ids.add(id);
  return [...ids].map(id=>streetNetwork.roads[id]).filter(r=>r.bounds[0]<=right&&r.bounds[2]>=left&&r.bounds[1]<=bottom&&r.bounds[3]>=top);
 }
-const palette=['#28677d','#b75a11','#6c50a4','#237854','#a13962'];
+// Match chart categories to the menu palette; route labels remain explicit.
+const palette=Array.from({length:6},(_,i)=>'var(--arc-viz-'+(i+1)+')');
 const routeColor=(r,i)=>r.color||palette[i%palette.length];
 const positionedPoints=points=>points.filter(p=>p.lng!==null&&p.lat!==null&&p.lng!==''&&p.lat!==''&&Number.isFinite(+p.lng)&&Number.isFinite(+p.lat)&&Math.abs(+p.lat)<=85&&Math.abs(+p.lng)<=180).map(p=>({...p,p:project(+p.lng,+p.lat)}));
 function create(host,{points=[],routes=[],vehicles=[],onSelect=()=>{},view=null}={}){
@@ -83,7 +84,7 @@ function create(host,{points=[],routes=[],vehicles=[],onSelect=()=>{},view=null}
   svg.setAttribute('viewBox',[left,top,vw,vh].join(' '));svg.dataset.zoom=String(zoom);svg.dataset.points=String(positioned.length);
   drawStreets(left,top,vw,vh,unit);
   const g=window.CocoMapData||{};
-  svg.querySelector('[data-map-cities]').innerHTML=(g.cities||[]).filter(c=>zoom>=8||c.rank<5).map(c=>{const p=project(...c.point);return p[0]<left||p[0]>left+vw||p[1]<top||p[1]>top+vh?'':`<g transform="translate(${p.join(',')})"><circle r="${2*unit}" fill="#73808b"/><text x="${5*unit}" y="${-5*unit}" font-size="${12*unit}" fill="#4b5c68">${E(c.name)}</text></g>`}).join('');
+  svg.querySelector('[data-map-cities]').innerHTML=(g.cities||[]).filter(c=>zoom>=8||c.rank<5).map(c=>{const p=project(...c.point);return p[0]<left||p[0]>left+vw||p[1]<top||p[1]>top+vh?'':`<g transform="translate(${p.join(',')})"><circle r="${2*unit}" fill="var(--arc-text-muted)"/><text x="${5*unit}" y="${-5*unit}" font-size="${12*unit}" fill="var(--arc-text-muted)">${E(c.name)}</text></g>`}).join('');
   const stopLabels=new Map();
   svg.querySelector('[data-map-routes]').innerHTML=routes.map((r,i)=>{
    let number=0;for(const id of r.stops||[])if(id!=='__depot')stopLabels.set(id,{number:++number,color:routeColor(r,i)});
@@ -108,13 +109,13 @@ function create(host,{points=[],routes=[],vehicles=[],onSelect=()=>{},view=null}
     if(nearest){x=nearest.x;y=nearest.y}
    }
    used.push([x,y]);const moved=Math.hypot(x-px,y-py)>.5;x=left+x*unit;y=top+y*unit;
-   const color=p.isDepot?'#35495e':p.status==='Entregada'?'#15803d':p.status==='Excepción'?'#c2410c':stopLabels.get(p.id)?.color||'#28677d',label=p.isDepot?'D':String(stopLabels.get(p.id)?.number||i+1);
+   const color=p.isDepot?'var(--arc-text)':p.status==='Entregada'?'var(--arc-success)':p.status==='Excepción'?'var(--arc-warning)':stopLabels.get(p.id)?.color||'var(--arc-viz-1)',label=p.isDepot?'D':String(stopLabels.get(p.id)?.number||i+1);
    return `<g data-map-pin="${E(p.id)}" role="button" tabindex="0" aria-label="${E([label,p.reference,p.customer,p.address].filter(Boolean).join(' · '))}"><title>${E(p.customer||p.address)}</title>${moved?`<path d="M${p.p.join(',')}L${x},${y}" stroke="${color}" stroke-width="1" vector-effect="non-scaling-stroke"/>`:''}<circle cx="${x}" cy="${y}" r="${(selected===p.id?radius+3:radius)*unit}" fill="${color}" stroke="#fff" stroke-width="2" vector-effect="non-scaling-stroke"/><text x="${x}" y="${y+4*unit}" text-anchor="middle" fill="#fff" font-size="${Math.min(11,radius)*unit}" font-weight="700" pointer-events="none">${label}</text></g>`;
   }).join('');
-  svg.querySelector('[data-map-vehicles]').innerHTML=positionedPoints(vehicles).map(p=>`<g data-map-vehicle="${E(p.id)}" transform="translate(${p.p.join(',')})"><title>${E(p.customer||'')} · ${E(p.observedAt||'')}</title><circle r="${17*unit}" fill="${E(p.color||'#28677d')}" fill-opacity=".18"/><rect x="${-10*unit}" y="${-8*unit}" width="${20*unit}" height="${16*unit}" rx="${4*unit}" fill="${E(p.color||'#28677d')}" stroke="#fff" stroke-width="2" vector-effect="non-scaling-stroke"/><text y="${4*unit}" text-anchor="middle" font-size="${11*unit}" fill="#fff">${E(p.label||'V')}</text></g>`).join('');
+  svg.querySelector('[data-map-vehicles]').innerHTML=positionedPoints(vehicles).map(p=>`<g data-map-vehicle="${E(p.id)}" transform="translate(${p.p.join(',')})"><title>${E(p.customer||'')} · ${E(p.observedAt||'')}</title><circle r="${17*unit}" fill="${E(p.color||'var(--arc-viz-1)')}" fill-opacity=".18"/><rect x="${-10*unit}" y="${-8*unit}" width="${20*unit}" height="${16*unit}" rx="${4*unit}" fill="${E(p.color||'var(--arc-viz-1)')}" stroke="#fff" stroke-width="2" vector-effect="non-scaling-stroke"/><text y="${4*unit}" text-anchor="middle" font-size="${11*unit}" fill="#fff">${E(p.label||'V')}</text></g>`).join('');
   const latitude=Math.atan(Math.sinh(Math.PI*(1-2*center[1]/256))),meters=40075016.686*Math.cos(latitude)/256*unit,target=100*meters,power=10**Math.floor(Math.log10(target)),distance=[5,2,1].map(n=>n*power).find(n=>n<=target),length=distance/meters;
   const sx=left+20*unit,sy=top+(height-16)*unit;
-  svg.querySelector('[data-map-scale]').innerHTML=`<path d="M${sx},${sy-4*unit}v${4*unit}h${length*unit}v${-4*unit}" stroke="#42586b" stroke-width="2" vector-effect="non-scaling-stroke" fill="none"/><text x="${sx}" y="${sy-7*unit}" font-size="${10*unit}" fill="#42586b">${distance>=1000?distance/1000+' km':distance+' m'}</text>`;
+  svg.querySelector('[data-map-scale]').innerHTML=`<path d="M${sx},${sy-4*unit}v${4*unit}h${length*unit}v${-4*unit}" stroke="var(--arc-text-muted)" stroke-width="2" vector-effect="non-scaling-stroke" fill="none"/><text x="${sx}" y="${sy-7*unit}" font-size="${10*unit}" fill="var(--arc-text-muted)">${distance>=1000?distance/1000+' km':distance+' m'}</text>`;
  }
  function fit(){measure();autoFit=true;selected=null;if(!positioned.length){center=project(-78.4678,-.1807);zoom=12}else{const xs=positioned.map(p=>p.p[0]),ys=positioned.map(p=>p.p[1]);center=[(Math.min(...xs)+Math.max(...xs))/2,(Math.min(...ys)+Math.max(...ys))/2];zoom=Math.min(15,Math.max(2,Math.log2(Math.min(Math.max(80,width-90)/Math.max(.00001,Math.max(...xs)-Math.min(...xs)),Math.max(80,height-90)/Math.max(.00001,Math.max(...ys)-Math.min(...ys))))))}draw()}
  function retryStreets(){streetFailure=null;requested=false}

@@ -571,6 +571,38 @@
           return {error:{message:'UNSUPPORTED_LEGACY_TAX_FIXTURE_ACTION'}};
         }
 
+        // Opt-in server directory fixture: older suites continue to exercise
+        // the module's legacy-data fallback. SQL tests own access enforcement.
+        if(window.__CONTACT_DIRECTORY&&['coco_contact_directory','coco_contact_hub'].includes(fn)){
+          const db=window.__DB,profiles=window.__CONTACT_PROFILES||{},versions=window.__CONTACT_VERSIONS||{};
+          const all=[...['customers','suppliers','crm_leads','crm_contacts'].flatMap(table=>(db[table]||[]).map(record=>{
+            const kind=({customers:'clients',suppliers:'suppliers',crm_leads:'leads'})[table]||(record.customer_id?'people':'prospects');
+            const entity_id=record.contact_entity_id||record.id,profile=profiles[entity_id]||{};
+            return {kind,id:record.id,entity_id,name:record.name||record.company||[record.first_name,record.last_name].filter(Boolean).join(' ')||record.email||'—',
+              nature:profile.nature??(['people','prospects'].includes(kind)?'person':null),active:record.active!==false,
+              ref:record.identification||record.tax_id||'',detail:record.job_title||'',phone:record.phone,email:record.email,city:record.city,record:{...record}};
+          }))];
+          const summary=r=>r?{entity_id:r.entity_id,kind:r.kind,id:r.id,name:r.name}:null;
+          for(const r of all){
+            const profile=profiles[r.entity_id]||{};
+            const parent=['people','prospects'].includes(r.kind)?all.find(p=>p.kind===(r.record.customer_id?'clients':'leads')&&p.id===(r.record.customer_id||r.record.lead_id)):all.find(p=>p.entity_id===profile.parent_id);
+            r.company=summary(parent);r.roles=all.filter(p=>p.entity_id===r.entity_id).map(p=>({kind:p.kind,id:p.id,name:p.name,active:p.active}));
+            if(parent&&['people','prospects'].includes(r.kind)){r.ref=parent.name;if(r.record.address_mode!=='own')r.city=parent.city;}
+          }
+          if(fn==='coco_contact_hub'){
+            const row=all.find(r=>r.kind===args.p_kind&&r.id===args.p_id);if(!row)return {error:{message:'CONTACT_NOT_FOUND'}};
+            return {data:{profile:{id:row.entity_id,version:versions[row.entity_id]||1,tags:[],alignment_conflicts:{},...profiles[row.entity_id]},roles:row.roles,company:row.company,
+              related_contacts:all.filter(r=>profiles[r.entity_id]?.parent_id===row.entity_id).map(r=>({...summary(r),nature:r.nature,active:r.active}))}};
+          }
+          const p=args.p_data||{},page=Number(p.page||0),pageSize=Number(p.pageSize||20),norm=v=>String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+          let rows=all.filter(r=>r.kind!=='leads'&&(!p.kind||r.roles.some(role=>role.kind===p.kind))&&(!p.nature||r.nature===p.nature));
+          const active_total=rows.filter(r=>r.active).length,archived_total=rows.length-active_total;
+          rows=rows.filter(r=>r.active!==!!p.archived&&(!p.quality||(p.quality==='email'?!r.email:!r.phone))&&norm(p.search).split(/\s+/).filter(Boolean).every(term=>norm([r.name,r.ref,r.phone,r.email,r.city,r.company?.name,({clients:'Cliente',suppliers:'Proveedor',people:'Contacto de cliente',prospects:'Contacto de prospecto'})[r.kind]].join(' ')).includes(term)));
+          rows.sort((a,b)=>String(a[p.sort||'name']??'').localeCompare(String(b[p.sort||'name']??''))*(p.ascending===false?-1:1));
+          return {data:{version:1,items:rows.slice(page*pageSize,(page+1)*pageSize),total:rows.length,active_total,archived_total,page,pageSize}};
+        }
+        if(window.__CONTACT_DIRECTORY&&fn==='coco_contact_activities')return {data:[]};
+        if(window.__CONTACT_DIRECTORY&&fn==='gama_partner_context')return {data:{entity:(window.__DB[args.p_kind==='customer'?'customers':'suppliers']||[]).find(r=>r.id===args.p_id),history:[]}};
         if(['coco_contact_record','coco_contact_save'].includes(fn)){
   const db=window.__DB,table={clients:'customers',suppliers:'suppliers',people:'crm_contacts',prospects:'crm_contacts',leads:'crm_leads'}[args.p_kind];
   const versions=window.__CONTACT_VERSIONS||(window.__CONTACT_VERSIONS={});
@@ -585,7 +617,7 @@
    if(!row){row={id:crypto.randomUUID(),active:true,...(table==='customers'?{category:'A'}:{}),...(table==='crm_contacts'?{address_mode:'parent'}:{})};(db[table]||(db[table]=[])).push(row)}
    const {odoo,...native}=args.p_data;
    Object.assign(row,native);const eid=row.contact_entity_id||row.id;versions[eid]=(versions[eid]||1)+1;
-   if(odoo)profiles[eid]={...(profiles[eid]||{}),...odoo,tags:Object.hasOwn(odoo,'tags')?(odoo.tags||[]):profiles[eid]?.tags||[]};
+   if(odoo){profiles[eid]={...(profiles[eid]||{}),...odoo,tags:Object.hasOwn(odoo,'tags')?(odoo.tags||[]):profiles[eid]?.tags||[]};if(Object.hasOwn(odoo,'parent_id'))profiles[eid].relation=odoo.parent_id?'employee':null;}
    if(row.contact_entity_id)for(const t of ['customers','suppliers','crm_leads'])for(const peer of db[t]||[])if(peer!==row&&peer.contact_entity_id===row.contact_entity_id){for(const k of ['email','phone','phone2','address','city','province','postal_code','country','lat','lng','website','industry','language'])if(Object.hasOwn(args.p_data,k))peer[k]=args.p_data[k];}
   }
   if(!row)return {error:{message:'CONTACT_NOT_FOUND'}};

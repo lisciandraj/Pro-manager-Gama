@@ -8,14 +8,14 @@
 #crm .crmNav{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 20px}
 #crm .crmNav button{background:var(--coco-surface);border:1px solid var(--coco-line);color:var(--coco-ink);border-radius:6px;padding:9px 14px;font-weight:500;cursor:pointer;font-size:13px;width:auto;min-height:40px;box-shadow:none}
 #crm .crmNav button:hover{background:var(--coco-inset)}
-#crm .crmNav button.on{background:var(--coco-selected);border-color:#F4D6C3;color:var(--coco-ink)}
+#crm .crmNav button.on{background:var(--coco-selected);border-color:var(--coco-action-line);color:var(--coco-blue-hover)}
 #crm .crmEmbudo{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
-#crm .crmCol{--crm-phase:#EEDBF8;--crm-phase-ink:#3E285A;background:var(--coco-surface);border:1px solid var(--coco-line);border-radius:8px;padding:14px}
-#crm .crmCol:nth-child(6n+2){--crm-phase:#D9EBFC;--crm-phase-ink:#0C2E4E}
-#crm .crmCol:nth-child(6n+3){--crm-phase:#FFF0CA;--crm-phase-ink:#775600}
-#crm .crmCol:nth-child(6n+4){--crm-phase:#FCD9FA;--crm-phase-ink:#5A1E0B}
-#crm .crmCol:nth-child(6n+5){--crm-phase:#FDD7CB;--crm-phase-ink:#5A1E0B}
-#crm .crmCol:nth-child(6n+6){--crm-phase:#D9FCDD;--crm-phase-ink:#02710F}
+#crm .crmCol{--crm-phase:var(--coco-rose-tint);--crm-phase-ink:var(--coco-rose-hover);background:var(--coco-surface);border:1px solid var(--coco-line);border-radius:8px;padding:14px}
+#crm .crmCol:nth-child(6n+2){--crm-phase:var(--coco-blue-tint);--crm-phase-ink:var(--coco-blue-hover)}
+#crm .crmCol:nth-child(6n+3){--crm-phase:var(--coco-coral-tint);--crm-phase-ink:var(--coco-coral-hover)}
+#crm .crmCol:nth-child(6n+4){--crm-phase:var(--coco-rose-tint);--crm-phase-ink:var(--coco-rose-hover)}
+#crm .crmCol:nth-child(6n+5){--crm-phase:var(--coco-coral-tint);--crm-phase-ink:var(--coco-coral-hover)}
+#crm .crmCol:nth-child(6n+6){--crm-phase:var(--coco-green-tint);--crm-phase-ink:var(--coco-green-hover)}
 #crm .crmCol.ganada{--crm-phase:var(--arc-success-bg);--crm-phase-ink:var(--arc-success)}
 #crm .crmCol.perdida{--crm-phase:var(--arc-danger-bg);--crm-phase-ink:var(--arc-danger)}
 #crm .crmEmbudo .crmCol>b{display:inline-flex;align-items:center;gap:6px;max-width:100%;padding:5px 8px;border-radius:6px;background:var(--crm-phase);font-size:12px;font-weight:500;line-height:1.4;color:var(--crm-phase-ink);overflow-wrap:anywhere}

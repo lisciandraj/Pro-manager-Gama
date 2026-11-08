@@ -40,13 +40,13 @@
 .arcRecentCard,.arcDashboardCard{min-width:0;background:white;border:1px solid var(--arc-card-border);border-radius:var(--radius-lg);box-shadow:var(--arc-card-shadow);padding:14px}
 #mainmenu .arcRecentCard .arcSectionHead h2{font-size:18px;letter-spacing:-.02em}
 .arcRecentCard .arcSectionHead{margin-bottom:6px}
-.arcRecentCard .ghost{color:var(--arc-accent-600);font-size:12px;padding:0 4px;min-height:30px}
+.arcRecentCard .ghost{color:var(--arc-accent-700);font-size:12px;padding:0 4px;min-height:30px}
 .arcRecentScroll{overflow-x:auto}
 .arcRecentCard table{width:100%;min-width:510px;font-size:12px;background:white}
 .arcContent .arcRecentCard table th{padding:9px 0;font-size:12px;font-weight:400;background:white}
 .arcContent .arcRecentCard table td{padding:10px 8px 10px 0;background:white;font-size:12px}
 .arcRecentCard td:first-child{white-space:nowrap}
-.arcActivityModule{color:var(--arc-accent-600)}
+.arcActivityModule{color:var(--arc-accent-700)}
 .arcActivityEmpty{color:var(--arc-text-muted);font-size:13px;padding:12px 0}
 .arcDashboardCard{display:flex;flex-direction:column;align-items:flex-start;background:var(--arc-surface-2)}
 .arcDashboardCard .gamaF2Icon{align-self:center;border-radius:50%;margin:0 0 12px;width:66px;height:66px}
@@ -69,4 +69,4 @@
  .arcCustomizeList{grid-template-columns:1fr}.arcCustomize{padding:18px}
 }
 @media(max-width:359px){#mainmenu .gamaF2Grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
-.arcOrderHint{font-size:12px;color:var(--arc-text-muted);margin:0;line-height:1.5}.arcOrderHint [role=status]{display:block;color:var(--arc-accent-600)}.arcOrderHint [role=status]:not(:empty){margin:-8px 0 14px}.arcOrderHint button{margin-left:8px}.arcDragHandle{position:absolute;right:12px;top:10px;font-size:25px;line-height:32px;width:36px;height:36px;color:var(--arc-text-muted);cursor:grab;touch-action:none;user-select:none;border-radius:6px}.arcDragHandle:hover{background:var(--arc-surface-2)}.gamaF2Card.arcDragging{opacity:.55;outline:2px dashed var(--arc-accent-600)}
+.arcOrderHint{font-size:12px;color:var(--arc-text-muted);margin:0;line-height:1.5}.arcOrderHint [role=status]{display:block;color:var(--arc-accent-700)}.arcOrderHint [role=status]:not(:empty){margin:-8px 0 14px}.arcOrderHint button{margin-left:8px}.arcDragHandle{position:absolute;right:12px;top:10px;font-size:25px;line-height:32px;width:36px;height:36px;color:var(--arc-text-muted);cursor:grab;touch-action:none;user-select:none;border-radius:6px}.arcDragHandle:hover{background:var(--arc-surface-2)}.gamaF2Card.arcDragging{opacity:.55;outline:2px dashed var(--arc-accent-600)}

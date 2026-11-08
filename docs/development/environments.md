@@ -13,13 +13,19 @@ Les fichiers de production et de développement sont servis respectivement sous 
 
 Le démarrage attend `coco_environment_status` sur le backend sélectionné. Un environnement incorrect, une configuration absente ou un accès administrateur refusé bloque les lectures métier. Aucune URL de production manquante ne provoque de reprise automatique vers l’ancienne base.
 
-## État de préparation — 7 novembre 2026
+## État de préparation — 8 novembre 2026
 
-Le code de séparation et les contrôles ciblés sont prêts. Le projet Production est créé au tarif annoncé de 0 $/mois, et ses 13 fonctions Edge sont déployées sans copier les secrets ni les comptes de développement. L’installation SQL hébergée reste incomplète : les appels d’import volumineux restent en attente avant exécution ; seule la préparation technique initiale a été confirmée. La base actuelle n’a reçu aucune migration d’environnement et son verrou administrateur n’est pas activé.
+Le code de séparation est versionné dans `development`. Le commit `d46a11bc16d306777d1e6fb166f8d073b24770be` conserve les modifications de `main` jusqu’à `18789706`. La branche `production` reste figée au candidat initial `20272ccbd040a5a00b32d6632ba8ad9eb1b72481` ; aucune mise à jour ultérieure de développement ne lui a été transmise.
 
-La publication Pages des deux instantanés, la bascule du catalogue public vers la production vide (autorisée par le propriétaire) et l’affectation des marqueurs restent à exécuter après installation et vérification du schéma. Ne pas présenter les nouveaux onglets comme déjà disponibles sur le site existant. Le premier compte administrateur Production reste à créer par un parcours sécurisé ; aucune invitation n’a été envoyée.
+La [validation complète de ce commit](https://github.com/lisciandraj/Pro-manager-Gama/actions/runs/42480867415) réussit : 814 tests unitaires réussis, aucun échec et 2 ignorés. Les trois étapes de validation de [Pages](https://github.com/lisciandraj/Pro-manager-Gama/actions/runs/42480867438) réussissent également. L’assemblage est volontairement arrêté par le contrôle de disponibilité : le RPC de production renvoie encore HTTP 404. Aucun déploiement n’a eu lieu.
 
-Les builds, les contrôles de sources, types, dépendances locales, migrations et budgets ainsi que les tests ciblés de navigation, connexion, portail, catalogue, stockage et droits passent. La suite unitaire complète locale a été interrompue après le blocage de deux helpers Python préexistants (`accounting-export`, `marketing-mail`) ; elle n’est pas annoncée réussie. Les contrôles complets de CI restent requis avant publication.
+Le projet Production distinct est créé au tarif annoncé de 0 $/mois. Ses 13 fonctions Edge sont déployées sans copier les secrets ni les comptes de développement. L’installation du schéma reste à **77 sources canoniques sur 362**. Le dernier contrôle confirme **0 compte Auth et 0 fichier Storage**. Les migrations restantes sont préparées avec vérification de l’identité du projet, des empreintes des sources et de l’absence de données métier avant chaque lot. Leur exécution via le connecteur Supabase renvoie une confirmation expirée, malgré l’autorisation explicite du propriétaire pour ces seules migrations de structure.
+
+La préparation des [lots SQL gardés](https://github.com/lisciandraj/Pro-manager-Gama/tree/maintenance/coco-production-sql-20261108/maintenance/production-bootstrap) a [réussi](https://github.com/lisciandraj/Pro-manager-Gama/actions/runs/42480220762). Cette tâche prépare et versionne uniquement les sources : elle n’a aucun accès à la base et n’effectue aucun déploiement. Ne pas réexécuter la préparation initiale ; reprendre au compteur réel et vérifier chaque empreinte.
+
+La base actuelle n’a reçu aucune migration d’environnement et son verrou administrateur n’est pas activé. Le catalogue public et l’accès client utilisent encore son backend. La connexion Cloudflare relance l’authentification sans permettre la lecture du compte ; leur bascule autorisée vers la production vide reste donc bloquée. Ne pas restreindre l’ancienne base avant cette bascule vérifiée.
+
+La publication Pages des deux instantanés et l’affectation des marqueurs restent à exécuter après installation et vérification du schéma. Les nouveaux onglets ne sont pas encore disponibles sur le site existant. Le premier compte administrateur Production reste à créer par un parcours sécurisé ; aucune invitation n’a été envoyée.
 
 ## Installation initiale
 

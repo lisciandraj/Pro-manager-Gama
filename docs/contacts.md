@@ -72,3 +72,45 @@ Le complément d’adresse est affiché dans le dossier et hérité par les inte
 Référence : [formulaire Contacts Odoo 18](https://github.com/odoo/odoo/blob/18.0/odoo/addons/base/views/res_partner_views.xml). Contrôles dédiés : `tests/contact-odoo-fields.test.cjs` pour les transactions et droits, `tests/contact-odoo-fields.spec.js` pour les formulaires et le dossier en français, sur téléphone et ordinateur.
 
 La migration Contacts Odoo a été installée en production le 7 novembre 2026, version `20261107191036`. Le SQL du dépôt est identique aux octets enregistrés dans le registre Supabase (SHA-256 `4f5986be6d465ab310bb4aff6a26cdf03197757791799f31adfd067961d92d67`). Les colonnes, façades invocateur, droits et déclencheurs d’historique ont été vérifiés après installation ; aucun contact métier de test n’a été créé en production. La publication de l’interface reste contrôlée séparément par le workflow Pages.
+
+## Fiches individuelles et entreprises
+
+Le **type de fiche** (Individuel / Entreprise) est distinct du **rôle commercial**
+(client, fournisseur ou interlocuteur CRM). La liste affiche ces deux dimensions
+et permet de filtrer le type indépendamment du rôle. Une ancienne fiche dont le
+type n’a pas été renseigné reste « Non défini » jusqu’à un choix explicite.
+
+Une fiche individuelle client ou fournisseur peut rester autonome ou sélectionner
+une **Entreprise liée**, cliente ou fournisseur, active et accessible. Ce lien est
+facultatif et modifiable ; les coordonnées et l’adresse de la personne restent
+propres à sa fiche. Il ne fusionne pas les identités. La synthèse permet d’ouvrir
+l’entreprise et son onglet **Interlocuteurs et adresses** réunit aussi les personnes
+rattachées par cette relation. Les interlocuteurs CRM conservent leur parent client
+ou prospect et leur mécanisme existant d’héritage d’adresse.
+
+La migration additive `20261108154619_contacts_individual_company_links.sql`
+expose le type et les liens dans le répertoire et le dossier. La sauvegarde
+versionnée accepte `p_data.odoo.parent_id` (identifiant de profil ou `null` pour
+détacher) dans la transaction de la fiche ; seuls les individus clients et
+fournisseurs utilisent ce champ. Le serveur refuse une entreprise parente
+inaccessible, archivée ou de type individuel, les boucles et la reclassification
+d’une entreprise qui possède encore des individus rattachés. Les droits de chaque
+rôle et l’historique des changements restent appliqués. Aucun contact existant
+n’est reclassé par la migration.
+
+Validation isolée : `contact-nature-company.test.cjs` pour les transactions,
+permissions et relations ; `contact-nature-company.spec.js` pour la création,
+les filtres, la conservation des brouillons et la navigation entre les fiches
+sur ordinateur et téléphone. La migration et l’interface doivent toutes deux
+être publiées avant l’utilisation de ces nouveaux liens en production.
+
+La migration de rattachement a été installée sur le **développement**
+(`mknsaibrewksgomuslev`) le 8 novembre 2026, sous la version serveur
+`20261108163417`. Ses octets correspondent à la source
+`20261108154619_contacts_individual_company_links.sql` (SHA-256
+`88ea8d3a675a68ecb9a1dc2bec1ed3e4bb8e73256f31706476ea1e8682ee6ad1`).
+Les fonctions invocateur, droits, index et déclencheur ont été vérifiés, sans
+création de contact métier. La production indépendante
+(`vhutzdfatijjpahsqkne`) ne dispose pas encore des fonctions Contacts Odoo
+requises ; ce lot n’y a pas été appliqué. La publication des environnements
+reste subordonnée à leur contrôle public de disponibilité.

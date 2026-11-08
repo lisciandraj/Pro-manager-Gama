@@ -1,7 +1,9 @@
 const {test}=require('node:test'),assert=require('node:assert/strict'),{randomUUID:uuid}=require('node:crypto'),fs=require('node:fs'),path=require('node:path');
 const {restore}=require('../scripts/restore-schema.cjs');
-test('proposed information guard preserves retries, snapshots terms and keeps rights intake accessible',async()=>{
- const db=await restore(),admin=uuid(),product=uuid();
+test('information guard upgrade preserves retries, snapshots terms and keeps rights intake accessible',async()=>{
+ const migration=fs.readdirSync(path.join(__dirname,'../supabase/migrations')).find(f=>f.endsWith('_gama_website_security_compliance.sql'));
+ assert.ok(migration,'website security/compliance migration exists');
+ const db=await restore({before:migration}),admin=uuid(),product=uuid();
  const q=async(s,p=[])=>(await db.query(s,p)).rows,one=async(s,p=[])=>Object.values((await q(s,p))[0])[0];
  const call=(f,a,d={})=>one('select public.'+f+'($1,$2::jsonb)',[a,JSON.stringify(d)]),site=(a,d)=>call('gama_storefront',a,d),commerce=(a,d)=>call('gama_commerce',a,d);
  try{
@@ -16,8 +18,12 @@ test('proposed information guard preserves retries, snapshots terms and keeps ri
   const payload={request_key:uuid(),contact_name:'Fictional person',email:'intake@example.invalid',visitor:'198.51.100.60',consent:true,policy_version:oldVersion,lines:[{product_id:product,quantity:1}]};
   const prior=await site('submit',payload);
   await db.exec('reset role');
-  for(const file of ['gama-policies-2026-11-08.sql','gama-intake-information-2026-11-08.sql'])await db.exec(fs.readFileSync(path.join(__dirname,'../docs/audits/proposals',file),'utf8'));
-  assert.deepEqual(await one('select private.commerce_policy_templates()'),JSON.parse(fs.readFileSync(path.join(__dirname,'../docs/audits/proposals/gama-policies-2026-11-08.json'),'utf8')));
+  const originalSettings=await one('select config from private.website_public_settings where id');
+  const functionState=await q("select oid,proacl::text acl,proconfig from pg_proc where oid in ('storefront_api.gama_storefront(text,jsonb)'::regprocedure,'private.gama_b2b_product_favorites(text,jsonb)'::regprocedure,'private.gama_b2b_action_before_documents(text,jsonb)'::regprocedure) order by oid");
+  await db.exec(fs.readFileSync(path.join(__dirname,'../supabase/migrations',migration),'utf8'));
+  assert.deepEqual(await one('select config from private.website_public_settings where id'),originalSettings);
+  assert.deepEqual(await q("select oid,proacl::text acl,proconfig from pg_proc where oid in ('storefront_api.gama_storefront(text,jsonb)'::regprocedure,'private.gama_b2b_product_favorites(text,jsonb)'::regprocedure,'private.gama_b2b_action_before_documents(text,jsonb)'::regprocedure) order by oid"),functionState);
+  assert.deepEqual(await one('select private.commerce_policy_templates()'),JSON.parse(fs.readFileSync(path.join(__dirname,'../config/storefront-policies.json'),'utf8')));
   await db.exec('set role anon');assert.equal((await site('bootstrap')).collection_ready,false);
   await assert.rejects(site('submit',{...payload,request_key:uuid()}),/WEBSITE_LEGAL_INFORMATION_REQUIRED/);
   assert.deepEqual(await site('submit',payload),prior,'an existing accepted request remains retryable');
@@ -31,9 +37,15 @@ test('proposed information guard preserves retries, snapshots terms and keeps ri
   const current={...payload,request_key:uuid(),policy_version:policies.version};await site('submit',current);
   await db.exec('reset role');assert.deepEqual(await one('select policy_snapshot from private.website_public_inquiries where request_key=$1',[current.request_key]),policies);
   assert.equal(await one('select policy_snapshot from private.website_public_inquiries where request_key=$1',[payload.request_key]),null,'no retroactive proof is fabricated');
+  const acceptedSnapshot=policies;
+  await q("update private.website_public_settings set config=jsonb_set(config,'{privacy_retention}',to_jsonb('Revised fixture retention schedule.'::text)) where id");
+  await db.exec('set role anon');await site('submit',current);
+  policies=await commerce('policies');assert.notEqual(policies.version,acceptedSnapshot.version);
+  await db.exec('reset role');assert.deepEqual(await one('select policy_snapshot from private.website_public_inquiries where request_key=$1',[current.request_key]),acceptedSnapshot,'a retry never rewrites accepted documents');
+
   await db.exec('set role anon');
   const preview=await commerce('preview',{lines:payload.lines});
-  const checkout=await commerce('checkout',{...current,request_key:uuid(),phone:'0999999999',terms_accepted:true,price_hash:preview.price_hash,billing:{name:'Fictional buyer',id_type:'ruc',identification:'1799999999001',address:'Fictional test street 123',city:'Quito'}});
+  const checkout=await commerce('checkout',{...current,policy_version:policies.version,request_key:uuid(),phone:'0999999999',terms_accepted:true,price_hash:preview.price_hash,billing:{name:'Fictional buyer',id_type:'ruc',identification:'1799999999001',address:'Fictional test street 123',city:'Quito'}});
   assert.ok(checkout.id,'checkout passes the accepted version to canonical intake');
  }finally{await db.close()}
 });

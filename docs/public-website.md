@@ -289,8 +289,10 @@ et les parcours de `storefront.spec.js`. Les essais métier utilisent des bases
 isolées et des identités fictives ; aucune demande de test n'est créée en
 production.
 
-## Audit du 8 novembre 2026
+## Sécurité et conformité — 8 novembre 2026
 
-Voir le [rapport sécurité et conformité](audits/gama-security-ecuador-2026-11-08.md). Les sources web ajoutent des protections explicites aux réponses Functions, un équivalent TTC des prix B2B et la gestion du signal serveur de disponibilité des collectes commerciales. Ces changements ne sont pas encore publiés.
+Le [rapport de livraison](audits/gama-security-ecuador-2026-11-08.md) décrit les correctifs implémentés et les preuves métier restant à réunir. La migration `20261108163242_gama_website_security_compliance.sql` remplace les propositions initiales : restrictions des favoris/photos B2B, source canonique des photos, textes retour/échange, complétude de l’information préalable et instantanés des devis. Les fonctions conservent leurs OID et droits ; les réglages et acceptations existants ne sont pas réécrits.
 
-Les restrictions des favoris/photos B2B, la révision des textes de retour/échange et la garde SQL de complétude de l’information préalable sont préparées comme **propositions non appliquées**. Leur SQL et leurs fixtures doivent être validés dans une base isolée avant génération des migrations et activation. Le canal de droits/réclamations reste accessible ; aucune identité, durée de conservation ou preuve de conformité n’a été inventée. Le rapport distingue les tests réussis, les tests non exécutés et les preuves opérationnelles à obtenir.
+Les nouvelles demandes commerciales exigent raison sociale, RUC, domicile, contact de confidentialité, conservation, destinataires et procédure de droits. Compléter ces valeurs réelles dans les réglages avant activation. Quand elles manquent, le catalogue reste consultable et le canal droits/réclamations reste disponible ; les nouveaux devis/commandes invités sont bloqués côté interface et serveur. Les retries de demandes déjà reçues restent idempotents.
+
+Les réponses Functions appliquent explicitement les en-têtes de sécurité ; le prix B2B expose son HT et son équivalent TTC. Les sondages chargent la notice de confidentialité avant de présenter les champs. Les actifs ERP et le catalogue sont reconstruits depuis les sources canoniques ; leur publication et l’application de la migration restent des étapes distinctes.

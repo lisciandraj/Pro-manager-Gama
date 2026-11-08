@@ -8,14 +8,15 @@ on:
       - 'supabase/functions/_shared/http.mjs'
       - 'config/storefront-*.json'
       - 'supabase/migrations/*compliance*.sql'
-      - 'supabase/proposals/gama_b2b_catalog_visibility.sql'
-      - 'docs/audits/proposals/gama-*'
+      - 'src/features/surveys/survey-form.js'
       - 'scripts/build-storefront.cjs'
       - 'tests/storefront.spec.js'
       - 'tests/commerce-workflows-db.test.cjs'
       - 'tests/commerce-compliance-db.test.cjs'
       - 'tests/b2b-product-favorites-db.test.cjs'
       - 'tests/storefront-intake-information-db.test.cjs'
+      - 'tests/helpers/storefront-legal.cjs'
+      - 'tests/surveys.spec.js'
       - 'supabase/migrations/*gama_ecommerce_workflows.sql'
       - 'tests/b2b-portal.spec.js'
       - 'tests/storefront-progressive.test.cjs'
@@ -47,7 +48,7 @@ jobs:
       - run: npm run build && npm run build:storefront
       - run: node --test tests/storefront-server.test.mjs
       - run: node --test tests/commerce-workflows-db.test.cjs
-      - run: node --test tests/commerce-compliance-db.test.cjs tests/b2b-product-favorites-db.test.cjs
+      - run: node --test --test-concurrency=2 tests/commerce-compliance-db.test.cjs tests/b2b-product-favorites-db.test.cjs
       - run: node --test tests/storefront-intake-information-db.test.cjs
       - name: Verify the audit proposal with isolated public and B2B fixtures
         run: |
@@ -55,7 +56,7 @@ jobs:
           node --require ./tests/helpers/storefront-proposal.cjs --test --test-concurrency=2 tests/storefront-db.test.cjs tests/b2b-storefront-db.test.cjs
       - run: npx playwright install --with-deps chromium
       - name: Verify public and connected catalogue at phone, tablet and desktop sizes
-        run: npx playwright test tests/storefront.spec.js tests/b2b-portal.spec.js --workers=2
+        run: npx playwright test tests/storefront.spec.js tests/b2b-portal.spec.js tests/surveys.spec.js --workers=2
       - uses: actions/upload-artifact@v4
         if: always()
         with:

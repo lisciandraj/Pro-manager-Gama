@@ -23,7 +23,7 @@ test('Product favorites persist per explicit customer and cannot cross account b
   await as(colleague);assert.deepEqual(await favorites('ids'),[p],'same customer account sees the saved favorites');
   await as(a);assert.deepEqual(await favorites('ids'),[p],'another customer cannot delete this favorite');
   await as(admin);await db.exec('reset role');await q('update products set sale_price_b=9 where id=$1',[p]);await as(a);assert.equal((await favorites('list')).items[0].unit_price,9,'prices are current, not saved in the favorite');
-  await as(admin);await db.exec('reset role');await q('update products set active=false where id=$1',[p]);await as(a);list=await favorites('list');assert.equal(list.items[0].active,false);assert.equal(list.items[0].unit_price,null);await assert.rejects(favorites('set',save),/PRODUCT_NOT_FOUND/);
+  await as(admin);await db.exec('reset role');await q('update products set active=false where id=$1',[p]);await as(a);list=await favorites('list');assert.equal(list.total,0);assert.deepEqual(list.items,[]);assert.deepEqual(await favorites('ids'),[]);await assert.rejects(favorites('set',save),/PRODUCT_NOT_FOUND/);
   await favorites('set',{product_id:p,favorite:false});await favorites('set',{product_id:p,favorite:false});assert.deepEqual(await favorites('ids'),[]);
   await as(admin);await db.exec('reset role');await q('update products set active=true where id=$1',[p]);await as(a);await favorites('set',save);
   await as(admin);await db.exec('reset role');await q('update b2b_memberships set customer_id=$1 where profile_id=$2',[cb,a]);await as(a);assert.deepEqual(await favorites('ids'),[],'reassignment never carries former customer favorites');
@@ -35,8 +35,10 @@ test('Product favorites persist per explicit customer and cannot cross account b
  }finally{await db.close()}
 });
 
-test('proposed catalogue guard hides excluded or withdrawn favorites and photos without changing company pricing',async()=>{
- const db=await restore(),admin=uuid(),client=uuid(),customer=uuid(),allowed=uuid(),excluded=uuid(),unpublished=uuid();
+test('catalogue guard upgrade hides excluded or withdrawn favorites and photos without changing company pricing',async()=>{
+ const migration=require('node:fs').readdirSync(require('node:path').join(__dirname,'../supabase/migrations')).find(f=>f.endsWith('_gama_website_security_compliance.sql'));
+ assert.ok(migration,'catalogue visibility migration exists');
+ const db=await restore({before:migration}),admin=uuid(),client=uuid(),customer=uuid(),allowed=uuid(),excluded=uuid(),unpublished=uuid();
  const q=(s,v=[])=>db.query(s,v),one=async(s,v=[])=>Object.values((await q(s,v)).rows[0])[0];
  const as=async id=>{await db.exec('reset role');await q("select set_config('request.jwt.claim.sub',$1,false)",[id]);await db.exec('set role authenticated')};
  const favorites=(a,d={})=>one('select public.gama_b2b_product_favorites($1,$2::jsonb)',[a,JSON.stringify(d)]);
@@ -48,6 +50,7 @@ test('proposed catalogue guard hides excluded or withdrawn favorites and photos 
   await q("insert into customers(id,name,category) values($1,'Catalogue guard company','B')",[customer]);
   for(const [id,reference] of [[allowed,'GUARD-OK'],[excluded,'GUARD-EXCLUDED'],[unpublished,'GUARD-UNPUBLISHED']])
    await q("insert into products(id,name,reference,purchase_price,sale_price,sale_price_b,order_minimum,order_multiple) values($1,$2,$2,3,10,8,1,1)",[id,reference]);
+  await q("update products set photo_data='data:image/png;base64,YWJj',photo_is_illustrative=true where id=$1",[allowed]);
   await q('insert into b2b_customer_access(customer_id,enabled,updated_by) values($1,true,$2)',[customer,admin]);
   await q('insert into b2b_memberships(profile_id,customer_id,updated_by) values($1,$2,$3)',[client,customer,admin]);
   // Save all three while they are published and unrestricted. Later revocation
@@ -56,7 +59,7 @@ test('proposed catalogue guard hides excluded or withdrawn favorites and photos 
   await db.exec('reset role');
   const favoritesOid=await one("select 'private.gama_b2b_product_favorites(text,jsonb)'::regprocedure::oid");
   const photoOid=await one("select 'private.gama_b2b_action_before_documents(text,jsonb)'::regprocedure::oid");
-  await db.exec(require('node:fs').readFileSync(require('node:path').join(__dirname,'../supabase/proposals/gama_b2b_catalog_visibility.sql'),'utf8'));
+  await db.exec(require('node:fs').readFileSync(require('node:path').join(__dirname,'../supabase/migrations',migration),'utf8'));
   assert.equal(await one("select 'private.gama_b2b_product_favorites(text,jsonb)'::regprocedure::oid"),favoritesOid);
   assert.equal(await one("select 'private.gama_b2b_action_before_documents(text,jsonb)'::regprocedure::oid"),photoOid);
   await q('update b2b_customer_access set restricted_catalog=true where customer_id=$1',[customer]);
@@ -75,10 +78,32 @@ test('proposed catalogue guard hides excluded or withdrawn favorites and photos 
    // Hidden favorites stay removable and repeated removals are safe.
    await favorites('set',{product_id:id,favorite:false});await favorites('set',{product_id:id,favorite:false});
   }
-  assert.ok(Object.hasOwn(await photo(allowed),'photo'));
+  assert.deepEqual(await photo(allowed),{photo:'data:image/png;base64,YWJj',photo_is_illustrative:true});
+  await db.exec('reset role');await q("update private.website_public_settings set config=jsonb_set(config,'{site_enabled}','false') where id");await as(client);
+  assert.deepEqual(await favorites('ids'),[]);assert.equal((await favorites('list')).total,0);await assert.rejects(photo(allowed),/PRODUCT_NOT_FOUND/);await assert.rejects(favorites('set',{product_id:allowed,favorite:true}),/PRODUCT_NOT_FOUND/);
+  await favorites('set',{product_id:excluded,favorite:false});
+  await db.exec('reset role');await q("update private.website_public_settings set config=jsonb_set(config,'{site_enabled}','true') where id");await as(client);
+  assert.deepEqual(await favorites('ids'),[allowed]);
   await assert.rejects(one('select private.gama_b2b_product_visible($1,$2)',[customer,allowed]),/permission denied/);
-  await db.exec('reset role');await q('update products set active=false where id=$1',[allowed]);await as(client);
+  await as(admin);await db.exec('reset role');await q('update products set active=false where id=$1',[allowed]);await as(client);
   assert.deepEqual(await favorites('ids'),[]);assert.equal((await favorites('list')).total,0);
   await assert.rejects(photo(allowed),/PRODUCT_NOT_FOUND/);await favorites('set',{product_id:allowed,favorite:false});
+  // A full selection can become entirely invisible after a catalogue change.
+  // Such preferences must not leave the customer blocked at an unmanageable cap.
+  await as(admin);await db.exec('reset role');
+  const former=Array.from({length:500},()=>uuid()),replacement=uuid();
+  await q('update b2b_customer_access set restricted_catalog=false where customer_id=$1',[customer]);
+  await q("insert into products(id,name,reference,purchase_price,sale_price,sale_price_b,order_minimum,order_multiple) select id,'Former favorite '||ord,'CAP-OLD-'||ord,3,10,8,1,1 from unnest($1::uuid[]) with ordinality t(id,ord)",[former]);
+  await q("insert into products(id,name,reference,purchase_price,sale_price,sale_price_b,order_minimum,order_multiple) values($1,'New authorized favorite','CAP-NEW',3,10,8,1,1)",[replacement]);
+  await q('insert into private.b2b_product_favorites(customer_id,product_id) select $1,id from unnest($2::uuid[]) t(id)',[customer,former]);
+  await as(client);assert.equal((await favorites('list')).total,500);
+  await assert.rejects(favorites('set',{product_id:replacement,favorite:true}),/B2B_PRODUCT_FAVORITE_LIMIT/,'the storage bound still applies to 500 visible favorites');
+  await as(admin);await db.exec('reset role');
+  await q('update b2b_customer_access set restricted_catalog=true where customer_id=$1',[customer]);
+  await q('insert into private.commerce_catalog_products(customer_id,product_id,created_by) values($1,$2,$3)',[customer,replacement,admin]);
+  await as(client);assert.deepEqual(await favorites('ids'),[]);assert.equal((await favorites('list')).total,0);
+  await favorites('set',{product_id:replacement,favorite:true});assert.deepEqual(await favorites('ids'),[replacement]);
+  assert.equal((await favorites('list')).items[0].unit_price,8);
+  await db.exec('reset role');assert.equal(await one('select count(*)::integer from private.b2b_product_favorites where customer_id=$1',[customer]),1,'stale rows are pruned instead of growing beyond the storage bound');
  }finally{await db.close()}
 });

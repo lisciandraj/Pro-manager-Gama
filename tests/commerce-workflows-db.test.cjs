@@ -1,5 +1,6 @@
 const {test}=require('node:test'),assert=require('node:assert/strict'),{randomUUID:uuid}=require('node:crypto');
 const {restore}=require('../scripts/restore-schema.cjs');
+const {configureLegalInformation}=require('./helpers/storefront-legal.cjs');
 test('commerce: verified reviews, guest idempotency, tenant isolation and two-stage approvals',async()=>{
  const db=await restore(),admin=uuid(),requester=uuid(),approver=uuid(),approver2=uuid(),other=uuid(),customer=uuid(),foreign=uuid(),product=uuid(),zero=uuid();
  const q=async(s,p=[])=>(await db.query(s,p)).rows,one=async(s,p=[])=>Object.values((await q(s,p))[0])[0];
@@ -8,6 +9,7 @@ test('commerce: verified reviews, guest idempotency, tenant isolation and two-st
  const commerce=(a,d={})=>one('select public.gama_commerce($1,$2::jsonb)',[a,JSON.stringify(d)]);
  const config=(a,d={})=>one('select public.gama_b2b_admin($1,$2::jsonb)',[a,JSON.stringify(d)]);
  try{
+  await configureLegalInformation(db);
   for(const id of [admin,requester,approver,approver2,other])await q('insert into auth.users(id,email,email_confirmed_at) values($1,$2,now())',[id,id+'@example.invalid']);
   await q("update profiles set role=case when id=$1 then 'administrador' else 'cliente' end,active=true",[admin]);
   await q("select set_config('request.jwt.claim.sub',$1,false)",[admin]);

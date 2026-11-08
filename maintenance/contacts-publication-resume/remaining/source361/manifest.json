@@ -1,0 +1,111 @@
+{
+  "project_ref": "vhutzdfatijjpahsqkne",
+  "installation": "6d1c1a9037e2f704399ef93b9db09ddcc0b7d019cde262310c9a309fb5727a1e",
+  "source_number": 361,
+  "source_file": "20261107191036_contacts_odoo_fields.sql",
+  "canonical_sha256": "4f5986be6d465ab310bb4aff6a26cdf03197757791799f31adfd067961d92d67",
+  "derived_sha256": "4f5986be6d465ab310bb4aff6a26cdf03197757791799f31adfd067961d92d67",
+  "canonical_payload_order_preserved": true,
+  "source_count_before": 360,
+  "source_count_after": 361,
+  "verified_final_schema_security_acl_equal": true,
+  "verified_business_empty": true,
+  "verified_intermediate_no_new_public_anon_definers": true,
+  "canonical_transaction_controls_preserved": false,
+  "wrapper_finalization_before_canonical_commit": false,
+  "fragments": [
+    {
+      "number": 1,
+      "migration_name": "coco_initialization_source361_part01",
+      "file": "part01.sql",
+      "bytes": 11999,
+      "sha256": "900418d16bface508c5d14011a949d7395058e276fdaf92334427d9b46c8d549",
+      "payload_sha256": "0b882101997c1f1df45bd32bf2ff21fadbd2358e14d3f691c202450d024f67ca",
+      "payload_bytes": 8334,
+      "statement_start": 0,
+      "statement_end": 20,
+      "canonical_registration_included": false,
+      "wrapper_addons_sha256": "c28284edfc7c58b61be8ad9dde44a71e112a1287c734d55ae73fef0379f68909"
+    },
+    {
+      "number": 2,
+      "migration_name": "coco_initialization_source361_part02",
+      "file": "part02.sql",
+      "bytes": 6138,
+      "sha256": "19ecb44917351781016a63b13a74e9ce64f0eec27f69ecf6b492aa1f259c7048",
+      "payload_sha256": "a2e276f07dbb6daba29524708b1ca7c8e898cbe26f1052aee444471fc88c854d",
+      "payload_bytes": 2173,
+      "statement_start": 21,
+      "statement_end": 25,
+      "canonical_registration_included": true,
+      "wrapper_addons_sha256": "fd8ca4127e1dcfdeb0eeecca2398f606f177a16f663c672fd5c44e609f81432e"
+    }
+  ],
+  "new_objects": {
+    "functions": [
+      {
+        "signature": "private.coco_contact_odoo_guard()",
+        "definer": true,
+        "acl": [
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "EXECUTE"
+          }
+        ]
+      },
+      {
+        "signature": "private.coco_contact_odoo_history()",
+        "definer": true,
+        "acl": [
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "EXECUTE"
+          }
+        ]
+      },
+      {
+        "signature": "public.coco_contact_record(text, uuid)",
+        "definer": false,
+        "acl": [
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "EXECUTE"
+          },
+          {
+            "role": "authenticated",
+            "grantable": false,
+            "privilege": "EXECUTE"
+          }
+        ]
+      },
+      {
+        "signature": "public.coco_contact_save(text, uuid, jsonb, integer)",
+        "definer": false,
+        "acl": [
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "EXECUTE"
+          },
+          {
+            "role": "authenticated",
+            "grantable": false,
+            "privilege": "EXECUTE"
+          }
+        ]
+      }
+    ],
+    "classes": []
+  },
+  "wrapper_additions": {
+    "immediate_confinement": {
+      "3": "\n-- Wrapper-only interim ACL confinement. Canonical final privileges are restored at source completion.\nrevoke all on function private.coco_contact_odoo_guard() from public,anon,authenticated;\n",
+      "10": "\n-- Wrapper-only interim ACL confinement. Canonical final privileges are restored at source completion.\nrevoke all on function public.coco_contact_save(text, uuid, jsonb, integer) from public,anon,authenticated;\n",
+      "17": "\n-- Wrapper-only interim ACL confinement. Canonical final privileges are restored at source completion.\nrevoke all on function public.coco_contact_record(text, uuid) from public,anon,authenticated;\n",
+      "21": "\n-- Wrapper-only interim ACL confinement. Canonical final privileges are restored at source completion.\nrevoke all on function private.coco_contact_odoo_history() from public,anon,authenticated;\n"
+    }
+  }
+}

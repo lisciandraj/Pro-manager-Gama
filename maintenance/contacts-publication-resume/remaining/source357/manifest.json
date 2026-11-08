@@ -1,0 +1,508 @@
+{
+  "project_ref": "vhutzdfatijjpahsqkne",
+  "installation": "6d1c1a9037e2f704399ef93b9db09ddcc0b7d019cde262310c9a309fb5727a1e",
+  "source_number": 357,
+  "source_file": "20261029201003_gama_ecommerce_workflows.sql",
+  "canonical_sha256": "35a003f26b2f1f457b30dbcafed043e556491ef08b34b5657947e86b93b5468c",
+  "derived_sha256": "35a003f26b2f1f457b30dbcafed043e556491ef08b34b5657947e86b93b5468c",
+  "canonical_payload_order_preserved": true,
+  "source_count_before": 356,
+  "source_count_after": 357,
+  "verified_final_schema_security_acl_equal": true,
+  "verified_business_empty": true,
+  "verified_intermediate_no_new_public_anon_definers": true,
+  "canonical_transaction_controls_preserved": true,
+  "wrapper_finalization_before_canonical_commit": true,
+  "fragments": [
+    {
+      "number": 1,
+      "migration_name": "coco_initialization_source357_part01",
+      "file": "part01.sql",
+      "bytes": 11246,
+      "sha256": "ad4e208974237b0e140bdd7a609554e3f221b900ea0fcd9013fdbf114b1e52f6",
+      "payload_sha256": "321b83a45700133f53a23b97aa170d47cab2d088096acbc4d47fa39b22913ce1",
+      "payload_bytes": 6477,
+      "statement_start": 0,
+      "statement_end": 14,
+      "canonical_registration_included": false,
+      "wrapper_addons_sha256": "9f1e60eebf800cba52a4fe81bb15f8ab79e22d319a21406165c6f08838dd929d"
+    },
+    {
+      "number": 2,
+      "migration_name": "coco_initialization_source357_part02",
+      "file": "part02.sql",
+      "bytes": 12824,
+      "sha256": "29325a87c9a4e1d1c99e32fa472424f2974ca13e6fd474064f059d92fc6e6759",
+      "payload_sha256": "f20c2078f5d0cb22bf6ae69b8ed6140d27f39a2d13ad780a1bbfef3072232126",
+      "payload_bytes": 8314,
+      "statement_start": 15,
+      "statement_end": 22,
+      "canonical_registration_included": false,
+      "wrapper_addons_sha256": "0aeae7a34cdf15715e7f35135c87502b1b6a99476d097cb4991e99f7641ef365"
+    },
+    {
+      "number": 3,
+      "migration_name": "coco_initialization_source357_part03",
+      "file": "part03.sql",
+      "bytes": 13592,
+      "sha256": "aa0a0800b2247d9d4ef4032d97ce04e55a0b45fe4e11a857f67862984f0a5eae",
+      "payload_sha256": "3b1bac0e4be7f9a833fd2ac975ea37a78f8e4be22abb20f314279a6cde1e7c7e",
+      "payload_bytes": 8967,
+      "statement_start": 23,
+      "statement_end": 28,
+      "canonical_registration_included": false,
+      "wrapper_addons_sha256": "032a0fdd73c74b5d11e76fdadd12eb6615fae656581c2baeb72e4009e143902e"
+    },
+    {
+      "number": 4,
+      "migration_name": "coco_initialization_source357_part04",
+      "file": "part04.sql",
+      "bytes": 16701,
+      "sha256": "d1027b990fccd7982875af9bdb4a91dc76482fd9b7b28d937c58896d33740a71",
+      "payload_sha256": "42ea28c7db64917fab45eabd4a56f3de2d7b5b7bb202c179be06cad968895c13",
+      "payload_bytes": 9727,
+      "statement_start": 29,
+      "statement_end": 48,
+      "canonical_registration_included": false,
+      "wrapper_addons_sha256": "c2c8cb9c44f507d50b8ae7b85c1f89c2c6087b9ac7902872a67b4d64283004c6"
+    },
+    {
+      "number": 5,
+      "migration_name": "coco_initialization_source357_part05",
+      "file": "part05.sql",
+      "bytes": 6826,
+      "sha256": "52d55d55f04307f41bbbb6e66e060255d532834749be89820e7a37839aa4bbab",
+      "payload_sha256": "1f4ce7ae051e0fb6dc56e54c81fd8f63238c71223c9460a8fc501f79aac29032",
+      "payload_bytes": 218,
+      "statement_start": 49,
+      "statement_end": 53,
+      "canonical_registration_included": true,
+      "wrapper_addons_sha256": "04a7e969fef10154f85546b48a6fea9274c4e9bf8d10fb52574a1c3f2ac86564"
+    }
+  ],
+  "new_objects": {
+    "functions": [
+      {
+        "signature": "private.commerce_guest_guard()",
+        "definer": true,
+        "acl": [
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "EXECUTE"
+          }
+        ]
+      },
+      {
+        "signature": "private.commerce_product_allowed(uuid, uuid)",
+        "definer": true,
+        "acl": [
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "EXECUTE"
+          }
+        ]
+      },
+      {
+        "signature": "private.commerce_public_cart(jsonb)",
+        "definer": true,
+        "acl": [
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "EXECUTE"
+          }
+        ]
+      },
+      {
+        "signature": "private.gama_b2b_action(text, jsonb)",
+        "definer": true,
+        "acl": [
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "EXECUTE"
+          },
+          {
+            "role": "authenticated",
+            "grantable": false,
+            "privilege": "EXECUTE"
+          }
+        ]
+      },
+      {
+        "signature": "private.gama_b2b_admin(text, jsonb)",
+        "definer": true,
+        "acl": [
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "EXECUTE"
+          },
+          {
+            "role": "authenticated",
+            "grantable": false,
+            "privilege": "EXECUTE"
+          }
+        ]
+      },
+      {
+        "signature": "private.gama_b2b_cart(uuid, jsonb)",
+        "definer": true,
+        "acl": [
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "EXECUTE"
+          }
+        ]
+      },
+      {
+        "signature": "private.gama_commerce_catalog_admin(text, jsonb)",
+        "definer": true,
+        "acl": [
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "EXECUTE"
+          },
+          {
+            "role": "authenticated",
+            "grantable": false,
+            "privilege": "EXECUTE"
+          }
+        ]
+      },
+      {
+        "signature": "public.gama_commerce(text, jsonb)",
+        "definer": false,
+        "acl": [
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "EXECUTE"
+          },
+          {
+            "role": "anon",
+            "grantable": false,
+            "privilege": "EXECUTE"
+          },
+          {
+            "role": "authenticated",
+            "grantable": false,
+            "privilege": "EXECUTE"
+          },
+          {
+            "role": "service_role",
+            "grantable": false,
+            "privilege": "EXECUTE"
+          }
+        ]
+      },
+      {
+        "signature": "public.gama_commerce_catalog_admin(text, jsonb)",
+        "definer": false,
+        "acl": [
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "EXECUTE"
+          },
+          {
+            "role": "authenticated",
+            "grantable": false,
+            "privilege": "EXECUTE"
+          },
+          {
+            "role": "service_role",
+            "grantable": false,
+            "privilege": "EXECUTE"
+          }
+        ]
+      },
+      {
+        "signature": "storefront_api.gama_commerce(text, jsonb)",
+        "definer": true,
+        "acl": [
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "EXECUTE"
+          },
+          {
+            "role": "anon",
+            "grantable": false,
+            "privilege": "EXECUTE"
+          },
+          {
+            "role": "authenticated",
+            "grantable": false,
+            "privilege": "EXECUTE"
+          }
+        ]
+      }
+    ],
+    "classes": [
+      {
+        "signature": "private.commerce_approvals",
+        "kind": "r",
+        "rls": true,
+        "force_rls": false,
+        "acl": [
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "DELETE"
+          },
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "INSERT"
+          },
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "MAINTAIN"
+          },
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "REFERENCES"
+          },
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "SELECT"
+          },
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "TRIGGER"
+          },
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "TRUNCATE"
+          },
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "UPDATE"
+          }
+        ]
+      },
+      {
+        "signature": "private.commerce_approvers",
+        "kind": "r",
+        "rls": true,
+        "force_rls": false,
+        "acl": [
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "DELETE"
+          },
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "INSERT"
+          },
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "MAINTAIN"
+          },
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "REFERENCES"
+          },
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "SELECT"
+          },
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "TRIGGER"
+          },
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "TRUNCATE"
+          },
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "UPDATE"
+          }
+        ]
+      },
+      {
+        "signature": "private.commerce_catalog_products",
+        "kind": "r",
+        "rls": true,
+        "force_rls": false,
+        "acl": [
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "DELETE"
+          },
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "INSERT"
+          },
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "MAINTAIN"
+          },
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "REFERENCES"
+          },
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "SELECT"
+          },
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "TRIGGER"
+          },
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "TRUNCATE"
+          },
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "UPDATE"
+          }
+        ]
+      },
+      {
+        "signature": "private.commerce_guest_orders",
+        "kind": "r",
+        "rls": true,
+        "force_rls": false,
+        "acl": [
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "DELETE"
+          },
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "INSERT"
+          },
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "MAINTAIN"
+          },
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "REFERENCES"
+          },
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "SELECT"
+          },
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "TRIGGER"
+          },
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "TRUNCATE"
+          },
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "UPDATE"
+          }
+        ]
+      },
+      {
+        "signature": "private.commerce_reviews",
+        "kind": "r",
+        "rls": true,
+        "force_rls": false,
+        "acl": [
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "DELETE"
+          },
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "INSERT"
+          },
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "MAINTAIN"
+          },
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "REFERENCES"
+          },
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "SELECT"
+          },
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "TRIGGER"
+          },
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "TRUNCATE"
+          },
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "UPDATE"
+          }
+        ]
+      }
+    ]
+  },
+  "wrapper_additions": {
+    "immediate_confinement": {
+      "2": "\n-- Wrapper-only interim relation confinement.\nalter table private.commerce_approvers enable row level security;\nrevoke all on table private.commerce_approvers from public,anon,authenticated;\n",
+      "4": "\n-- Wrapper-only interim relation confinement.\nalter table private.commerce_approvals enable row level security;\nrevoke all on table private.commerce_approvals from public,anon,authenticated;\n",
+      "7": "\n-- Wrapper-only interim relation confinement.\nalter table private.commerce_guest_orders enable row level security;\nrevoke all on table private.commerce_guest_orders from public,anon,authenticated;\n",
+      "8": "\n-- Wrapper-only interim relation confinement.\nalter table private.commerce_reviews enable row level security;\nrevoke all on table private.commerce_reviews from public,anon,authenticated;\n",
+      "11": "\n-- Wrapper-only interim ACL confinement. Canonical final privileges are restored at source completion.\nrevoke all on function private.commerce_public_cart(jsonb) from public,anon,authenticated;\n",
+      "13": "\n-- Wrapper-only interim ACL confinement. Canonical final privileges are restored at source completion.\nrevoke all on function private.commerce_guest_guard() from public,anon,authenticated;\n",
+      "15": "\n-- Wrapper-only interim ACL confinement. Canonical final privileges are restored at source completion.\nrevoke all on function storefront_api.gama_commerce(text, jsonb) from public,anon,authenticated;\n",
+      "18": "\n-- Wrapper-only interim ACL confinement. Canonical final privileges are restored at source completion.\nrevoke all on function public.gama_commerce(text, jsonb) from public,anon,authenticated;\n",
+      "23": "\n-- Wrapper-only interim ACL confinement. Canonical final privileges are restored at source completion.\nrevoke all on function private.gama_b2b_action(text, jsonb) from public,anon,authenticated;\n",
+      "29": "\n-- Wrapper-only interim ACL confinement. Canonical final privileges are restored at source completion.\nrevoke all on function private.gama_b2b_admin(text, jsonb) from public,anon,authenticated;\n",
+      "33": "\n-- Wrapper-only interim relation confinement.\nalter table private.commerce_catalog_products enable row level security;\nrevoke all on table private.commerce_catalog_products from public,anon,authenticated;\n",
+      "38": "\n-- Wrapper-only interim ACL confinement. Canonical final privileges are restored at source completion.\nrevoke all on function private.commerce_product_allowed(uuid, uuid) from public,anon,authenticated;\n",
+      "42": "\n-- Wrapper-only interim ACL confinement. Canonical final privileges are restored at source completion.\nrevoke all on function private.gama_b2b_cart(uuid, jsonb) from public,anon,authenticated;\n",
+      "45": "\n-- Wrapper-only interim ACL confinement. Canonical final privileges are restored at source completion.\nrevoke all on function private.gama_commerce_catalog_admin(text, jsonb) from public,anon,authenticated;\n",
+      "48": "\n-- Wrapper-only interim ACL confinement. Canonical final privileges are restored at source completion.\nrevoke all on function public.gama_commerce_catalog_admin(text, jsonb) from public,anon,authenticated;\n"
+    }
+  }
+}

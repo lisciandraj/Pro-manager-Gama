@@ -1,0 +1,8 @@
+{
+  "passed": true,
+  "source_count": 348,
+  "fragments": 4,
+  "final_function_definitions_and_acl_equal": true,
+  "no_intermediate_unintended_public_definers": true,
+  "replay_rejected": true
+}

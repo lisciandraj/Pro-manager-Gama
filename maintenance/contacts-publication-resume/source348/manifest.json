@@ -1,0 +1,171 @@
+{
+  "project_ref": "vhutzdfatijjpahsqkne",
+  "installation": "6d1c1a9037e2f704399ef93b9db09ddcc0b7d019cde262310c9a309fb5727a1e",
+  "source_number": 348,
+  "source_file": "20261027185533_tms_pro_planning_tracking.sql",
+  "canonical_sha256": "a41b86452245f1a14e7a65d3f31b33f294bf1cb92c156c49edda078e092f719e",
+  "original_guarded_batch_sha256": "f2625d4d9239a71c80b20adf73ca24f5f0b1b88bd434ee3352a724ae83273ddb",
+  "original_guarded_batch_bytes": 46517,
+  "expected_bootstrap_count_before": 347,
+  "expected_bootstrap_count_after_complete": 348,
+  "canonical_payload_order_preserved": true,
+  "fragment_atomicity": "Each fragment is a separate transaction; never replay a committed fragment. Resume only from its committed Supabase migration receipt. The canonical bootstrap row appears only in the final fragment.",
+  "acl_confinement": "Immediately revoke PUBLIC, anon and authenticated EXECUTE on each newly created function, before any commit. Preserve every canonical SQL statement byte-for-byte; original REVOKE/GRANT statements establish final ACL. Existing CREATE OR REPLACE private_tracking.resolve retains its existing ACL.",
+  "indivisible_statement_bytes": 18987,
+  "fragments": [
+    {
+      "number": 1,
+      "migration_name": "coco_initialization_source348_part01",
+      "file": "source348-part01.sql",
+      "payload_file": "source348-part01.payload.sql",
+      "statement_start": 1,
+      "statement_end": 24,
+      "payload_sha256": "e9444566de0469aea3c7c718de8219b31415a9d542d2122c23d04d263e37452f",
+      "payload_bytes": 8283,
+      "bytes": 11543,
+      "sha256": "42111a8f0fd7a670d7284d934dc06c783480eda9d19566ca67607be3922d8916",
+      "wrapper_guard_sha256": "a992a03e399b47bfbbe4f006a2bf533f6485e9f148311f24a11f1ec08075f6b6",
+      "acl_confinement": [
+        {
+          "after_statement": 19,
+          "signature": "private.coco_history_record_visible(text,text,uuid)",
+          "sql": "\n-- Wrapper-only immediate ACL confinement. Canonical grants follow unchanged.\nrevoke all on function private.coco_history_record_visible(text,text,uuid) from public,anon,authenticated;\n",
+          "sha256": "c25b949a4140b24cd9baaa0d5b0ed5bfa0103109495aa33c0f659ce137e5d085"
+        },
+        {
+          "after_statement": 22,
+          "signature": "private.tms_pro_compatible(uuid,uuid,uuid,date)",
+          "sql": "\n-- Wrapper-only immediate ACL confinement. Canonical grants follow unchanged.\nrevoke all on function private.tms_pro_compatible(uuid,uuid,uuid,date) from public,anon,authenticated;\n",
+          "sha256": "9ed3d8417d10f0fe7e75f245d5a6c5ce74c1090f5c2a018d3a857c3a2d3f7663"
+        },
+        {
+          "after_statement": 23,
+          "signature": "private.tms_pro_service_at(uuid,date,timestamptz)",
+          "sql": "\n-- Wrapper-only immediate ACL confinement. Canonical grants follow unchanged.\nrevoke all on function private.tms_pro_service_at(uuid,date,timestamptz) from public,anon,authenticated;\n",
+          "sha256": "903b14b2dbe3acabec966d588e510f83e4e4a82be8c094a88b0534a339163238"
+        },
+        {
+          "after_statement": 24,
+          "signature": "private.tms_pro_travel(double precision,double precision,double precision,double precision,uuid)",
+          "sql": "\n-- Wrapper-only immediate ACL confinement. Canonical grants follow unchanged.\nrevoke all on function private.tms_pro_travel(double precision,double precision,double precision,double precision,uuid) from public,anon,authenticated;\n",
+          "sha256": "69d3ad6663774a65405c40207636fc1db55222ff1e5df1d4f2ab0d02a3f0d5c6"
+        }
+      ],
+      "canonical_registration_included": false
+    },
+    {
+      "number": 2,
+      "migration_name": "coco_initialization_source348_part02",
+      "file": "source348-part02.sql",
+      "payload_file": "source348-part02.payload.sql",
+      "statement_start": 25,
+      "statement_end": 33,
+      "payload_sha256": "0fde851d61eb41608490d3f52f548c90e271795cb5f7824ab879e7b0ea130704",
+      "payload_bytes": 13496,
+      "bytes": 16758,
+      "sha256": "e04381bb5dc970633f99fa73a1a7ebdbb9e900b7ded2f6e57edcbc55d25bf111",
+      "wrapper_guard_sha256": "21e11158686cf84f2ce7e3fdd01814aeb6a41bf655a229c6f575a6c3e0a5bff1",
+      "acl_confinement": [
+        {
+          "after_statement": 27,
+          "signature": "private.tms_pro_assignment_check()",
+          "sql": "\n-- Wrapper-only immediate ACL confinement. Canonical grants follow unchanged.\nrevoke all on function private.tms_pro_assignment_check() from public,anon,authenticated;\n",
+          "sha256": "4c13f86b5c5c22827a8f01f18fd584722db8ead5b499c9578199aade87611b72"
+        },
+        {
+          "after_statement": 30,
+          "signature": "private.tms_route_readiness(uuid)",
+          "sql": "\n-- Wrapper-only immediate ACL confinement. Canonical grants follow unchanged.\nrevoke all on function private.tms_route_readiness(uuid) from public,anon,authenticated;\n",
+          "sha256": "fbc2f6b91aa2e24675bff872a23435afa5a77217e71f1c785aa4ee7bffb980ba"
+        },
+        {
+          "after_statement": 32,
+          "signature": "private.tms_pro_fingerprint(date,date)",
+          "sql": "\n-- Wrapper-only immediate ACL confinement. Canonical grants follow unchanged.\nrevoke all on function private.tms_pro_fingerprint(date,date) from public,anon,authenticated;\n",
+          "sha256": "3ec9ff90e4277e26aafbd2d8d0b97acc5618bbff8d89b92d3be85f9281359e6a"
+        },
+        {
+          "after_statement": 33,
+          "signature": "private.tms_pro_route_etas(uuid)",
+          "sql": "\n-- Wrapper-only immediate ACL confinement. Canonical grants follow unchanged.\nrevoke all on function private.tms_pro_route_etas(uuid) from public,anon,authenticated;\n",
+          "sha256": "d4866dc1eae5f7cd3e49cb3422a0454d7384b58f55080caaeb5402ec68ba6c36"
+        }
+      ],
+      "canonical_registration_included": false
+    },
+    {
+      "number": 3,
+      "migration_name": "coco_initialization_source348_part03",
+      "file": "source348-part03.sql",
+      "payload_file": "source348-part03.payload.sql",
+      "statement_start": 34,
+      "statement_end": 37,
+      "payload_sha256": "19952c5189d7f3cd0b088382029f5319116737bf4bd39e337f2ebb9712488106",
+      "payload_bytes": 19395,
+      "bytes": 22430,
+      "sha256": "4109a066d26a9483cabfbe5f12716069dbc962ac2c4c1a5c5497e612d617575d",
+      "wrapper_guard_sha256": "c238e02f32ba03e349a8a5dd2c2ff572422301563aaa57a68911ee498b8f26e0",
+      "acl_confinement": [
+        {
+          "after_statement": 34,
+          "signature": "private.gama_tms_pro(text,jsonb)",
+          "sql": "\n-- Wrapper-only immediate ACL confinement. Canonical grants follow unchanged.\nrevoke all on function private.gama_tms_pro(text,jsonb) from public,anon,authenticated;\n",
+          "sha256": "f7396a3c87afe7165d686e14e571f568a8920ec62225b37ccd649061cead084f"
+        },
+        {
+          "after_statement": 35,
+          "signature": "public.gama_tms_pro(text,jsonb)",
+          "sql": "\n-- Wrapper-only immediate ACL confinement. Canonical grants follow unchanged.\nrevoke all on function public.gama_tms_pro(text,jsonb) from public,anon,authenticated;\n",
+          "sha256": "8a0d3645b48725f272e18ababace4d5d20d46dc831c1e8667dbc5c1c5a91e099"
+        }
+      ],
+      "canonical_registration_included": false
+    },
+    {
+      "number": 4,
+      "migration_name": "coco_initialization_source348_part04",
+      "file": "source348-part04.sql",
+      "payload_file": "source348-part04.payload.sql",
+      "statement_start": 38,
+      "statement_end": 47,
+      "payload_sha256": "e75f1e75f9b099289822f401f947ab8bba7417a65d610cca3b8c7cf840ed9d22",
+      "payload_bytes": 3271,
+      "bytes": 6447,
+      "sha256": "b0bbd4eb910b272705dbee2bbc6a5055e7c5e1fd96db92f336f99c9950d83cb9",
+      "wrapper_guard_sha256": "efcc02ee25b42a6d057d5664100e4e7075b864a317a39c81bf1bb47b0cd63c04",
+      "acl_confinement": [
+        {
+          "after_statement": 38,
+          "signature": "private_tracking.feedback(uuid,integer,text)",
+          "sql": "\n-- Wrapper-only immediate ACL confinement. Canonical grants follow unchanged.\nrevoke all on function private_tracking.feedback(uuid,integer,text) from public,anon,authenticated;\n",
+          "sha256": "82a6035c58d385ac3ada8ad19eb1abd1b6f516830e711327e68a41a91e747f4d"
+        },
+        {
+          "after_statement": 39,
+          "signature": "public.gama_tms_feedback(uuid,integer,text)",
+          "sql": "\n-- Wrapper-only immediate ACL confinement. Canonical grants follow unchanged.\nrevoke all on function public.gama_tms_feedback(uuid,integer,text) from public,anon,authenticated;\n",
+          "sha256": "941a38426e5633076b8083a46a540b2a62d4965824a1f635ab56bfd9223d6bb2"
+        }
+      ],
+      "canonical_registration_included": true
+    }
+  ],
+  "compact_part03_alternative": {
+    "migration_name": "coco_initialization_source348_part03",
+    "file": "source348-part03-compact.sql",
+    "bytes": 19953,
+    "sha256": "41ecb2e0ef153a89f33a78159c0d52d938a9f5f51075daea47f42febcab7348e",
+    "payload_file": "source348-part03.payload.sql",
+    "payload_sha256": "19952c5189d7f3cd0b088382029f5319116737bf4bd39e337f2ebb9712488106",
+    "guard_sha256": "0a14ac39a2d18fe14acf9a4aaa164867a770481a38b70b1261b055f9b957c320",
+    "expected_source_count": 347,
+    "expected_stage_receipts": [
+      "coco_initialization_source348_part01",
+      "coco_initialization_source348_part02"
+    ],
+    "compact_guard_omits_redundant_full_business_scan": true,
+    "operation": "Only CREATE FUNCTION and canonical REVOKE/GRANT; no business invocation. Private+public definitions and final ACL are in one transaction. Full empty-business guard is retained before part02 and part04.",
+    "wrapper_only_early_acl_removed_as_redundant": true
+  },
+  "compact_part03_verification": "verification-compact.json"
+}

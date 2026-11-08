@@ -1,0 +1,244 @@
+{
+  "project_ref": "vhutzdfatijjpahsqkne",
+  "installation": "6d1c1a9037e2f704399ef93b9db09ddcc0b7d019cde262310c9a309fb5727a1e",
+  "source_number": 355,
+  "source_file": "20261027211954_accounting_invoice_deferrals.sql",
+  "canonical_sha256": "d91005c15357afbeff60250afdb876850264f929b56bf1628cf0c480b702b78c",
+  "derived_sha256": "d91005c15357afbeff60250afdb876850264f929b56bf1628cf0c480b702b78c",
+  "canonical_payload_order_preserved": true,
+  "source_count_before": 354,
+  "source_count_after": 355,
+  "verified_final_schema_security_acl_equal": true,
+  "verified_business_empty": true,
+  "verified_intermediate_no_new_public_anon_definers": true,
+  "canonical_transaction_controls_preserved": false,
+  "wrapper_finalization_before_canonical_commit": false,
+  "fragments": [
+    {
+      "number": 1,
+      "migration_name": "coco_initialization_source355_part01",
+      "file": "part01.sql",
+      "bytes": 12537,
+      "sha256": "2fecfd4df15fb14489d679510ec938aecea034dfb3bd556cd1ecec0b3bec83a3",
+      "payload_sha256": "1fe68f93eb97f3a1eba96a830ff179e68211e63132abe54424a88c438e239289",
+      "payload_bytes": 8362,
+      "statement_start": 0,
+      "statement_end": 19,
+      "canonical_registration_included": false,
+      "wrapper_addons_sha256": "d56548c53b256e558f76a1a9f910e5a3b415b2e3981515527901fd5ee076c782"
+    },
+    {
+      "number": 2,
+      "migration_name": "coco_initialization_source355_part02",
+      "file": "part02.sql",
+      "bytes": 10736,
+      "sha256": "32ba4cd5f958c630a44233157429ef856f83f01d746a2bbdf7b360932efbf35b",
+      "payload_sha256": "1715b4f92b09dc132d9bdd510fd906999d001286e79dbfaf1fba7e155daec004",
+      "payload_bytes": 6435,
+      "statement_start": 20,
+      "statement_end": 26,
+      "canonical_registration_included": false,
+      "wrapper_addons_sha256": "1d8b5ffaaae033f2f40975c46ec96657a8759e568fa1a682cd349fa9b1a0902e"
+    },
+    {
+      "number": 3,
+      "migration_name": "coco_initialization_source355_part03",
+      "file": "part03.sql",
+      "bytes": 13708,
+      "sha256": "eae7366ce8187f1c69e4fef857dbdf6e1c7679125c2e43552119a7b63ca9c0d0",
+      "payload_sha256": "e638139d4897bdfda6af32383cff306076afd953ebe0f1f8fa9f76078703f8e7",
+      "payload_bytes": 7425,
+      "statement_start": 27,
+      "statement_end": 41,
+      "canonical_registration_included": true,
+      "wrapper_addons_sha256": "e458a3c18597712b29945fa4e97158703aa93736de9ef607da00ec15c35ca565"
+    }
+  ],
+  "new_objects": {
+    "functions": [
+      {
+        "signature": "private.coco_history_record_visible_before_invoice_deferrals(text, text, uuid)",
+        "definer": false,
+        "acl": [
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "EXECUTE"
+          },
+          {
+            "role": "authenticated",
+            "grantable": false,
+            "privilege": "EXECUTE"
+          }
+        ]
+      },
+      {
+        "signature": "private.coco_history_typed_link_before_invoice_deferrals(text, text, text, text)",
+        "definer": true,
+        "acl": [
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "EXECUTE"
+          },
+          {
+            "role": "authenticated",
+            "grantable": false,
+            "privilege": "EXECUTE"
+          }
+        ]
+      },
+      {
+        "signature": "private.gama_accounting_invoice_deferrals(text, jsonb)",
+        "definer": true,
+        "acl": [
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "EXECUTE"
+          },
+          {
+            "role": "authenticated",
+            "grantable": false,
+            "privilege": "EXECUTE"
+          }
+        ]
+      },
+      {
+        "signature": "private.gama_accounting_post_before_invoice_deferrals(text, uuid)",
+        "definer": true,
+        "acl": [
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "EXECUTE"
+          }
+        ]
+      },
+      {
+        "signature": "private.gama_invoice_deferral_guard()",
+        "definer": true,
+        "acl": [
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "EXECUTE"
+          }
+        ]
+      },
+      {
+        "signature": "private.gama_invoice_deferral_lines(jsonb, boolean, numeric)",
+        "definer": false,
+        "acl": [
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "EXECUTE"
+          }
+        ]
+      },
+      {
+        "signature": "private.gama_invoice_deferrals_post(uuid, text, uuid)",
+        "definer": true,
+        "acl": [
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "EXECUTE"
+          }
+        ]
+      },
+      {
+        "signature": "private.gama_plan_compute_before_invoice_dates(jsonb)",
+        "definer": true,
+        "acl": [
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "EXECUTE"
+          }
+        ]
+      },
+      {
+        "signature": "public.gama_accounting_invoice_deferrals(text, jsonb)",
+        "definer": false,
+        "acl": [
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "EXECUTE"
+          },
+          {
+            "role": "authenticated",
+            "grantable": false,
+            "privilege": "EXECUTE"
+          }
+        ]
+      }
+    ],
+    "classes": [
+      {
+        "signature": "private.accounting_invoice_deferral_settings",
+        "kind": "r",
+        "rls": true,
+        "force_rls": false,
+        "acl": [
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "DELETE"
+          },
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "INSERT"
+          },
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "MAINTAIN"
+          },
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "REFERENCES"
+          },
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "SELECT"
+          },
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "TRIGGER"
+          },
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "TRUNCATE"
+          },
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "UPDATE"
+          }
+        ]
+      }
+    ]
+  },
+  "wrapper_additions": {
+    "immediate_confinement": {
+      "0": "\n-- Wrapper-only interim relation confinement.\nalter table private.accounting_invoice_deferral_settings enable row level security;\nrevoke all on table private.accounting_invoice_deferral_settings from public,anon,authenticated;\n",
+      "10": "\n-- Wrapper-only interim ACL confinement. Canonical final privileges are restored at source completion.\nrevoke all on function private.gama_invoice_deferral_lines(jsonb, boolean, numeric) from public,anon,authenticated;\n",
+      "12": "\n-- Wrapper-only interim ACL confinement. Canonical final privileges are restored at source completion.\nrevoke all on function private.gama_invoice_deferral_guard() from public,anon,authenticated;\n",
+      "16": "\n-- Wrapper-only interim ACL confinement. Canonical final privileges are restored at source completion.\nrevoke all on function private.gama_plan_compute_before_invoice_dates(jsonb) from public,anon,authenticated;\n",
+      "20": "\n-- Wrapper-only interim ACL confinement. Canonical final privileges are restored at source completion.\nrevoke all on function private.gama_invoice_deferrals_post(uuid, text, uuid) from public,anon,authenticated;\n",
+      "22": "\n-- Wrapper-only interim ACL confinement. Canonical final privileges are restored at source completion.\nrevoke all on function private.gama_accounting_post_before_invoice_deferrals(text, uuid) from public,anon,authenticated;\n",
+      "27": "\n-- Wrapper-only interim ACL confinement. Canonical final privileges are restored at source completion.\nrevoke all on function private.gama_accounting_invoice_deferrals(text, jsonb) from public,anon,authenticated;\n",
+      "28": "\n-- Wrapper-only interim ACL confinement. Canonical final privileges are restored at source completion.\nrevoke all on function public.gama_accounting_invoice_deferrals(text, jsonb) from public,anon,authenticated;\n",
+      "33": "\n-- Wrapper-only interim ACL confinement. Canonical final privileges are restored at source completion.\nrevoke all on function private.coco_history_record_visible_before_invoice_deferrals(text, text, uuid) from public,anon,authenticated;\n",
+      "37": "\n-- Wrapper-only interim ACL confinement. Canonical final privileges are restored at source completion.\nrevoke all on function private.coco_history_typed_link_before_invoice_deferrals(text, text, text, text) from public,anon,authenticated;\n"
+    }
+  }
+}

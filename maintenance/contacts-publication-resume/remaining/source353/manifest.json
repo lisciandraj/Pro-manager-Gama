@@ -1,0 +1,375 @@
+{
+  "project_ref": "vhutzdfatijjpahsqkne",
+  "installation": "6d1c1a9037e2f704399ef93b9db09ddcc0b7d019cde262310c9a309fb5727a1e",
+  "source_number": 353,
+  "source_file": "20261027204502_coco_workhub_collaborative_documents.sql",
+  "canonical_sha256": "e078d963a36a9b5532b8a62b139e0329ce19aba89358a0762df20ab1adbecbe9",
+  "derived_sha256": "e078d963a36a9b5532b8a62b139e0329ce19aba89358a0762df20ab1adbecbe9",
+  "canonical_payload_order_preserved": true,
+  "source_count_before": 352,
+  "source_count_after": 353,
+  "verified_final_schema_security_acl_equal": true,
+  "verified_business_empty": true,
+  "verified_intermediate_no_new_public_anon_definers": true,
+  "canonical_transaction_controls_preserved": false,
+  "wrapper_finalization_before_canonical_commit": false,
+  "fragments": [
+    {
+      "number": 1,
+      "migration_name": "coco_initialization_source353_part01",
+      "file": "part01.sql",
+      "bytes": 9951,
+      "sha256": "a3116fea254ffcede6df60ecaeeff8f96203cebbc7eaba2ae78119d4530aa79e",
+      "payload_sha256": "90737620552fe7334c483c0c163037ea6a3659a9d6f8f7b61a838b54196c09ab",
+      "payload_bytes": 5320,
+      "statement_start": 0,
+      "statement_end": 21,
+      "canonical_registration_included": false,
+      "wrapper_addons_sha256": "40ea7c086b252ec36dfe99ad72860e6349b1a473094183bee492567a324b7753"
+    },
+    {
+      "number": 2,
+      "migration_name": "coco_initialization_source353_part02",
+      "file": "part02.sql",
+      "bytes": 15655,
+      "sha256": "f71deb0a496b1a4ebff93a7b106a5cf73f291c8ef21565147394d709a731d985",
+      "payload_sha256": "e98da1e85977c39e27d3e49187bf0182a63ea5a5c7b3ae6fb1f3fc40d9bebe45",
+      "payload_bytes": 9942,
+      "statement_start": 22,
+      "statement_end": 35,
+      "canonical_registration_included": false,
+      "wrapper_addons_sha256": "da0f70d098d2962981de9948a8f4e9239cd7faebc9f908d7952fc3a1d03241c0"
+    },
+    {
+      "number": 3,
+      "migration_name": "coco_initialization_source353_part03",
+      "file": "part03.sql",
+      "bytes": 7780,
+      "sha256": "32ade3496747701e575b391c2095cef1fd6411682bfa5829b6de81cb0259f5df",
+      "payload_sha256": "28f6587178f7d8497b431210887edc54d8ad2393c5679aaad2d76f1e3a1f649e",
+      "payload_bytes": 2192,
+      "statement_start": 36,
+      "statement_end": 41,
+      "canonical_registration_included": true,
+      "wrapper_addons_sha256": "3b57f413fcdb49a963e5a12db2650e97e83c5cacefc6b9655ae7780c8389fd51"
+    }
+  ],
+  "new_objects": {
+    "functions": [
+      {
+        "signature": "private.coco_history_record_visible_before_workspace_documents(text, text, uuid)",
+        "definer": false,
+        "acl": [
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "EXECUTE"
+          },
+          {
+            "role": "authenticated",
+            "grantable": false,
+            "privilege": "EXECUTE"
+          }
+        ]
+      },
+      {
+        "signature": "private.coco_workhub_document_stage(jsonb)",
+        "definer": true,
+        "acl": [
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "EXECUTE"
+          },
+          {
+            "role": "service_role",
+            "grantable": false,
+            "privilege": "EXECUTE"
+          }
+        ]
+      },
+      {
+        "signature": "private.coco_workhub_document_write(text, jsonb)",
+        "definer": true,
+        "acl": [
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "EXECUTE"
+          },
+          {
+            "role": "authenticated",
+            "grantable": false,
+            "privilege": "EXECUTE"
+          }
+        ]
+      },
+      {
+        "signature": "private.coco_workhub_resolve_before_documents(text, uuid)",
+        "definer": false,
+        "acl": [
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "EXECUTE"
+          },
+          {
+            "role": "authenticated",
+            "grantable": false,
+            "privilege": "EXECUTE"
+          }
+        ]
+      },
+      {
+        "signature": "public.coco_workhub_document_stage(jsonb)",
+        "definer": false,
+        "acl": [
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "EXECUTE"
+          },
+          {
+            "role": "service_role",
+            "grantable": false,
+            "privilege": "EXECUTE"
+          }
+        ]
+      },
+      {
+        "signature": "public.coco_workhub_documents(text, jsonb)",
+        "definer": false,
+        "acl": [
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "EXECUTE"
+          },
+          {
+            "role": "authenticated",
+            "grantable": false,
+            "privilege": "EXECUTE"
+          }
+        ]
+      }
+    ],
+    "classes": [
+      {
+        "signature": "private.coco_workhub_document_commits",
+        "kind": "r",
+        "rls": true,
+        "force_rls": false,
+        "acl": [
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "DELETE"
+          },
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "INSERT"
+          },
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "MAINTAIN"
+          },
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "REFERENCES"
+          },
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "SELECT"
+          },
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "TRIGGER"
+          },
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "TRUNCATE"
+          },
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "UPDATE"
+          }
+        ]
+      },
+      {
+        "signature": "private.coco_workhub_document_receipts",
+        "kind": "r",
+        "rls": true,
+        "force_rls": false,
+        "acl": [
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "DELETE"
+          },
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "INSERT"
+          },
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "MAINTAIN"
+          },
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "REFERENCES"
+          },
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "SELECT"
+          },
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "TRIGGER"
+          },
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "TRUNCATE"
+          },
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "UPDATE"
+          }
+        ]
+      },
+      {
+        "signature": "private.coco_workhub_document_versions",
+        "kind": "r",
+        "rls": true,
+        "force_rls": false,
+        "acl": [
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "DELETE"
+          },
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "INSERT"
+          },
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "MAINTAIN"
+          },
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "REFERENCES"
+          },
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "SELECT"
+          },
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "TRIGGER"
+          },
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "TRUNCATE"
+          },
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "UPDATE"
+          },
+          {
+            "role": "authenticated",
+            "grantable": false,
+            "privilege": "SELECT"
+          }
+        ]
+      },
+      {
+        "signature": "private.coco_workhub_documents",
+        "kind": "r",
+        "rls": true,
+        "force_rls": false,
+        "acl": [
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "DELETE"
+          },
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "INSERT"
+          },
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "MAINTAIN"
+          },
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "REFERENCES"
+          },
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "SELECT"
+          },
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "TRIGGER"
+          },
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "TRUNCATE"
+          },
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "UPDATE"
+          },
+          {
+            "role": "authenticated",
+            "grantable": false,
+            "privilege": "SELECT"
+          }
+        ]
+      }
+    ]
+  },
+  "wrapper_additions": {
+    "immediate_confinement": {
+      "0": "\n-- Wrapper-only interim relation confinement.\nalter table private.coco_workhub_documents enable row level security;\nrevoke all on table private.coco_workhub_documents from public,anon,authenticated;\n",
+      "4": "\n-- Wrapper-only interim relation confinement.\nalter table private.coco_workhub_document_versions enable row level security;\nrevoke all on table private.coco_workhub_document_versions from public,anon,authenticated;\n",
+      "6": "\n-- Wrapper-only interim relation confinement.\nalter table private.coco_workhub_document_receipts enable row level security;\nrevoke all on table private.coco_workhub_document_receipts from public,anon,authenticated;\n",
+      "9": "\n-- Wrapper-only interim relation confinement.\nalter table private.coco_workhub_document_commits enable row level security;\nrevoke all on table private.coco_workhub_document_commits from public,anon,authenticated;\n",
+      "16": "\n-- Wrapper-only interim ACL confinement. Canonical final privileges are restored at source completion.\nrevoke all on function private.coco_history_record_visible_before_workspace_documents(text, text, uuid) from public,anon,authenticated;\n",
+      "22": "\n-- Wrapper-only interim ACL confinement. Canonical final privileges are restored at source completion.\nrevoke all on function private.coco_workhub_document_write(text, jsonb) from public,anon,authenticated;\n",
+      "25": "\n-- Wrapper-only interim ACL confinement. Canonical final privileges are restored at source completion.\nrevoke all on function private.coco_workhub_document_stage(jsonb) from public,anon,authenticated;\n",
+      "28": "\n-- Wrapper-only interim ACL confinement. Canonical final privileges are restored at source completion.\nrevoke all on function public.coco_workhub_document_stage(jsonb) from public,anon,authenticated;\n",
+      "31": "\n-- Wrapper-only interim ACL confinement. Canonical final privileges are restored at source completion.\nrevoke all on function public.coco_workhub_documents(text, jsonb) from public,anon,authenticated;\n",
+      "34": "\n-- Wrapper-only interim ACL confinement. Canonical final privileges are restored at source completion.\nrevoke all on function private.coco_workhub_resolve_before_documents(text, uuid) from public,anon,authenticated;\n"
+    }
+  }
+}

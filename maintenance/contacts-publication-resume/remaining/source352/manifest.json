@@ -1,0 +1,306 @@
+{
+  "project_ref": "vhutzdfatijjpahsqkne",
+  "installation": "6d1c1a9037e2f704399ef93b9db09ddcc0b7d019cde262310c9a309fb5727a1e",
+  "source_number": 352,
+  "source_file": "20261027193621_accounting_grouped_deferrals.sql",
+  "canonical_sha256": "e8c7d88a0dd2f3163187a3cdbc4c2451d82bd9b27fb90c26ab46735fa9e46f54",
+  "derived_sha256": "e8c7d88a0dd2f3163187a3cdbc4c2451d82bd9b27fb90c26ab46735fa9e46f54",
+  "canonical_payload_order_preserved": true,
+  "source_count_before": 351,
+  "source_count_after": 352,
+  "verified_final_schema_security_acl_equal": true,
+  "verified_business_empty": true,
+  "verified_intermediate_no_new_public_anon_definers": true,
+  "canonical_transaction_controls_preserved": false,
+  "wrapper_finalization_before_canonical_commit": false,
+  "fragments": [
+    {
+      "number": 1,
+      "migration_name": "coco_initialization_source352_part01",
+      "file": "part01.sql",
+      "bytes": 13760,
+      "sha256": "68620a5827f3817ff9e47ee14044e711635da0bad7901f0471b1ac6827ab341a",
+      "payload_sha256": "1d012bd6cfc15104b2c2e4020f0549a51c87abc3ceaf0e7bdd2e6c92a5084e81",
+      "payload_bytes": 9181,
+      "statement_start": 0,
+      "statement_end": 22,
+      "canonical_registration_included": false,
+      "wrapper_addons_sha256": "7d1bd96f17ea9c19f961273d8767722755a78aefdc8ce16f2915634a01d6d5f4"
+    },
+    {
+      "number": 2,
+      "migration_name": "coco_initialization_source352_part02",
+      "file": "part02.sql",
+      "bytes": 5471,
+      "sha256": "27a5c2f9760f92fe283e6113c9b7c8e2fe754349e3b1eb31bf230a4c983fc807",
+      "payload_sha256": "157232b64f47232f5ef496658c6acea311e0c64f9157c2061c6eded86cca9128",
+      "payload_bytes": 1844,
+      "statement_start": 23,
+      "statement_end": 23,
+      "canonical_registration_included": false,
+      "wrapper_addons_sha256": "1bfda0017bde698ee64b25c263b717dbfaa68360efb877f39e06565430e39f03"
+    },
+    {
+      "number": 3,
+      "migration_name": "coco_initialization_source352_part03",
+      "file": "part03.sql",
+      "bytes": 15505,
+      "sha256": "9ca969204fabd8894115ade5053747dd623d3a954dd3a272132e5b4e9bcf85a4",
+      "payload_sha256": "91c2874b738e6f9f822752a959510624f3ed8a2033b9788e26a8da81529f5755",
+      "payload_bytes": 11349,
+      "statement_start": 24,
+      "statement_end": 24,
+      "canonical_registration_included": false,
+      "wrapper_addons_sha256": "0ed34079158909efbaf82971543728ba3764dc6b0444098804ffd4c8c6003686"
+    },
+    {
+      "number": 4,
+      "migration_name": "coco_initialization_source352_part04",
+      "file": "part04.sql",
+      "bytes": 14108,
+      "sha256": "2f02510d8c543623b849b5f15dd7742b05a4da227ca567aa1edd6439585cec9a",
+      "payload_sha256": "1e0481b8250775226224850ef015ef5f64a78f4fe3f60584d054b32603cf642e",
+      "payload_bytes": 7418,
+      "statement_start": 25,
+      "statement_end": 48,
+      "canonical_registration_included": true,
+      "wrapper_addons_sha256": "1d9fcff36ce204fa9c126c4e1123f5eeb5021b9de89204ea5c6e204589e9a2e1"
+    }
+  ],
+  "new_objects": {
+    "functions": [
+      {
+        "signature": "private.coco_history_record_visible_before_deferrals(text, text, uuid)",
+        "definer": false,
+        "acl": [
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "EXECUTE"
+          },
+          {
+            "role": "authenticated",
+            "grantable": false,
+            "privilege": "EXECUTE"
+          }
+        ]
+      },
+      {
+        "signature": "private.coco_history_typed_link_before_deferrals(text, text, text, text)",
+        "definer": true,
+        "acl": [
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "EXECUTE"
+          },
+          {
+            "role": "authenticated",
+            "grantable": false,
+            "privilege": "EXECUTE"
+          }
+        ]
+      },
+      {
+        "signature": "private.gama_accounting_deferrals(text, jsonb)",
+        "definer": true,
+        "acl": [
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "EXECUTE"
+          },
+          {
+            "role": "authenticated",
+            "grantable": false,
+            "privilege": "EXECUTE"
+          }
+        ]
+      },
+      {
+        "signature": "private.gama_accounting_plans_before_grouped(text, jsonb)",
+        "definer": true,
+        "acl": [
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "EXECUTE"
+          }
+        ]
+      },
+      {
+        "signature": "private.gama_accounting_plans_tick_before_grouped()",
+        "definer": true,
+        "acl": [
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "EXECUTE"
+          }
+        ]
+      },
+      {
+        "signature": "private.gama_deferral_entry_guard()",
+        "definer": true,
+        "acl": [
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "EXECUTE"
+          }
+        ]
+      },
+      {
+        "signature": "private.gama_deferral_snapshot(text, uuid, date)",
+        "definer": true,
+        "acl": [
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "EXECUTE"
+          }
+        ]
+      },
+      {
+        "signature": "private.gama_plan_compute_before_grouped(jsonb)",
+        "definer": true,
+        "acl": [
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "EXECUTE"
+          }
+        ]
+      },
+      {
+        "signature": "public.gama_accounting_deferrals(text, jsonb)",
+        "definer": false,
+        "acl": [
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "EXECUTE"
+          },
+          {
+            "role": "authenticated",
+            "grantable": false,
+            "privilege": "EXECUTE"
+          }
+        ]
+      }
+    ],
+    "classes": [
+      {
+        "signature": "private.accounting_deferral_batch_plans",
+        "kind": "r",
+        "rls": true,
+        "force_rls": false,
+        "acl": [
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "DELETE"
+          },
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "INSERT"
+          },
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "MAINTAIN"
+          },
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "REFERENCES"
+          },
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "SELECT"
+          },
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "TRIGGER"
+          },
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "TRUNCATE"
+          },
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "UPDATE"
+          }
+        ]
+      },
+      {
+        "signature": "private.accounting_deferral_batches",
+        "kind": "r",
+        "rls": true,
+        "force_rls": false,
+        "acl": [
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "DELETE"
+          },
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "INSERT"
+          },
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "MAINTAIN"
+          },
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "REFERENCES"
+          },
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "SELECT"
+          },
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "TRIGGER"
+          },
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "TRUNCATE"
+          },
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "UPDATE"
+          }
+        ]
+      }
+    ]
+  },
+  "wrapper_additions": {
+    "immediate_confinement": {
+      "0": "\n-- Wrapper-only interim ACL confinement. Canonical final privileges are restored at source completion.\nrevoke all on function private.gama_plan_compute_before_grouped(jsonb) from public,anon,authenticated;\n",
+      "3": "\n-- Wrapper-only interim relation confinement.\nalter table private.accounting_deferral_batches enable row level security;\nrevoke all on table private.accounting_deferral_batches from public,anon,authenticated;\n",
+      "14": "\n-- Wrapper-only interim relation confinement.\nalter table private.accounting_deferral_batch_plans enable row level security;\nrevoke all on table private.accounting_deferral_batch_plans from public,anon,authenticated;\n",
+      "19": "\n-- Wrapper-only interim ACL confinement. Canonical final privileges are restored at source completion.\nrevoke all on function private.gama_deferral_snapshot(text, uuid, date) from public,anon,authenticated;\n",
+      "21": "\n-- Wrapper-only interim ACL confinement. Canonical final privileges are restored at source completion.\nrevoke all on function private.gama_accounting_plans_before_grouped(text, jsonb) from public,anon,authenticated;\n",
+      "24": "\n-- Wrapper-only interim ACL confinement. Canonical final privileges are restored at source completion.\nrevoke all on function private.gama_accounting_deferrals(text, jsonb) from public,anon,authenticated;\n",
+      "27": "\n-- Wrapper-only interim ACL confinement. Canonical final privileges are restored at source completion.\nrevoke all on function public.gama_accounting_deferrals(text, jsonb) from public,anon,authenticated;\n",
+      "30": "\n-- Wrapper-only interim ACL confinement. Canonical final privileges are restored at source completion.\nrevoke all on function private.gama_deferral_entry_guard() from public,anon,authenticated;\n",
+      "34": "\n-- Wrapper-only interim ACL confinement. Canonical final privileges are restored at source completion.\nrevoke all on function private.gama_accounting_plans_tick_before_grouped() from public,anon,authenticated;\n",
+      "39": "\n-- Wrapper-only interim ACL confinement. Canonical final privileges are restored at source completion.\nrevoke all on function private.coco_history_record_visible_before_deferrals(text, text, uuid) from public,anon,authenticated;\n",
+      "43": "\n-- Wrapper-only interim ACL confinement. Canonical final privileges are restored at source completion.\nrevoke all on function private.coco_history_typed_link_before_deferrals(text, text, text, text) from public,anon,authenticated;\n"
+    }
+  }
+}

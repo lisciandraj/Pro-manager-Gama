@@ -1,0 +1,38 @@
+{
+  "project_ref": "vhutzdfatijjpahsqkne",
+  "installation": "6d1c1a9037e2f704399ef93b9db09ddcc0b7d019cde262310c9a309fb5727a1e",
+  "source_number": 351,
+  "source_file": "20261027193029_tms_pro_preserve_function_dependencies.sql",
+  "canonical_sha256": "3bbcfec74c3cc64b6e537d4c46e0abeafda4976dff858a9535e9a6d7ea8be9de",
+  "derived_sha256": "3bbcfec74c3cc64b6e537d4c46e0abeafda4976dff858a9535e9a6d7ea8be9de",
+  "canonical_payload_order_preserved": true,
+  "source_count_before": 350,
+  "source_count_after": 351,
+  "verified_final_schema_security_acl_equal": true,
+  "verified_business_empty": true,
+  "verified_intermediate_no_new_public_anon_definers": true,
+  "canonical_transaction_controls_preserved": false,
+  "wrapper_finalization_before_canonical_commit": false,
+  "fragments": [
+    {
+      "number": 1,
+      "migration_name": "coco_initialization_source351_part01",
+      "file": "part01.sql",
+      "bytes": 4172,
+      "sha256": "4bf9c1d15c014ff2b54f9113f0da02a07f3d92e611f13871d8f161b68230d525",
+      "payload_sha256": "3bbcfec74c3cc64b6e537d4c46e0abeafda4976dff858a9535e9a6d7ea8be9de",
+      "payload_bytes": 1310,
+      "statement_start": 0,
+      "statement_end": 2,
+      "canonical_registration_included": true,
+      "wrapper_addons_sha256": "3bbcfec74c3cc64b6e537d4c46e0abeafda4976dff858a9535e9a6d7ea8be9de"
+    }
+  ],
+  "new_objects": {
+    "functions": [],
+    "classes": []
+  },
+  "wrapper_additions": {
+    "immediate_confinement": {}
+  }
+}

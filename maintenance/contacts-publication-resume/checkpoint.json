@@ -1,0 +1,30 @@
+{
+  "production_project": "vhutzdfatijjpahsqkne",
+  "development_project": "mknsaibrewksgomuslev",
+  "installation": "6d1c1a9037e2f704399ef93b9db09ddcc0b7d019cde262310c9a309fb5727a1e",
+  "completed_sources": 347,
+  "applied_stages": [
+    {
+      "name": "coco_initialization_source348_part01",
+      "version": "20261108171636",
+      "sha256": "42111a8f0fd7a670d7284d934dc06c783480eda9d19566ca67607be3922d8916"
+    },
+    {
+      "name": "coco_initialization_source348_part02",
+      "version": "20261108171802",
+      "sha256": "e04381bb5dc970633f99fa73a1a7ebdbb9e900b7ded2f6e57edcbc55d25bf111"
+    }
+  ],
+  "next_stage": "coco_initialization_source348_part03",
+  "next_sql": "source348/source348-part03-compact.sql",
+  "next_sha256": "41ecb2e0ef153a89f33a78159c0d52d938a9f5f51075daea47f42febcab7348e",
+  "next_function_absent": true,
+  "auth_users": 0,
+  "storage_objects": 0,
+  "environment_status_available": false,
+  "production_release_changed": false,
+  "blockers": [
+    "Supabase apply_migration confirmation expired for source348 part03, including bounded tested form.",
+    "Cloudflare whoami produced no response; public backend cutover could not be verified."
+  ]
+}

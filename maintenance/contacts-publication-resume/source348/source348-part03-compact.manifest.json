@@ -1,0 +1,17 @@
+{
+  "migration_name": "coco_initialization_source348_part03",
+  "file": "source348-part03-compact.sql",
+  "bytes": 19953,
+  "sha256": "41ecb2e0ef153a89f33a78159c0d52d938a9f5f51075daea47f42febcab7348e",
+  "payload_file": "source348-part03.payload.sql",
+  "payload_sha256": "19952c5189d7f3cd0b088382029f5319116737bf4bd39e337f2ebb9712488106",
+  "guard_sha256": "0a14ac39a2d18fe14acf9a4aaa164867a770481a38b70b1261b055f9b957c320",
+  "expected_source_count": 347,
+  "expected_stage_receipts": [
+    "coco_initialization_source348_part01",
+    "coco_initialization_source348_part02"
+  ],
+  "compact_guard_omits_redundant_full_business_scan": true,
+  "operation": "Only CREATE FUNCTION and canonical REVOKE/GRANT; no business invocation. Private+public definitions and final ACL are in one transaction. Full empty-business guard is retained before part02 and part04.",
+  "wrapper_only_early_acl_removed_as_redundant": true
+}

@@ -1,0 +1,201 @@
+{
+  "project_ref": "vhutzdfatijjpahsqkne",
+  "installation": "6d1c1a9037e2f704399ef93b9db09ddcc0b7d019cde262310c9a309fb5727a1e",
+  "source_number": 354,
+  "source_file": "20261027204533_tms_resource_loads_and_endpoints.sql",
+  "canonical_sha256": "853d7b64efea1f56c0aee34a47600ee8d9f46951a050aa81b47382a730f8f953",
+  "derived_sha256": "853d7b64efea1f56c0aee34a47600ee8d9f46951a050aa81b47382a730f8f953",
+  "canonical_payload_order_preserved": true,
+  "source_count_before": 353,
+  "source_count_after": 354,
+  "verified_final_schema_security_acl_equal": true,
+  "verified_business_empty": true,
+  "verified_intermediate_no_new_public_anon_definers": true,
+  "canonical_transaction_controls_preserved": false,
+  "wrapper_finalization_before_canonical_commit": false,
+  "fragments": [
+    {
+      "number": 1,
+      "migration_name": "coco_initialization_source354_part01",
+      "file": "part01.sql",
+      "bytes": 15039,
+      "sha256": "fe23b2af3d7cb5a385b7de97c62f3a6bd760b56859914ac3e86f398b2fc3faa2",
+      "payload_sha256": "caf8f8f4c590ebd0025e7e495ee92b6406d9ecf9cd669659e8d4dbc6457c6760",
+      "payload_bytes": 9040,
+      "statement_start": 0,
+      "statement_end": 20,
+      "canonical_registration_included": false,
+      "wrapper_addons_sha256": "15a7bb52220520e497da7f784abddd19d13f58b2be10bcec09d85a24b7fe1949"
+    },
+    {
+      "number": 2,
+      "migration_name": "coco_initialization_source354_part02",
+      "file": "part02.sql",
+      "bytes": 14541,
+      "sha256": "855468255e819ee08b1a8dcbc085a2f9d3cd250fafe3b4cdfebfa1293379517a",
+      "payload_sha256": "525a4c07a7bfb59f66043fe75e85c83992ec7d0a42774f31ec640c759f8e654a",
+      "payload_bytes": 9578,
+      "statement_start": 21,
+      "statement_end": 23,
+      "canonical_registration_included": false,
+      "wrapper_addons_sha256": "23cba2518f16b5efd46092653013ba25e4b6e8999b0fff8704063c800609962c"
+    },
+    {
+      "number": 3,
+      "migration_name": "coco_initialization_source354_part03",
+      "file": "part03.sql",
+      "bytes": 11200,
+      "sha256": "2d63519a438d7bcfc2a483ad7636806a29dd508cd32107e12dc3739a97e8fa7d",
+      "payload_sha256": "97f6fe56ed160a4d0cabf4cbdf82e57166f8ecc3d47fc2ec12d686e2cec83039",
+      "payload_bytes": 6203,
+      "statement_start": 24,
+      "statement_end": 28,
+      "canonical_registration_included": true,
+      "wrapper_addons_sha256": "5a862950c4ae7876204cc7f33b3366157858c4aa3ca69f209fdedef2729d1412"
+    }
+  ],
+  "new_objects": {
+    "functions": [
+      {
+        "signature": "private.tms_pro_capacity_ok(uuid, uuid[])",
+        "definer": true,
+        "acl": [
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "EXECUTE"
+          }
+        ]
+      },
+      {
+        "signature": "private.tms_pro_departure_loads()",
+        "definer": true,
+        "acl": [
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "EXECUTE"
+          }
+        ]
+      },
+      {
+        "signature": "private.tms_pro_dimension_list(jsonb)",
+        "definer": false,
+        "acl": [
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "EXECUTE"
+          },
+          {
+            "role": "authenticated",
+            "grantable": false,
+            "privilege": "EXECUTE"
+          }
+        ]
+      },
+      {
+        "signature": "private.tms_pro_driver_points(uuid)",
+        "definer": true,
+        "acl": [
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "EXECUTE"
+          }
+        ]
+      },
+      {
+        "signature": "private.tms_pro_load_values(jsonb)",
+        "definer": false,
+        "acl": [
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "EXECUTE"
+          },
+          {
+            "role": "authenticated",
+            "grantable": false,
+            "privilege": "EXECUTE"
+          }
+        ]
+      },
+      {
+        "signature": "private.tms_pro_loads_known(uuid[])",
+        "definer": true,
+        "acl": [
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "EXECUTE"
+          }
+        ]
+      },
+      {
+        "signature": "private.tms_pro_location(jsonb)",
+        "definer": false,
+        "acl": [
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "EXECUTE"
+          },
+          {
+            "role": "authenticated",
+            "grantable": false,
+            "privilege": "EXECUTE"
+          }
+        ]
+      },
+      {
+        "signature": "private.tms_pro_route_point(tms_routes, integer)",
+        "definer": true,
+        "acl": [
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "EXECUTE"
+          }
+        ]
+      },
+      {
+        "signature": "private.tms_pro_route_points_guard()",
+        "definer": true,
+        "acl": [
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "EXECUTE"
+          }
+        ]
+      },
+      {
+        "signature": "private.tms_pro_timing(uuid, date, timestamp with time zone, double precision, double precision, uuid, jsonb, timestamp with time zone, boolean, integer)",
+        "definer": true,
+        "acl": [
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "EXECUTE"
+          }
+        ]
+      }
+    ],
+    "classes": []
+  },
+  "wrapper_additions": {
+    "immediate_confinement": {
+      "5": "\n-- Wrapper-only interim ACL confinement. Canonical final privileges are restored at source completion.\nrevoke all on function private.tms_pro_dimension_list(jsonb) from public,anon,authenticated;\n",
+      "6": "\n-- Wrapper-only interim ACL confinement. Canonical final privileges are restored at source completion.\nrevoke all on function private.tms_pro_load_values(jsonb) from public,anon,authenticated;\n",
+      "7": "\n-- Wrapper-only interim ACL confinement. Canonical final privileges are restored at source completion.\nrevoke all on function private.tms_pro_location(jsonb) from public,anon,authenticated;\n",
+      "12": "\n-- Wrapper-only interim ACL confinement. Canonical final privileges are restored at source completion.\nrevoke all on function private.tms_pro_loads_known(uuid[]) from public,anon,authenticated;\n",
+      "13": "\n-- Wrapper-only interim ACL confinement. Canonical final privileges are restored at source completion.\nrevoke all on function private.tms_pro_capacity_ok(uuid, uuid[]) from public,anon,authenticated;\n",
+      "14": "\n-- Wrapper-only interim ACL confinement. Canonical final privileges are restored at source completion.\nrevoke all on function private.tms_pro_driver_points(uuid) from public,anon,authenticated;\n",
+      "15": "\n-- Wrapper-only interim ACL confinement. Canonical final privileges are restored at source completion.\nrevoke all on function private.tms_pro_route_point(tms_routes, integer) from public,anon,authenticated;\n",
+      "16": "\n-- Wrapper-only interim ACL confinement. Canonical final privileges are restored at source completion.\nrevoke all on function private.tms_pro_route_points_guard() from public,anon,authenticated;\n",
+      "19": "\n-- Wrapper-only interim ACL confinement. Canonical final privileges are restored at source completion.\nrevoke all on function private.tms_pro_departure_loads() from public,anon,authenticated;\n",
+      "21": "\n-- Wrapper-only interim ACL confinement. Canonical final privileges are restored at source completion.\nrevoke all on function private.tms_pro_timing(uuid, date, timestamp with time zone, double precision, double precision, uuid, jsonb, timestamp with time zone, boolean, integer) from public,anon,authenticated;\n"
+    }
+  }
+}

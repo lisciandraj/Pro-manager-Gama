@@ -1,0 +1,81 @@
+{
+  "project_ref": "vhutzdfatijjpahsqkne",
+  "installation": "6d1c1a9037e2f704399ef93b9db09ddcc0b7d019cde262310c9a309fb5727a1e",
+  "source_number": 356,
+  "source_file": "20261028175918_coco_three_workstreams.sql",
+  "canonical_sha256": "a095d8dc9b99518fd2df94735a1d5affc5c4afd7bf2828caa2fe95dd9f3e973e",
+  "derived_sha256": "a095d8dc9b99518fd2df94735a1d5affc5c4afd7bf2828caa2fe95dd9f3e973e",
+  "canonical_payload_order_preserved": true,
+  "source_count_before": 355,
+  "source_count_after": 356,
+  "verified_final_schema_security_acl_equal": true,
+  "verified_business_empty": true,
+  "verified_intermediate_no_new_public_anon_definers": true,
+  "canonical_transaction_controls_preserved": false,
+  "wrapper_finalization_before_canonical_commit": false,
+  "fragments": [
+    {
+      "number": 1,
+      "migration_name": "coco_initialization_source356_part01",
+      "file": "part01.sql",
+      "bytes": 12164,
+      "sha256": "203229f672e28ded05e929afedc75be8dae1b05e0363ba47a96c8d0e2783ba59",
+      "payload_sha256": "a095d8dc9b99518fd2df94735a1d5affc5c4afd7bf2828caa2fe95dd9f3e973e",
+      "payload_bytes": 8197,
+      "statement_start": 0,
+      "statement_end": 11,
+      "canonical_registration_included": true,
+      "wrapper_addons_sha256": "04af12fa827e123825d7d530dd2643f9900a6726e0b11a3708cae46c938cf7ab"
+    }
+  ],
+  "new_objects": {
+    "functions": [
+      {
+        "signature": "private.coco_asset_policy(uuid, jsonb)",
+        "definer": true,
+        "acl": [
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "EXECUTE"
+          }
+        ]
+      },
+      {
+        "signature": "private.coco_tms_trace(uuid)",
+        "definer": true,
+        "acl": [
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "EXECUTE"
+          }
+        ]
+      },
+      {
+        "signature": "public.coco_workhub_calendar(jsonb)",
+        "definer": false,
+        "acl": [
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "EXECUTE"
+          },
+          {
+            "role": "authenticated",
+            "grantable": false,
+            "privilege": "EXECUTE"
+          }
+        ]
+      }
+    ],
+    "classes": []
+  },
+  "wrapper_additions": {
+    "immediate_confinement": {
+      "1": "\n-- Wrapper-only interim ACL confinement. Canonical final privileges are restored at source completion.\nrevoke all on function private.coco_asset_policy(uuid, jsonb) from public,anon,authenticated;\n",
+      "4": "\n-- Wrapper-only interim ACL confinement. Canonical final privileges are restored at source completion.\nrevoke all on function private.coco_tms_trace(uuid) from public,anon,authenticated;\n",
+      "7": "\n-- Wrapper-only interim ACL confinement. Canonical final privileges are restored at source completion.\nrevoke all on function public.coco_workhub_calendar(jsonb) from public,anon,authenticated;\n"
+    }
+  }
+}

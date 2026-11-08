@@ -1,0 +1,230 @@
+{
+  "project_ref": "vhutzdfatijjpahsqkne",
+  "installation": "6d1c1a9037e2f704399ef93b9db09ddcc0b7d019cde262310c9a309fb5727a1e",
+  "source_number": 362,
+  "source_file": "20261107195941_coco_environment_isolation.sql",
+  "canonical_sha256": "532be5215b736fb011bb0af4b7d606852f4d781c2f2b68b5de6df4b534593e6c",
+  "derived_sha256": "532be5215b736fb011bb0af4b7d606852f4d781c2f2b68b5de6df4b534593e6c",
+  "canonical_payload_order_preserved": true,
+  "source_count_before": 361,
+  "source_count_after": 362,
+  "verified_final_schema_security_acl_equal": true,
+  "verified_business_empty": true,
+  "verified_intermediate_no_new_public_anon_definers": true,
+  "canonical_transaction_controls_preserved": false,
+  "wrapper_finalization_before_canonical_commit": false,
+  "fragments": [
+    {
+      "number": 1,
+      "migration_name": "coco_initialization_source362_part01",
+      "file": "part01.sql",
+      "bytes": 10762,
+      "sha256": "6cb671b7460f175a727836ae1326826b0783022dcc08efc61c1822c9e4cd5270",
+      "payload_sha256": "d904df9b9de7bc35bc3643db7bd7c51bbf182a6dc08abbad821ffb0017cef8aa",
+      "payload_bytes": 5947,
+      "statement_start": 0,
+      "statement_end": 23,
+      "canonical_registration_included": false,
+      "wrapper_addons_sha256": "393fec50703158aa248eae985e31a91140675c5ef54a447675d56a25b643e86f"
+    },
+    {
+      "number": 2,
+      "migration_name": "coco_initialization_source362_part02",
+      "file": "part02.sql",
+      "bytes": 9314,
+      "sha256": "b4ce58c641cee404072abed4f7ea8ee9fdf1f70797f85748100ffef836178fe1",
+      "payload_sha256": "762e2bef71592562719b5c1a895984426fd8917fa82afaa154be694456929c02",
+      "payload_bytes": 4402,
+      "statement_start": 24,
+      "statement_end": 26,
+      "canonical_registration_included": true,
+      "wrapper_addons_sha256": "38538d87bce872b7947da382996e8823b80561c8f54248c9233d5047c4935da7"
+    }
+  ],
+  "new_objects": {
+    "functions": [
+      {
+        "signature": "environment_api.coco_environment_allowed()",
+        "definer": true,
+        "acl": [
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "EXECUTE"
+          },
+          {
+            "role": "anon",
+            "grantable": false,
+            "privilege": "EXECUTE"
+          },
+          {
+            "role": "authenticated",
+            "grantable": false,
+            "privilege": "EXECUTE"
+          },
+          {
+            "role": "service_role",
+            "grantable": false,
+            "privilege": "EXECUTE"
+          }
+        ]
+      },
+      {
+        "signature": "environment_api.coco_environment_status()",
+        "definer": true,
+        "acl": [
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "EXECUTE"
+          },
+          {
+            "role": "anon",
+            "grantable": false,
+            "privilege": "EXECUTE"
+          },
+          {
+            "role": "authenticated",
+            "grantable": false,
+            "privilege": "EXECUTE"
+          },
+          {
+            "role": "service_role",
+            "grantable": false,
+            "privilege": "EXECUTE"
+          }
+        ]
+      },
+      {
+        "signature": "private.coco_assign_environment(text, text, integer, integer)",
+        "definer": false,
+        "acl": [
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "EXECUTE"
+          }
+        ]
+      },
+      {
+        "signature": "private.coco_environment_admin()",
+        "definer": true,
+        "acl": [
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "EXECUTE"
+          },
+          {
+            "role": "authenticated",
+            "grantable": false,
+            "privilege": "EXECUTE"
+          },
+          {
+            "role": "service_role",
+            "grantable": false,
+            "privilege": "EXECUTE"
+          }
+        ]
+      },
+      {
+        "signature": "private.coco_install_environment_policies()",
+        "definer": false,
+        "acl": [
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "EXECUTE"
+          }
+        ]
+      },
+      {
+        "signature": "public.coco_environment_status()",
+        "definer": false,
+        "acl": [
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "EXECUTE"
+          },
+          {
+            "role": "anon",
+            "grantable": false,
+            "privilege": "EXECUTE"
+          },
+          {
+            "role": "authenticated",
+            "grantable": false,
+            "privilege": "EXECUTE"
+          },
+          {
+            "role": "service_role",
+            "grantable": false,
+            "privilege": "EXECUTE"
+          }
+        ]
+      }
+    ],
+    "classes": [
+      {
+        "signature": "private.coco_environment",
+        "kind": "r",
+        "rls": true,
+        "force_rls": false,
+        "acl": [
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "DELETE"
+          },
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "INSERT"
+          },
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "MAINTAIN"
+          },
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "REFERENCES"
+          },
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "SELECT"
+          },
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "TRIGGER"
+          },
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "TRUNCATE"
+          },
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "UPDATE"
+          }
+        ]
+      }
+    ]
+  },
+  "wrapper_additions": {
+    "immediate_confinement": {
+      "0": "\n-- Wrapper-only interim relation confinement.\nalter table private.coco_environment enable row level security;\nrevoke all on table private.coco_environment from public,anon,authenticated;\n",
+      "6": "\n-- Wrapper-only interim ACL confinement. Canonical final privileges are restored at source completion.\nrevoke all on function private.coco_environment_admin() from public,anon,authenticated;\n",
+      "9": "\n-- Wrapper-only interim ACL confinement. Canonical final privileges are restored at source completion.\nrevoke all on function environment_api.coco_environment_allowed() from public,anon,authenticated;\n",
+      "12": "\n-- Wrapper-only interim ACL confinement. Canonical final privileges are restored at source completion.\nrevoke all on function environment_api.coco_environment_status() from public,anon,authenticated;\n",
+      "15": "\n-- Wrapper-only interim ACL confinement. Canonical final privileges are restored at source completion.\nrevoke all on function public.coco_environment_status() from public,anon,authenticated;\n",
+      "20": "\n-- Wrapper-only interim ACL confinement. Canonical final privileges are restored at source completion.\nrevoke all on function private.coco_install_environment_policies() from public,anon,authenticated;\n",
+      "24": "\n-- Wrapper-only interim ACL confinement. Canonical final privileges are restored at source completion.\nrevoke all on function private.coco_assign_environment(text, text, integer, integer) from public,anon,authenticated;\n"
+    }
+  }
+}

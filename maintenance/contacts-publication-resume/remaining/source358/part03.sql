@@ -1,0 +1,81 @@
+do $$declare r record;has_rows boolean;defaults text[]:=array['private.coco_environment','private.coco_bootstrap_sources','private.coco_bootstrap_installation','private.automation_catalog','private.automation_rules','private.coco_history_modules','private.coco_history_tables','private.commercial_settings','private.company_localization_templates','private.contact_geocode_settings','private.erp_reference_counters','private.erp_reference_prefixes','private.erp_stock_cost_epoch','private.sales_workspace_settings','private.tms_dispatch_config','private.tms_pro_settings','private.tms_routing_throttle','private.website_public_connection','private.website_public_settings','private.website_settings','public.access_invitation_template','public.accounting_accounts','public.accounting_ec_profile','public.accounting_journals','public.accounting_taxes','public.app_modules','public.company_settings','public.crm_lost_reasons','public.crm_pipeline_stages','public.crm_scoring_rules','public.crm_sources','public.document_categories','public.erp_policies','public.erp_reference_formats','public.expense_categories','public.hr_ec_parameters','public.pm_templates','public.role_module_access','public.service_sla_rules','public.warehouse_locations','public.warehouses','public.profiles'];begin
+ if exists(select 1 from auth.users) or exists(select 1 from storage.objects)
+ or (select count(*) from private.coco_bootstrap_sources)<>357
+or not exists(select 1 from private.coco_bootstrap_installation where project_ref='vhutzdfatijjpahsqkne' and installation='6d1c1a9037e2f704399ef93b9db09ddcc0b7d019cde262310c9a309fb5727a1e') then raise exception 'BOOTSTRAP_IDENTITY_MISMATCH';end if;
+ for r in select schemaname,tablename from pg_tables where schemaname in ('public','private') loop
+  if r.schemaname||'.'||r.tablename=any(defaults) then continue;end if;
+  execute format('select exists(select 1 from %I.%I)',r.schemaname,r.tablename) into has_rows;
+  if has_rows then raise exception 'EMPTY_PRODUCTION_BUSINESS_REQUIRED: %.%',r.schemaname,r.tablename;end if;
+ end loop;
+end $$;
+-- Wrapper-only exact prior-stage receipts.
+do $stage$begin
+ if exists(select 1 from supabase_migrations.schema_migrations where name='coco_initialization_source358_part03')
+ or (select count(*) from supabase_migrations.schema_migrations where left(name,34)='coco_initialization_source358_part')<>2
+ or not exists(select 1 from supabase_migrations.schema_migrations where name='coco_initialization_source358_part01') or not exists(select 1 from supabase_migrations.schema_migrations where name='coco_initialization_source358_part02') then raise exception 'BOOTSTRAP_STAGE_RECEIPT_MISMATCH';end if;
+end $stage$;
+
+create function private.commerce_policy_templates() returns jsonb language sql immutable set search_path='' as $templates$ select '{"revision":"2026-10-29.2","templates":{"privacy":"Información de privacidad\n\nQué datos tratamos\nDatos de contacto, identificación y dirección de facturación cuando solicitas un pedido, productos, cantidades, historial comercial y decisiones de aprobación. También tratamos el contenido y el seguimiento de las solicitudes de privacidad, devoluciones, garantías y reclamaciones. La infraestructura trata datos técnicos de conexión para mantener el servicio y prevenir abusos. No introduzcas datos de tarjeta en los formularios.\n\nFinalidades y bases\nAtender tu solicitud y ejecutar las medidas precontractuales que pides; gestionar la relación contractual y cumplir las obligaciones de facturación, contabilidad y protección del consumidor. La seguridad se basa en el interés legítimo de proteger el servicio, sujeto a la evaluación correspondiente. Leer esta información no equivale a suscribirse a publicidad. No se activa marketing por comprar ni por tener una cuenta.\n\nDestinatarios\nPersonal autorizado de GAMA y proveedores necesarios de infraestructura, principalmente Cloudflare y Supabase. La base está alojada en Irlanda. El acceso de un proveedor por cuenta de GAMA debe estar cubierto por un contrato de encargo; otras comunicaciones internacionales requieren la garantía que corresponda. Un clic en WhatsApp abre un servicio externo con sus propias condiciones.\n\nConservación\nLos datos se conservan durante la atención de la solicitud y la relación contractual, y después por los plazos legales aplicables o la defensa de reclamaciones. Los comprobantes electrónicos se conservan durante siete años cuando corresponda conforme al SRI. La selección y los comprobantes sin cuenta de esta pestaña se eliminan al borrar su almacenamiento de sesión. GAMA debe aplicar un calendario de conservación a los demás registros.\n\nTus derechos\nPuedes solicitar acceso, rectificación, actualización, eliminación, oposición, portabilidad, suspensión y los demás derechos aplicables, y retirar un consentimiento opcional, mediante {{contact}}. La identidad se verifica de forma proporcional. GAMA debe responder dentro del plazo legal aplicable; la eliminación puede estar limitada por obligaciones legales de conservación. Puedes reclamar ante la Superintendencia de Protección de Datos Personales: https://www.spdp.gob.ec/.\n\nCampos obligatorios\nLos datos marcados con * son necesarios para atender la solicitud o preparar la facturación. Sin ellos no se puede completar el trámite. Las opiniones son opcionales: su texto, valoración y fecha se publican como Compra verificada. No se toman decisiones de aprobación de compras mediante perfiles automatizados: las valida una persona autorizada.","terms":"Condiciones de solicitudes y pedidos\n\nPrecios y revisión\nLos precios públicos incluyen el IVA del producto. Las cuentas de empresa ven su precio negociado sin IVA; la revisión de la selección muestra los impuestos y el total de productos. Todas las cantidades, precios y permisos se comprueban de nuevo al enviar.\n\nConfirmación\nEnviar una solicitud de cotización o un pedido sin cuenta no confirma una compra, no reserva existencias y no produce un cargo. GAMA debe confirmar por escrito disponibilidad, precio final, costo y plazo de entrega y medio de pago antes de aceptar el pedido. El envío no se presume gratuito ni incluido. Puedes corregir la selección antes de enviarla.\n\nCompras de empresa\nLos solicitantes sujetos a aprobación no pueden aceptar directamente una compra. Las modificaciones de artículos o cantidades reinician las validaciones. Copiar un pedido prepara una nueva selección a precios actuales; no repite un pago.\n\nPago y facturación\nEl pago en línea no está habilitado hasta disponer de un prestador y cuenta comercial configurados. No guardamos datos de tarjeta en este sitio. La referencia del pedido y los presupuestos son documentos comerciales; la factura fiscal debe emitirse y autorizarse mediante el proceso tributario aplicable.\n\nEstas condiciones no limitan los derechos legales del consumidor.","delivery":"Entregas, devoluciones y garantías\n\nGAMA confirma por escrito la dirección, cobertura, disponibilidad, costo, plazo de entrega y consecuencias de un retraso antes de la aceptación definitiva. Una fecha solicitada no es una promesa de entrega.\n\nEl artículo 45 de la Ley Orgánica de Defensa del Consumidor reconoce el derecho de devolución en el término de quince días posteriores a la recepción, siempre que la naturaleza del bien lo permita y conserve el estado en que fue recibido. No se aplica la antigua indicación de tres días.\n\nContacta con {{contact}} indicando la referencia y los productos para ejercer este derecho o solicitar atención por un defecto. Las garantías legales y los remedios por productos defectuosos se mantienen, sin perjuicio de la garantía comercial aplicable. No se exige una renuncia a derechos legales por tratarse de una compra desde una cuenta de empresa.\n\nLas condiciones particulares de transporte, devolución y garantía se comunicarán antes de confirmar la compra.","storage":"Cookies y almacenamiento\n\nLa selección, la sesión de empresa y los comprobantes de pedidos sin cuenta se guardan en el almacenamiento de sesión de esta pestaña. Las preferencias de cookies se conservan localmente hasta que las elimines. Los comprobantes no contienen datos de facturación en el almacenamiento del navegador. No se guardan los datos de facturación en el navegador.\n\nCloudflare Turnstile procesa señales técnicas para prevenir envíos automatizados. Es una función de seguridad y no una autorización para publicidad.\n\nNo se activan cookies publicitarias, píxeles ni analítica de comportamiento. Si se incorporan finalidades opcionales, deberán permanecer bloqueadas hasta obtener un consentimiento válido y permitir su retirada. Usa Preferencias de cookies en el pie de página. Borrar el almacenamiento o cerrar sesión puede eliminar la selección o el acceso a comprobantes de esta pestaña.","notice":"Este sitio es operado por la entidad indicada arriba. Las solicitudes de cotización y de pedido no confirman una compra ni reservan existencias. El pedido definitivo requiere acordar disponibilidad, precio, IVA, entrega y pago."}}'::jsonb $templates$;
+-- Wrapper-only interim ACL confinement. Canonical final privileges are restored at source completion.
+revoke all on function private.commerce_policy_templates() from public,anon,authenticated;
+
+revoke all on function private.commerce_policy_templates() from public,anon,authenticated;
+
+create function private.commerce_config_defaults(p_config jsonb) returns jsonb language sql immutable set search_path='' as $$
+ select coalesce(jsonb_object_agg(f->>'key',f->'default'),'{}')||p_config
+ from jsonb_array_elements(private.gama_storefront_schema()->'groups')g cross join lateral jsonb_array_elements(g->'fields')f
+$$;
+-- Wrapper-only interim ACL confinement. Canonical final privileges are restored at source completion.
+revoke all on function private.commerce_config_defaults(jsonb) from public,anon,authenticated;
+
+revoke all on function private.commerce_config_defaults(jsonb) from public,anon,authenticated;
+create function private.commerce_policy_bundle() returns jsonb language plpgsql stable security definer set search_path='' as $$
+declare cfg jsonb;docs jsonb:='{}';titles jsonb:='{}';t jsonb:=private.commerce_policy_templates();k text;body text;identity text;contact text;f record;
+begin
+ select private.commerce_config_defaults(config) into cfg from private.website_public_settings where id;
+ identity:=concat_ws(E'\n',coalesce(nullif(cfg->>'legal_name',''),cfg->>'brand_name'),case when cfg->>'legal_tax_id' ~ '^[0-9]{13}$' then 'RUC: '||(cfg->>'legal_tax_id') end,
+ nullif(cfg->>'legal_address',''),nullif(cfg->>'phone',''),nullif(cfg->>'email',''),nullif(cfg->>'privacy_email',''));
+ contact:=coalesce(nullif(cfg->>'privacy_email',''),nullif(cfg->>'email',''),nullif(cfg->>'phone',''),'los canales de contacto publicados');
+ for k,body in select key,value from jsonb_each_text(t->'templates') loop
+  body:=case when k='storage' then '' else identity||E'\n\n' end||replace(body,'{{contact}}',contact);
+  for f in select * from (values
+   ('notice','legal_representative','Representante legal'),('delivery','returns_address','Dirección de devoluciones'),
+   ('delivery','delivery_areas','Cobertura'),('delivery','delivery_timeframes','Plazos'),('delivery','delivery_costs','Costos del envío'),
+   ('delivery','refund_terms','Reembolsos'),('delivery','warranty_terms','Garantías comerciales'),
+   ('privacy','privacy_retention','Calendario de conservación'),('privacy','privacy_recipients','Prestadores y flujos de datos'),
+   ('privacy','privacy_rights_process','Atención de derechos'))v(kind,field,label) where kind=k loop
+   if coalesce(cfg->>f.field,'')<>'' then body:=body||E'\n\n'||f.label||E'\n'||(cfg->>f.field);end if;
+  end loop;
+  if coalesce(cfg->>(k||'_text'),'')<>'' then body:=body||E'\n\nInformación complementaria de GAMA\n'||(cfg->>(k||'_text'));end if;
+  docs:=docs||jsonb_build_object(k,body);titles:=titles||jsonb_build_object(k,cfg->>(k||'_title'));
+ end loop;
+ return jsonb_build_object('version',(t->>'revision')||'-'||md5(docs::text||titles::text),'documents',docs,'titles',titles);
+end $$;
+-- Wrapper-only interim ACL confinement. Canonical final privileges are restored at source completion.
+revoke all on function private.commerce_policy_bundle() from public,anon,authenticated;
+
+revoke all on function private.commerce_policy_bundle() from public,anon,authenticated;
+create table private.commerce_policy_versions(
+ version text primary key, documents jsonb not null,titles jsonb not null, created_at timestamptz not null default now(),created_by uuid references public.profiles
+);
+-- Wrapper-only interim relation confinement.
+alter table private.commerce_policy_versions enable row level security;
+revoke all on table private.commerce_policy_versions from public,anon,authenticated;
+
+
+-- Public settings are editable in Coco; new optional fields are composed at read time.
+-- Existing configuration rows are not rewritten by this schema migration.
+alter function private.gama_website(text,jsonb) rename to gama_website_before_compliance;
+revoke all on function private.gama_website_before_compliance(text,jsonb) from public,anon,authenticated,service_role;
+-- Wrapper-only interim ACL confinement. Canonical final privileges are restored at source completion.
+revoke all on function private.commerce_policy_templates() from public,anon,authenticated;
+
+-- Wrapper-only interim ACL confinement. Canonical final privileges are restored at source completion.
+revoke all on function private.commerce_config_defaults(jsonb) from public,anon,authenticated;
+
+-- Wrapper-only interim ACL confinement. Canonical final privileges are restored at source completion.
+revoke all on function private.commerce_policy_bundle() from public,anon,authenticated;
+
+-- Wrapper-only interim relation confinement.
+alter table private.commerce_policy_versions enable row level security;
+revoke all on table private.commerce_policy_versions from public,anon,authenticated;

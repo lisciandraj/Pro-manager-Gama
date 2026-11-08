@@ -1,0 +1,342 @@
+{
+  "project_ref": "vhutzdfatijjpahsqkne",
+  "installation": "6d1c1a9037e2f704399ef93b9db09ddcc0b7d019cde262310c9a309fb5727a1e",
+  "source_number": 359,
+  "source_file": "20261030191545_tms_road_optimization.sql",
+  "canonical_sha256": "1196aaed0901133021d0ddb798f59e3653684a590e9383cb9bce2504b84404a4",
+  "derived_sha256": "1196aaed0901133021d0ddb798f59e3653684a590e9383cb9bce2504b84404a4",
+  "canonical_payload_order_preserved": true,
+  "source_count_before": 358,
+  "source_count_after": 359,
+  "verified_final_schema_security_acl_equal": true,
+  "verified_business_empty": true,
+  "verified_intermediate_no_new_public_anon_definers": true,
+  "canonical_transaction_controls_preserved": false,
+  "wrapper_finalization_before_canonical_commit": false,
+  "fragments": [
+    {
+      "number": 1,
+      "migration_name": "coco_initialization_source359_part01",
+      "file": "part01.sql",
+      "bytes": 14329,
+      "sha256": "0b1a21929f008046c172880bdc6316e8d36c96ba4ff74a4b5c6aebbc0a0d7f9f",
+      "payload_sha256": "6abe02957c07ca068948f285d050de53981db1789d030d8d0ae29d8947946a32",
+      "payload_bytes": 8976,
+      "statement_start": 0,
+      "statement_end": 12,
+      "canonical_registration_included": false,
+      "wrapper_addons_sha256": "88a6e568894ec95c26ff0da1a80737a63cc6986f80eeb459f96d246637490f4c"
+    },
+    {
+      "number": 2,
+      "migration_name": "coco_initialization_source359_part02",
+      "file": "part02.sql",
+      "bytes": 15086,
+      "sha256": "3177078558f65d129fd5dfa799e26c1410a8a06adb4094576d4475e9dfb15c3b",
+      "payload_sha256": "be56cd5a4d99eaa79b76a9eb77416dd1dfb3dc9ea6b292251ddfc06927f91da7",
+      "payload_bytes": 10264,
+      "statement_start": 13,
+      "statement_end": 15,
+      "canonical_registration_included": false,
+      "wrapper_addons_sha256": "c22d7a2bc5f0dfb195acf06ec30b27541647a4cf7a6a089dd81749ae747c26b5"
+    },
+    {
+      "number": 3,
+      "migration_name": "coco_initialization_source359_part03",
+      "file": "part03.sql",
+      "bytes": 10518,
+      "sha256": "aca8a0d5c56a05e483be30d4499ff8aee14a16ac409c07f2163e388a2d9a0e00",
+      "payload_sha256": "64f143cf57553cad76871ae6a258618c4e2f2a99b2c5b8c9a5030f09db6cd1e9",
+      "payload_bytes": 4579,
+      "statement_start": 16,
+      "statement_end": 29,
+      "canonical_registration_included": true,
+      "wrapper_addons_sha256": "ba7e050df898d2ae5498bdf8376b4887c39a9245a3fbe26810b28f41d7d08296"
+    }
+  ],
+  "new_objects": {
+    "functions": [
+      {
+        "signature": "private.gama_tms_routing(text, jsonb)",
+        "definer": true,
+        "acl": [
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "EXECUTE"
+          },
+          {
+            "role": "authenticated",
+            "grantable": false,
+            "privilege": "EXECUTE"
+          }
+        ]
+      },
+      {
+        "signature": "private.tms_routing_begin(date)",
+        "definer": true,
+        "acl": [
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "EXECUTE"
+          }
+        ]
+      },
+      {
+        "signature": "private.tms_routing_commit(jsonb)",
+        "definer": true,
+        "acl": [
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "EXECUTE"
+          },
+          {
+            "role": "service_role",
+            "grantable": false,
+            "privilege": "EXECUTE"
+          }
+        ]
+      },
+      {
+        "signature": "private.tms_routing_covers(jsonb, jsonb)",
+        "definer": false,
+        "acl": [
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "EXECUTE"
+          }
+        ]
+      },
+      {
+        "signature": "private.tms_routing_evaluate(integer[], jsonb, integer[], double precision[], integer, integer, integer, integer, integer)",
+        "definer": false,
+        "acl": [
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "EXECUTE"
+          }
+        ]
+      },
+      {
+        "signature": "private.tms_routing_improve(uuid[], date, uuid)",
+        "definer": true,
+        "acl": [
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "EXECUTE"
+          }
+        ]
+      },
+      {
+        "signature": "private.tms_routing_points(date)",
+        "definer": true,
+        "acl": [
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "EXECUTE"
+          }
+        ]
+      },
+      {
+        "signature": "public.gama_tms_routing(text, jsonb)",
+        "definer": false,
+        "acl": [
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "EXECUTE"
+          },
+          {
+            "role": "authenticated",
+            "grantable": false,
+            "privilege": "EXECUTE"
+          }
+        ]
+      },
+      {
+        "signature": "public.gama_tms_routing_commit(jsonb)",
+        "definer": false,
+        "acl": [
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "EXECUTE"
+          },
+          {
+            "role": "service_role",
+            "grantable": false,
+            "privilege": "EXECUTE"
+          }
+        ]
+      }
+    ],
+    "classes": [
+      {
+        "signature": "private.tms_routing_matrices",
+        "kind": "r",
+        "rls": true,
+        "force_rls": false,
+        "acl": [
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "DELETE"
+          },
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "INSERT"
+          },
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "MAINTAIN"
+          },
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "REFERENCES"
+          },
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "SELECT"
+          },
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "TRIGGER"
+          },
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "TRUNCATE"
+          },
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "UPDATE"
+          }
+        ]
+      },
+      {
+        "signature": "private.tms_routing_pairs",
+        "kind": "r",
+        "rls": true,
+        "force_rls": false,
+        "acl": [
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "DELETE"
+          },
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "INSERT"
+          },
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "MAINTAIN"
+          },
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "REFERENCES"
+          },
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "SELECT"
+          },
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "TRIGGER"
+          },
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "TRUNCATE"
+          },
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "UPDATE"
+          }
+        ]
+      },
+      {
+        "signature": "private.tms_routing_throttle",
+        "kind": "r",
+        "rls": true,
+        "force_rls": false,
+        "acl": [
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "DELETE"
+          },
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "INSERT"
+          },
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "MAINTAIN"
+          },
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "REFERENCES"
+          },
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "SELECT"
+          },
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "TRIGGER"
+          },
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "TRUNCATE"
+          },
+          {
+            "role": "postgres",
+            "grantable": false,
+            "privilege": "UPDATE"
+          }
+        ]
+      }
+    ]
+  },
+  "wrapper_additions": {
+    "immediate_confinement": {
+      "0": "\n-- Wrapper-only interim relation confinement.\nalter table private.tms_routing_matrices enable row level security;\nrevoke all on table private.tms_routing_matrices from public,anon,authenticated;\n",
+      "2": "\n-- Wrapper-only interim relation confinement.\nalter table private.tms_routing_pairs enable row level security;\nrevoke all on table private.tms_routing_pairs from public,anon,authenticated;\n",
+      "3": "\n-- Wrapper-only interim relation confinement.\nalter table private.tms_routing_throttle enable row level security;\nrevoke all on table private.tms_routing_throttle from public,anon,authenticated;\n",
+      "6": "\n-- Wrapper-only interim ACL confinement. Canonical final privileges are restored at source completion.\nrevoke all on function private.tms_routing_points(date) from public,anon,authenticated;\n",
+      "7": "\n-- Wrapper-only interim ACL confinement. Canonical final privileges are restored at source completion.\nrevoke all on function private.tms_routing_covers(jsonb, jsonb) from public,anon,authenticated;\n",
+      "8": "\n-- Wrapper-only interim ACL confinement. Canonical final privileges are restored at source completion.\nrevoke all on function private.tms_routing_begin(date) from public,anon,authenticated;\n",
+      "12": "\n-- Wrapper-only interim ACL confinement. Canonical final privileges are restored at source completion.\nrevoke all on function private.tms_routing_evaluate(integer[], jsonb, integer[], double precision[], integer, integer, integer, integer, integer) from public,anon,authenticated;\n",
+      "13": "\n-- Wrapper-only interim ACL confinement. Canonical final privileges are restored at source completion.\nrevoke all on function private.tms_routing_improve(uuid[], date, uuid) from public,anon,authenticated;\n",
+      "15": "\n-- Wrapper-only interim ACL confinement. Canonical final privileges are restored at source completion.\nrevoke all on function private.gama_tms_routing(text, jsonb) from public,anon,authenticated;\n",
+      "16": "\n-- Wrapper-only interim ACL confinement. Canonical final privileges are restored at source completion.\nrevoke all on function public.gama_tms_routing(text, jsonb) from public,anon,authenticated;\n",
+      "19": "\n-- Wrapper-only interim ACL confinement. Canonical final privileges are restored at source completion.\nrevoke all on function private.tms_routing_commit(jsonb) from public,anon,authenticated;\n",
+      "20": "\n-- Wrapper-only interim ACL confinement. Canonical final privileges are restored at source completion.\nrevoke all on function public.gama_tms_routing_commit(jsonb) from public,anon,authenticated;\n"
+    }
+  }
+}

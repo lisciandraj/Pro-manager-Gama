@@ -1,0 +1,31 @@
+{
+  "passed": true,
+  "project_ref": "vhutzdfatijjpahsqkne",
+  "source_count": 362,
+  "source_fingerprint": "6d1c1a9037e2f704399ef93b9db09ddcc0b7d019cde262310c9a309fb5727a1e",
+  "derived_fingerprint": "c5b9564c47f1ebfc3e1831c880bf36d51d98cd4e562ceaf55cf94e3d79176043",
+  "verified_sources": [
+    349,
+    350,
+    351,
+    352,
+    353,
+    354,
+    355,
+    356,
+    357,
+    358,
+    359,
+    360,
+    361,
+    362
+  ],
+  "final_schema_security_acl_equal_for_every_source": true,
+  "no_intermediate_unintended_public_anon_definers": true,
+  "business_empty_after_every_source": true,
+  "canonical_transaction_boundaries_preserved": [
+    357,
+    358
+  ],
+  "remote_sql_executed": false
+}

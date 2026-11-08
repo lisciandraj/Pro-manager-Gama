@@ -1,13 +1,15 @@
 name: Build and publish Coco ERP
 on:
   push:
-    branches: [main]
+    branches: [main, development]
   pull_request:
   workflow_dispatch:
 permissions:
   contents: read
 concurrency:
-  group: coco-pages-${{ github.ref }}
+  # A single Pages artifact contains both snapshots. Serialize publications
+  # across branches and manual promotions so an older build cannot win.
+  group: ${{ github.event_name == 'pull_request' && github.ref || 'coco-pages-publication' }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 jobs:
   business-modules:
@@ -54,7 +56,7 @@ jobs:
       - name: Verify square home tiles in Chromium and WebKit before publication
         run: npx playwright test --config=playwright.responsive.config.js tests/responsive-layout.spec.js --grep "home tiles stay square" --workers=2
       - name: Verify top bar subsection menus and existing window flows
-        run: npx playwright test tests/settings-window.spec.js tests/notifications-window.spec.js tests/architect-shell.spec.js tests/i18n.spec.js tests/operations.spec.js tests/excel-import.spec.js tests/invitation-email.spec.js tests/responsive-forms.spec.js tests/tab-labels.spec.js tests/users-screen.spec.js tests/photo-import.spec.js tests/egress-photos.spec.js tests/product-identity.spec.js --workers=2
+        run: npx playwright test tests/environment-menu.spec.js tests/settings-window.spec.js tests/notifications-window.spec.js tests/architect-shell.spec.js tests/i18n.spec.js tests/operations.spec.js tests/excel-import.spec.js tests/invitation-email.spec.js tests/responsive-forms.spec.js tests/tab-labels.spec.js tests/users-screen.spec.js tests/photo-import.spec.js tests/egress-photos.spec.js tests/product-identity.spec.js --workers=2
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -105,18 +107,64 @@ jobs:
         run: node scripts/check-agent-live.mjs
       - name: Stamp the exact source revision
         run: node -e "require('node:fs').writeFileSync('dist/coco-build.json',JSON.stringify({commit:process.env.GITHUB_SHA,run:process.env.GITHUB_RUN_ID,built_at:new Date().toISOString()}))"
-      - uses: actions/upload-pages-artifact@v4
+      - uses: actions/upload-artifact@v4
         with:
+          name: coco-development-build
           path: dist
+          include-hidden-files: true
+          retention-days: 14
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: coco-publish-interface-results
           path: test-results/
           retention-days: 3
-  deploy:
-    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+  package:
+    if: github.event_name != 'pull_request' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/development')
     needs: [build, topbar-menus, business-modules]
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/download-artifact@v4
+        with:
+          name: coco-development-build
+          path: .build/development-dist
+      - name: Read the last explicitly approved production snapshot
+        uses: actions/checkout@v4
+        with:
+          ref: production
+          path: .build/production-source
+          persist-credentials: false
+      - name: Require both Supabase environments ready before publication
+        run: node scripts/check-environment-readiness.mjs config/erp-environments.json .build/production-source/config/erp-environments.json
+      - name: Build the frozen production source with its own lockfile
+        working-directory: .build/production-source
+        run: npm ci && npm run build
+        env:
+          # The outer workflow SHA identifies development, not production.
+          GITHUB_SHA: ''
+      - name: Assemble isolated environments without copying database records
+        env:
+          DEVELOPMENT_SHA: ${{ github.sha }}
+        run: |
+          PRODUCTION_SHA=$(git -C .build/production-source rev-parse HEAD)
+          node .build/production-source/scripts/package-environments.cjs .build/production-source/dist .build/production-source/dist .build/approved-production .build/production-source/config/erp-environments.json .build/production-source/config/erp-environments.json "$PRODUCTION_SHA" "$PRODUCTION_SHA"
+          node scripts/package-environments.cjs .build/development-dist .build/approved-production/production .build/pages config/erp-environments.json .build/production-source/config/erp-environments.json "$DEVELOPMENT_SHA" "$PRODUCTION_SHA" --production-prepared
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: .build/pages
+  deploy:
+    if: github.event_name != 'pull_request' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/development')
+    needs: [package]
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
@@ -138,7 +186,7 @@ jobs:
           JS
       - id: deployment
         uses: actions/deploy-pages@v4
-      - name: Verify the revision and sales assets served by Pages
+      - name: Verify both independently versioned environments served by Pages
         env:
           COCO_PAGES_URL: ${{ steps.deployment.outputs.page_url }}
         run: |
@@ -157,18 +205,24 @@ jobs:
             try{
               const marker=JSON.parse(await read('coco-build.json?verification='+process.env.GITHUB_RUN_ID+'-'+attempt));
               if(marker.commit!==process.env.GITHUB_SHA)throw Error('Served revision '+marker.commit+' differs from '+process.env.GITHUB_SHA);
-              const html=await read('./?verification='+process.env.GITHUB_RUN_ID);
+              for(const environment of ['production','development']){
+                const release=JSON.parse(await read(environment+'/coco-build.json?verification='+process.env.GITHUB_RUN_ID+'-'+attempt));
+                if(release.environment!==environment||release.commit!==marker.environments?.[environment])throw Error('Wrong '+environment+' snapshot');
+                const bootstrap=await read(environment+'/coco-environment-config.js?verification='+process.env.GITHUB_RUN_ID);
+                if(!bootstrap.includes('"environment":"'+environment+'"')||!bootstrap.includes(release.commit))throw Error('Wrong '+environment+' configuration');
+              }
+              const html=await read('development/?verification='+process.env.GITHUB_RUN_ID);
               const assetFile=html.match(/src=["']([^"']*architect-assets\.js[^"']*)["']/)?.[1];
               if(!assetFile)throw Error('Asset manifest missing from served page');
-              const assets=await read(assetFile);
+              const assets=await read('development/'+assetFile);
               for(const file of ['coco-sales-catalog.js','coco-sales-catalog.css','coco-sales-commitments.js']){
                 const key=file.replaceAll('.','\\.');
                 const versioned=assets.match(new RegExp('["\\x27]'+key+'["\\x27]\\s*:\\s*["\\x27]([^"\\x27]+)["\\x27]'))?.[1];
                 if(!versioned)throw Error(file+' missing from served asset manifest');
-                const body=await read(versioned);
+                const body=await read('development/'+versioned);
                 if(!body.includes(file==='coco-sales-commitments.js'?'CocoSalesCommitments':file.endsWith('.js')?'CocoSalesCatalog':'cocoQuoteCatalog'))throw Error('Unexpected served catalog asset');
               }
-              console.log('Verified Pages commit '+marker.commit+' at '+base.href+'; catalog and distribution planning assets served successfully.');
+              console.log('Verified development '+marker.environments.development+' and approved production '+marker.environments.production+' at '+base.href);
               process.exit(0);
             }catch(error){last=error;console.log('Publication verification attempt '+(attempt+1)+': '+error.message);}
             if(attempt<11)await delay(10000);

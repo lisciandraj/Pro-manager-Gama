@@ -1,0 +1,10 @@
+{
+  "development": {
+    "supabaseUrl": "https://mknsaibrewksgomuslev.supabase.co",
+    "publishableKey": "sb_publishable_4l0vZw61u5EbLkzmrqrf6Q_phOL1Be9"
+  },
+  "production": {
+    "supabaseUrl": "https://vhutzdfatijjpahsqkne.supabase.co",
+    "publishableKey": "sb_publishable_XHX5yOj-kShrS9Rtk7DOGw_fNB1_jlG"
+  }
+}

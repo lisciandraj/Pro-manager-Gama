@@ -1,0 +1,13 @@
+{
+  "version": "20261021190510",
+  "name": "history_actor_portraits",
+  "project": "mknsaibrewksgomuslev",
+  "source": "supabase_migrations.schema_migrations.statements[1]",
+  "verified_on": "2026-11-07",
+  "statement_count": 1,
+  "encoding": "UTF-8",
+  "bytes": 1642,
+  "sha256": "2ac6d498ac2a749f5a67df8c2008ea62ceea573b8e19f32989c582a82b7069fa",
+  "file": "20261021190510_history_actor_portraits.sql",
+  "purpose": "Recovered exact schema-only source from the existing migration ledger for reproducible empty production parity. Preserve these bytes; already applied on the original project. No portrait data or business rows were exported."
+}

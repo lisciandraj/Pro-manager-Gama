@@ -1,0 +1,138 @@
+{
+  "project_id": "vhutzdfatijjpahsqkne",
+  "deployed_at": "2026-11-07",
+  "source": "supabase/functions",
+  "functions": [
+    {
+      "name": "coco-order-mail",
+      "version": 1,
+      "status": "ACTIVE",
+      "verify_jwt": false,
+      "source_bundle_sha256": "57e28e79c6d3c5c29d6c41e06ab355d6e7a28848a4fbe70d6ad505608fbc1b2e"
+    },
+    {
+      "name": "gama-sri-facturacion",
+      "version": 1,
+      "status": "ACTIVE",
+      "verify_jwt": true,
+      "source_bundle_sha256": "f63fdd0bbba4fec5aabb2115c4023a8a0bbf3617af70b4ed0666c61224c974a7"
+    },
+    {
+      "name": "gama-sri-facturacion-v2",
+      "version": 1,
+      "status": "ACTIVE",
+      "verify_jwt": true,
+      "source_bundle_sha256": "8f51cda3031b5adfea53eca77755ef5f660f2387161d4a7991b74abc15ed3917"
+    },
+    {
+      "name": "gama-admin-users",
+      "version": 1,
+      "status": "ACTIVE",
+      "verify_jwt": true,
+      "source_bundle_sha256": "33ae5a37067beaa76aa3dfbfcde72ff4c93dc7e4b7425e569b4cd5ec64aa59b1"
+    },
+    {
+      "name": "architect-user-admin",
+      "version": 1,
+      "status": "ACTIVE",
+      "verify_jwt": true,
+      "source_bundle_sha256": "a89c08f3c960dec0ef873bf8bedc6dd2ecf03516c31b5351fa20a2230939a2d5"
+    },
+    {
+      "name": "coco-workhub-documents",
+      "version": 1,
+      "status": "ACTIVE",
+      "verify_jwt": true,
+      "source_bundle_sha256": "ac008feaed86109f17cbf1834d8bf31a617d9a007c4e9abbaf69e0c21959b8f6"
+    },
+    {
+      "name": "tms-proof-files",
+      "version": 1,
+      "status": "ACTIVE",
+      "verify_jwt": true,
+      "source_bundle_sha256": "6e9ca1a501fdf0247b7ce3be7cdb381585aadbd449f2c8525ad5fb300ce51c56"
+    },
+    {
+      "name": "coco-supplier-ocr",
+      "version": 1,
+      "status": "ACTIVE",
+      "verify_jwt": true,
+      "source_bundle_sha256": "0f2109628e205ad11b355c8856aeef1b600c436d7475f833522a793dee60d796"
+    },
+    {
+      "name": "coco-agent-mcp",
+      "version": 1,
+      "status": "ACTIVE",
+      "verify_jwt": false,
+      "source_bundle_sha256": "c52321765ef2908e7fdfec320e496b63742063ea5aa9d7daf42266945e336c08"
+    },
+    {
+      "name": "tms-routing",
+      "version": 1,
+      "status": "ACTIVE",
+      "verify_jwt": true,
+      "source_bundle_sha256": "c617e711c0b032e903e66e50a23f788c8f58f674a86530db5fb62cd367f20dd2"
+    },
+    {
+      "name": "gama-sri",
+      "version": 1,
+      "status": "ACTIVE",
+      "verify_jwt": true,
+      "source_bundle_sha256": "c2db6dc1fee1bd2db54fc7f7a406f69a65d43ddb8706ecd3c0bd027353facb04"
+    },
+    {
+      "name": "gama-assistant-ia",
+      "version": 1,
+      "status": "ACTIVE",
+      "verify_jwt": true,
+      "source_bundle_sha256": "03a12324b1acfb7cd6ca809396d7cfa5c247e4ed5890665e56f6d35b85e81a17"
+    },
+    {
+      "name": "gama-sri-received",
+      "version": 1,
+      "status": "ACTIVE",
+      "verify_jwt": true,
+      "source_bundle_sha256": "06d0e8dc24bdd2558edff18b6c59c9d8570b97ab761511f054116fe1638a5da6"
+    }
+  ],
+  "verification": {
+    "anonymous_without_auth": {
+      "protected_functions": 401,
+      "retired_mailbox": 410
+    },
+    "preflight_statuses": [
+      200,
+      204
+    ],
+    "runtime_smoke": "POST {} with the project's public legacy anon key: handlers respond with authentication/validation denials or retired notices; no user account, document, email or provider credentials supplied.",
+    "authenticated_business_flows": "Not run: the new production is empty and has no operational accounts or integration credentials.",
+    "local_tests": "9 Edge handler test suites passed."
+  },
+  "external_configuration_required": {
+    "gama-assistant-ia": [
+      "OPENAI_API_KEY or new encrypted AI settings",
+      "OPENAI_MODEL (optional)",
+      "GAMA_AI_ENCRYPTION_KEY (optional; project service key fallback)"
+    ],
+    "coco-supplier-ocr": [
+      "OPENAI_API_KEY or new encrypted AI settings",
+      "OPENAI_MODEL (optional)"
+    ],
+    "gama-sri": [
+      "SRI_WORKER_URL",
+      "SRI_WORKER_SECRET",
+      "SRI_PROVIDER (optional; defaults private_worker)",
+      "SRI_EMISSION_ENABLED=true only after separate fiscal authorization"
+    ],
+    "gama-sri-received": [
+      "SRI_WORKER_URL",
+      "SRI_WORKER_SECRET"
+    ],
+    "tms-routing": [
+      "TMS_OSRM_URL (private provider)",
+      "TMS_OSRM_TOKEN (optional)",
+      "TMS_ROAD_DATA_VERSION (optional)"
+    ]
+  },
+  "secrets_copied_from_development": false
+}

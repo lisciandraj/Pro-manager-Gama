@@ -22,6 +22,31 @@ function favorites(){try{const ids=JSON.parse(localStorage.getItem(favoriteKey()
 function applyFavorites(){const ids=favorites();document.querySelectorAll('[data-coco-favorite]').forEach(b=>{const selected=ids.has(b.dataset.cocoFavorite);b.setAttribute('aria-pressed',String(selected));b.setAttribute('aria-label',T(selected?'Quitar de favoritos':'Añadir a favoritos'));b.title=b.getAttribute('aria-label')});window.dispatchEvent(new CustomEvent('coco:favorites-change'))}
 function toggleFavorite(id){const ids=favorites();ids.has(id)?ids.delete(id):ids.add(id);try{localStorage.setItem(favoriteKey(),JSON.stringify([...ids]))}catch(_){}applyFavorites()}
 function applyPreferences(){const hidden=hiddenModules();document.querySelectorAll('#mainmenu .gamaF2Card').forEach(c=>c.classList.toggle('arcPreferenceHidden',hidden.has(c.dataset.gamaModule)))}
+/* These links reload an independent release and data connection. Module
+   preferences remain separate from the verified environment permissions. */
+function renderEnvironments(){
+ const head=document.querySelector('#mainmenu .gamaF2Head');if(!head)return;
+ head.querySelector('.cocoEnvironmentSwitch')?.remove();
+ const env=window.CocoEnvironment;
+ if(!env||!['production','development'].includes(env.name)||typeof env.url!=='function')return;
+ const nav=document.createElement('nav');nav.className='cocoEnvironmentSwitch arcToolbar';nav.dataset.giIgnore='';nav.setAttribute('aria-label',T('Entornos de trabajo'));
+ const links=document.createElement('div');links.className='cocoEnvironmentLinks arcToolbar';
+ for(const name of ['production','development']){
+  if(name==='development'&&!env.canDevelop?.())continue;
+  let href;try{href=env.url(name)}catch(_){continue}if(!href)continue;
+  const a=document.createElement('a');a.className='cocoEnvironmentLink arcButton ghost';a.href=href;a.dataset.cocoEnvironment=name;
+  a.textContent=T(name==='production'?'Producción':'Desarrollo');
+  if(name===env.name)a.setAttribute('aria-current','page');
+  links.append(a);
+ }
+ if(!links.childElementCount)return;
+ nav.append(links);
+ if(/^[a-f0-9]{40}$/.test(env.version||'')){
+  const version=document.createElement('span');version.className='cocoEnvironmentVersion muted';version.textContent=T('Versión:')+' '+env.version.slice(0,8);version.title=env.version;
+  nav.append(version);
+ }
+ head.prepend(nav);
+}
 function personalize(){
  const old=document.getElementById('arcCustomize');if(old)old.remove();
  const d=document.createElement('dialog');d.id='arcCustomize';d.className='arcCustomize';d.setAttribute('aria-labelledby','arcCustomizeTitle');
@@ -79,12 +104,14 @@ function render(){
  grid.appendChild(vacio);
 
  host.append(cabecera,grid);
+ renderEnvironments();
  acciones.querySelector('button').onclick=personalize;
  window.ArchitectHomeOrder?.mount(grid);applyPreferences();applyFavorites();window.GamaI18n?.scan?.(host);
 }
 
-window.addEventListener('gama:language-change',()=>{const b=document.querySelector('#arcCustomizeOpen span');if(b)b.textContent=T('Personalizar');applyFavorites()});
-window.addEventListener('gama:auth-change',e=>{if(e.detail?.event!=='TOKEN_REFRESHED')applyFavorites()});
+window.addEventListener('gama:language-change',()=>{const b=document.querySelector('#arcCustomizeOpen span');if(b)b.textContent=T('Personalizar');applyFavorites();renderEnvironments()});
+window.addEventListener('gama:auth-change',e=>{if(e.detail?.event!=='TOKEN_REFRESHED')applyFavorites();renderEnvironments()});
+for(const event of ['gama:profile-ready','coco:environment-ready','coco:environment-access-change'])window.addEventListener(event,renderEnvironments);
 window.addEventListener('storage',e=>{if(e.key===null||e.key===favoriteKey())applyFavorites()});
 
 /* Aquí vivía removeRedundantMainMenuBack(): un MutationObserver sobre todo el

@@ -13,6 +13,14 @@ Read README.md and docs/architecture.md before structural changes.
 
 - The owner asks to always push maintenance commits after the relevant tests pass (20 October 2026). Push the tested task branch to `lisciandraj/Pro-manager-Gama` without asking again for that routine step; retain the existing CI gates before production publication.
 
+## Environment and release policy
+
+- The current database (`mknsaibrewksgomuslev`) belongs to **development**; keep its records there. The independent production project is `vhutzdfatijjpahsqkne`.
+- Make future application and schema changes in development only, on the `development` branch or a task branch targeting it. Never treat a request to fix or improve Coco as authorization to update production.
+- Production code is frozen at the `production` ref. Transfer only the exact tested commit after the owner's explicit production authorization; use the manual approval workflow and retain its version tag. Database changes and external integration configuration require their own reviewed release; never copy development business records into production.
+- Development access requires an active administrator profile verified by the server. Hidden navigation, localStorage roles and URL parameters are not authorization.
+- See `docs/development/environments.md` for setup, current rollout state and independent releases. Do not announce these environments live until Pages and server identity are verified.
+
 ## AI database writes
 
 - Every AI business mutation must be attributed to Agent Coco in module history. Prefer the existing authenticated agent gateway, which sets provenance during execution and retains approval checks.

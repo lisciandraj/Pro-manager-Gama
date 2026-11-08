@@ -150,15 +150,21 @@
     "notes": "Canonical build, source/type/documentation/migration checks, generated reproducibility and original startup budgets pass. Frozen invoice currency is verified independently from the current company currency.",
     "sales_quote_regression_browser_cases": 36,
     "tax_preview_async_unit_cases": 3,
-    "shared_tax_and_commercial_browser_cases": 9
+    "shared_tax_and_commercial_browser_cases": 9,
+    "quote_autosave_browser_cases": 11,
+    "daily_workflow_browser_cases": 84
   },
   "full_suite_reference_run": {
-    "commit": "710df701cb98851bb021ee12fa03d1328fee5611",
-    "run_id": 42511781888,
-    "tests": 1049,
-    "passed": 1047,
+    "commit": "a599b129bf8c28c74b65f905d689bef4252015ce",
+    "run_id": 42513387738,
+    "tests": 1052,
+    "passed": 1050,
     "failed": 0,
     "skipped": 2,
     "concurrency": "Dedicated PostgreSQL sales, stock and accounting jobs passed; final PR-head checks still required."
+  },
+  "ci_build_execution_budget": {
+    "minutes": 35,
+    "reason": "Observed full isolated SQL/unit suite took 17.1 minutes before the remaining mandatory browser gates. All gates and application startup budgets are retained."
   }
 }

@@ -51,7 +51,7 @@ distinctes. Les 71 cas Contacts/bootstrap/promotion, 17 parcours navigateur cibl
 et 12 cas factures internes/outils passent aussi. La devise figée est vérifiée
 à l’écran, dans le PDF et dans le texte copié, indépendamment de la société.
 
-La validation complète GitHub du commit `710df701` passe : 1 047 tests réussis,
+La validation complète GitHub du commit `a599b129` passe : 1 050 tests réussis,
 zéro échec, deux cas réservés aux jobs PostgreSQL séparés. Ces jobs passent aussi.
 Les contrôles navigateur ont ensuite révélé un clic Enregistrer ignoré pendant
 le calcul fiscal et une attente sur une réponse périmée : corrections vérifiées
@@ -59,6 +59,14 @@ par trois tests asynchrones et 36 parcours de devis, plus neuf cas taxes/charges
 Les assertions de valeur de textarea et d’attente de sauvegarde ont été adaptées
 au chargement différé sans modifier les attentes métier. Le commit final reste
 soumis à tous les contrôles GitHub habituels.
+
+Le test isolé de sauvegarde automatique simulait un chargeur sans fournir le
+moteur fiscal désormais obligatoire. Il charge maintenant les vrais modules
+fiscal et commercial avec des réponses RPC locales explicites : 11 tests de
+sauvegarde et les 84 parcours quotidiens passent. Aucune garde produit n’est
+rendue facultative. Le job de build dispose de 35 minutes pour conserver tous
+les contrôles navigateur après une suite SQL/unitaire mesurée à 17,1 minutes ;
+les budgets de démarrage de l’application sont conservés.
 
 Les résultats détaillés et les commandes reproductibles sont dans
 [verification.json](verification.json). La [première livraison](../../docs/history/odoo-community-first-delivery-2026-11-08.md)

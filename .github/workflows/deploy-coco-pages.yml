@@ -65,7 +65,8 @@ jobs:
           retention-days: 3
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    # SQL restoration already takes 17 minutes; retain every browser gate after it.
+    timeout-minutes: 35
     steps:
       - uses: actions/checkout@v4
         with:

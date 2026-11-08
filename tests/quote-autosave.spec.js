@@ -10,7 +10,22 @@ async function boot(page,{isNew=false,request=false}={}){
   window.gamaAccessAllowed=id=>id==='quotes';window.GamaCompany={load:async()=>{},get:()=>({timezone:'UTC'}),defaultsForQuote:()=>({seller:'QA'})};window.ArcEntities={formatAddress:row=>row.address||''};window.CocoPlanning={quoteMargin:()=>{}};
   window.__epoch=0;window.__calls=[];window.__requestCalls=[];window.__views=[];window.__changes=0;window.__server={id:'q1',revision:1};window.addEventListener('gama:sales-change',()=>__changes++);
   window.CocoSalesWorkspace={attachSearch:()=>{},lookup:async kind=>kind==='customers'?[{id:'c1',name:'Andes',identification:'RUC',address:'Quito',active:true}]:[{id:'p1',name:'Papel',reference:'PAPEL',base_unit:'Unidad',active:true,tax_rate:15}],rpc:async()=>[]};
-  window.ArcLoadScript=async()=>{};window.CocoModuleHistory={open:()=>{}};window.ArcRouter=(await import('/src/app/router.js')).router;ArcRouter.show('quotes');
+  // Exercise the real lazy tax coordinator. This isolated page supplies only
+  // deterministic legacy percentage RPCs; named tax math is covered by SQL tests.
+  window.__taxCalls=[];window.ArcData={rawRpc:async(name,args)=>{
+   if(name==='coco_sales_commercial'&&args.p_action==='suggestions')return {data:[]};
+   if(name!=='coco_tax_engine')throw Error('UNEXPECTED_FIXTURE_RPC '+name);
+   __taxCalls.push(structuredClone(args));
+   if(args.p_action==='context')return {data:{positions:[],taxes:[],rounding:'line'}};
+   if(args.p_action!=='preview')throw Error('UNEXPECTED_FIXTURE_TAX_ACTION '+args.p_action);
+   const round=n=>Math.round((Number(n)+Number.EPSILON)*100)/100,lines=args.p_data.lines.map(line=>{
+    if(line.tax_ids?.length)throw Error('NAMED_TAX_REQUIRES_DATABASE_FIXTURE');
+    const subtotal=round(Number(line.quantity)*Number(line.unit_price)*(1-Number(line.discount||0)/100)),tax=round(subtotal*Number(line.tax_rate||0)/100);return {...line,subtotal,tax,total:round(subtotal+tax),taxes:[]};
+   }),subtotal=round(lines.reduce((n,l)=>n+l.subtotal,0)),tax=round(lines.reduce((n,l)=>n+l.tax,0));return {data:{schema:'coco.tax.v1',lines,taxes:[],subtotal,tax,total:round(subtotal+tax)}};
+  }};
+  const assets={'coco-tax-engine.js':'/src/features/finance/tax-engine.js','coco-sales-commercial.js':'/src/features/sales/commercial.js'},loaded=new Map();
+  window.ArcLoadScript=asset=>{if(!assets[asset])return Promise.reject(Error('UNEXPECTED_FIXTURE_ASSET '+asset));if(!loaded.has(asset))loaded.set(asset,new Promise((resolve,reject)=>{const script=document.createElement('script');script.src=assets[asset];script.onload=resolve;script.onerror=()=>reject(Error('FIXTURE_ASSET_UNAVAILABLE '+asset));document.head.append(script)}));return loaded.get(asset)};
+  window.CocoModuleHistory={open:()=>{}};window.ArcRouter=(await import('/src/app/router.js')).router;ArcRouter.show('quotes');
   window.__context={rows:async()=>[],rpc:async(name,args)=>{if(name==='gama_quote_from_request'){__requestCalls.push(args);return window.__requestResult||{id:'request-q',revision:1,state:'draft',request_id:args.p_request_id,existing:false};}return [];},action:async(action,payload)=>{
    __calls.push(structuredClone(payload));if(window.__hold)await new Promise(resolve=>window.__release=resolve);if(window.__fail)throw Error(__fail);
    // The server receipt returns its original revision on an identical create retry.
@@ -29,7 +44,7 @@ async function boot(page,{isNew=false,request=false}={}){
 
 test('automatically saves a changed draft, keeps editing and uses the returned revision for the next save',async({page})=>{
  await boot(page);await page.locator('#gqd_notes').fill('Première note');await expect.poll(()=>page.evaluate(()=>__calls.length)).toBe(1);
- await expect(page.locator('#gqForm')).toBeVisible();await expect(page.locator('#gqAutosave')).toHaveText('Borrador guardado.');
+ await expect(page.locator('#gqForm')).toBeVisible();await expect(page.locator('#gqAutosave')).toHaveText('Borrador guardado.');expect(await page.evaluate(()=>__taxCalls.map(call=>call.p_action))).toEqual(expect.arrayContaining(['context','preview']));
  await page.evaluate(()=>{__epoch++;window.dispatchEvent(new CustomEvent('gama:auth-change',{detail:{event:'USER_UPDATED'}}));});
  await page.locator('#gqd_notes').fill('Deuxième note');await expect.poll(()=>page.evaluate(()=>__calls.length)).toBe(2);
  expect(await page.evaluate(()=>__calls.map(call=>({id:call.id,revision:call.revision,notes:call.details.notes})))).toEqual([{id:'q1',revision:1,notes:'Première note'},{id:'q1',revision:2,notes:'Deuxième note'}]);

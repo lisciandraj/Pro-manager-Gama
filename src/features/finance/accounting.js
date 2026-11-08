@@ -36,6 +36,21 @@ const STATUS={pending:'No pagada',partial:'Pago parcial',in_payment:'En proceso 
  due_soon:'Próxima a vencer',draft:'Borrador',posted:'Contabilizada',reversed:'Contrapasada',
  open:'Abierto',closed:'Cerrado',matched:'Conciliado',unmatched:'Sin conciliar',ignored:'Ignorado'};
 const ERRORS={ROLE_NOT_ALLOWED:'Tu perfil no tiene acceso a esta parte de Contabilidad.',
+ TAX_NOT_FOUND:'El impuesto ya no existe. Actualiza la lista.',
+ TAX_CHANGED:'El impuesto cambió. Actualiza la lista antes de volver a modificarlo.',
+ TAX_CODE_IMMUTABLE:'El código de un impuesto existente no se puede modificar.',
+ TAX_CODE_EXISTS:'Ya existe un impuesto con este código. Usa otro código.',
+ TAX_NAME_INVALID:'Indica un nombre de impuesto de hasta 80 caracteres.',
+ TAX_CODE_INVALID:'Indica un código de impuesto de hasta 20 caracteres.',
+ TAX_KIND_INVALID:'Selecciona el uso del impuesto.',
+ TAX_COUNTRY_INVALID:'Indica un código de país ISO de dos letras.',
+ TAX_RATE_INVALID:'Indica un porcentaje entre 0 y menos de 100, con hasta cuatro decimales.',
+ TAX_DATES_INVALID:'La fecha final del impuesto no puede ser anterior a la fecha inicial.',
+ TAX_STATUS_INVALID:'Selecciona si el impuesto está activo o archivado.',
+ TAX_COLLECTED_ACCOUNT_INVALID:'Selecciona una cuenta de pasivo activa para el impuesto recaudado.',
+ TAX_DEDUCTIBLE_ACCOUNT_INVALID:'Selecciona una cuenta de activo activa para el impuesto deducible.',
+ TAX_DATE_INVALID:'El impuesto está archivado o no es válido en la fecha del documento. Revisa el tipo y sus fechas.',
+ TAX_AMOUNT_INVALID:'El importe del impuesto no coincide con la base y el porcentaje seleccionados. Revisa el cálculo o utiliza un importe manual.',
  NOT_ALLOWED:'No tienes permiso para esta acción. Pídelo en Parámetros de acceso.',
  PERIOD_CLOSED:'El periodo contable está cerrado. Un administrador puede reabrirlo.',
  ACCOUNTING_HARD_LOCKED:'La fecha contable está bloqueada de forma irreversible.',
@@ -92,7 +107,7 @@ for(const key of ["BASE_CURRENCY_LOCKED","CLOSURE_BLOCKED","CLOSURE_EXCEPTION_RE
 
 let generation=0,opening=0,section='overview',rights=null,scope='none',state={},workspace=ID;
 
-function err(e){const s=String(e?.message||e);
+function err(e){if(e?.gamaMessage)return String(e.gamaMessage);const s=String(e?.message||e);
  for(const[k,v]of Object.entries(ERRORS)){if(s.includes(k))return v;if(s===v)return v}
  return 'No se pudo completar la operación. Actualiza e inténtalo de nuevo.'}
 async function rpc(action,data={}){
@@ -100,7 +115,7 @@ async function rpc(action,data={}){
  await window.GamaCloudReady;
  const c=await GamaCloud.db();
  const r=await window.ArcData.rawRpc('gama_accounting_action',{p_action:action,p_data:data},{read:['overview','context'].includes(action)});
- if(r.error)throw Error(err(r.error));
+ if(r.error){const message=T(err(r.error));throw Object.assign(Error(message),{gamaMessage:message})}
  if(r.data==null)throw Error('EMPTY');
  return r.data;
 }
@@ -407,8 +422,8 @@ VIEWS.expenses={
  },
  bind(){
   bindFilters(()=>go(),()=>state.rows,'gastos');
-  $('gaNewExpense')?.addEventListener('click',()=>expenseForm(null));
-  document.querySelectorAll('[data-ga-edit]').forEach(b=>b.onclick=()=>expenseForm(state.rows.find(r=>r.id===b.dataset.gaEdit)));
+  $('gaNewExpense')?.addEventListener('click',e=>act(e.currentTarget,()=>expenseForm(null)));
+  document.querySelectorAll('[data-ga-edit]').forEach(b=>b.onclick=()=>act(b,()=>expenseForm(state.rows.find(r=>r.id===b.dataset.gaEdit))));
   document.querySelectorAll('[data-ga-post]').forEach(b=>b.onclick=()=>act(b,()=>mutate('expense_post',{id:b.dataset.gaPost}).then(()=>go())));
   document.querySelectorAll('[data-ga-cancel]').forEach(b=>b.onclick=()=>reasonForm('Anular el gasto',r=>mutate('expense_cancel',{id:b.dataset.gaCancel,reason:r}).then(()=>go())));
   document.querySelectorAll('[data-ga-receipt]').forEach(b=>b.onclick=()=>receiptForm(b.dataset.gaReceipt));
@@ -420,12 +435,22 @@ function reasonForm(title,save){
  <p class="gaHint">${tr('El motivo queda en el historial de auditoría.')}</p>`,'Confirmar',
   async el=>{const r=el.querySelector('#gaReason').value.trim();if(r.length<3)throw Error('REASON_REQUIRED');await save(r)});
 }
-function expenseForm(row){
+function purchaseTaxOptions(taxes,selected){return '<option value="">'+esc(T('Importe manual'))+'</option>'+taxes.filter(t=>(t.active&&['deductible','both'].includes(t.kind))||t.id===selected).map(t=>`<option value="${esc(t.id)}" ${t.id===selected?'selected':''}>${esc(t.code+' · '+t.name+' · '+t.rate+' %')}${t.active?'':' · '+esc(T('Inactivo'))}</option>`).join('')}
+function purchaseTaxAmount(base,rate){
+ const cents=Math.round(Number(base||0)*100),scaledRate=Math.round(Number(rate||0)*10000);
+ if(!Number.isSafeInteger(cents)||cents<0||!Number.isSafeInteger(scaledRate)||scaledRate<0)return '0.00';
+ // Integer arithmetic matches PostgreSQL numeric rounding at half a cent.
+ return (Number((BigInt(cents)*BigInt(scaledRate)+500000n)/1000000n)/100).toFixed(2);
+}
+async function expenseForm(row){
+ const token=opening,taxes=(await rpc('taxes')).rows;
+ if(token!==opening||!allowed()||!(row?rights?.edit:rights?.create))return;
  const key=crypto.randomUUID(),cats=state.categories||[],accs=(state.accounts||[]).filter(a=>a.active);
  GamaSales.modal(row?'Editar el gasto':'Registrar un gasto',`<div class="gaGrid">
   ${field('Fecha',`<input id="gaDate" type="date" required max="${day()}" value="${esc(row?.expense_date||day())}">`)}
   ${field('Categoría',`<select id="gaCategory"><option value="">—</option>${options(cats,row?.category_id)}</select>`)}
   ${field('Importe sin impuestos',`<input id="gaUntaxed" type="number" required min="0" step="0.01" value="${esc(row?.amount_untaxed??'')}">`)}
+  ${field('Tipo de impuesto (opcional)',`<select id="gaDocumentTax">${purchaseTaxOptions(taxes,row?.tax_id)}</select>`)}
   ${field('Impuesto',`<input id="gaTax" type="number" min="0" step="0.01" value="${esc(row?.tax_amount??0)}">`)}
   ${field('Importe total',`<input id="gaTotal" type="number" required min="0.01" step="0.01" value="${esc(row?.amount_total??'')}">`)}
   ${field('Medio de pago',`<select id="gaMethod"><option value="">—</option>${Object.entries(METHODS).map(([k,v])=>`<option value="${k}" ${row?.payment_method===k?'selected':''} data-gi-live>${esc(v)}</option>`).join('')}</select>`)}
@@ -439,14 +464,16 @@ function expenseForm(row){
    const v=id=>el.querySelector('#'+id).value;
    await mutate('expense_save',{id:row?.id||null,request_key:row?null:key,expense_date:v('gaDate'),
     category_id:v('gaCategory'),description:v('gaDescription'),amount_untaxed:Number(v('gaUntaxed')),
-    tax_amount:Number(v('gaTax')||0),amount_total:Number(v('gaTotal')),payment_method:v('gaMethod'),
+    tax_id:v('gaDocumentTax')||null,tax_amount:Number(v('gaTax')||0),amount_total:Number(v('gaTotal')),payment_method:v('gaMethod'),
     financial_account_id:v('gaAccount'),notes:v('gaNotes')});
    if(row?.source_reviewed===false){const r=await window.ArcData.rawRpc('gama_flow_finance',{p_action:'expense_review',p_data:{id:row.id,reviewed:el.querySelector('#gaSourceReviewed').checked}});if(r.error)throw r.error}
    await go();
   });
  const recalc=()=>{const u=Number($('gaUntaxed').value||0),t=Number($('gaTax').value||0);
   if(u>0)$('gaTotal').value=(u+t).toFixed(2)};
- $('gaUntaxed').oninput=recalc;$('gaTax').oninput=recalc;
+ const selectedTax=()=>{const selected=taxes.find(t=>t.id===$('gaDocumentTax').value);$('gaTax').readOnly=!!selected;if(selected)$('gaTax').value=purchaseTaxAmount($('gaUntaxed').value,selected.rate);recalc()};
+ $('gaUntaxed').oninput=selectedTax;$('gaTax').oninput=recalc;$('gaDocumentTax').onchange=selectedTax;
+ $('gaTax').readOnly=!!row?.tax_id;
 }
 async function receiptForm(id){
  let list=[];
@@ -521,7 +548,8 @@ async function billForm(context={}){
  if(!allowed()||scope!=='all'||!rights?.create)return;
  const token=opening;
  await window.ArcLoadScript('coco-accounting-invoice-deferrals.js');
- const purchases=await window.ArcData.all('purchase_orders',{select:'id,order_number,supplier_id,status',order:'order_number'});if(purchases.error)throw purchases.error;
+ const [purchases,taxData]=await Promise.all([window.ArcData.all('purchase_orders',{select:'id,order_number,supplier_id,status',order:'order_number'}),rpc('taxes')]);if(purchases.error)throw purchases.error;
+ const taxes=taxData.rows;
  if(token!==opening||!allowed()||!rights?.create)return;
  const purchase=context.purchaseOrderId&&purchases.data.find(p=>p.id===context.purchaseOrderId&&p.status!=='cancelled');
  if(context.purchaseOrderId&&!purchase)throw Error('DOCUMENT_NOT_FOUND');
@@ -533,6 +561,7 @@ async function billForm(context={}){
   ${field('Fecha',`<input id="gaDate" type="date" required value="${day()}">`)}
   ${field('Plazo de pago (días)',`<input id="gaTerms" type="number" min="0" max="3650" value="30">`)}
   ${field('Base imponible',`<input id="gaSubtotal" type="number" required min="0" step="0.01">`)}
+  ${field('Tipo de impuesto (opcional)',`<select id="gaDocumentTax">${purchaseTaxOptions(taxes)}</select>`)}
   ${field('Impuesto',`<input id="gaTaxAmount" type="number" min="0" step="0.01" value="0">`)}
   ${field('Total',`<input id="gaTotal" type="number" required min="0.01" step="0.01">`)}
  </div>${window.CocoInvoiceDeferrals.editor()}<label class="gsField">${tr('Comentario')}<textarea id="gaNotes" maxlength="2000"></textarea></label>
@@ -542,13 +571,14 @@ async function billForm(context={}){
    if(!v('gaSupplier'))throw Error('Selecciona un proveedor.');
    await mutate('supplier_invoice_save',{request_key:key,supplier_id:v('gaSupplier'),number:v('gaNumber'),
     purchase_order_id:v('gaPurchase')||null,issue_date:v('gaDate'),payment_terms_days:v('gaTerms'),subtotal:Number(v('gaSubtotal')),
-    tax:Number(v('gaTaxAmount')||0),total:Number(v('gaTotal')),notes:v('gaNotes'),deferral_lines:window.CocoInvoiceDeferrals.readEditor(el)});
+    tax_id:v('gaDocumentTax')||null,tax:Number(v('gaTaxAmount')||0),total:Number(v('gaTotal')),notes:v('gaNotes'),deferral_lines:window.CocoInvoiceDeferrals.readEditor(el)});
    await go();
   });
  window.CocoInvoiceDeferrals.bindEditor(el);
  const recalc=()=>{const s=Number($('gaSubtotal').value||0),t=Number($('gaTaxAmount').value||0);
   if(s>0)$('gaTotal').value=(s+t).toFixed(2)};
- $('gaSubtotal').oninput=recalc;$('gaTaxAmount').oninput=recalc;
+ const selectedTax=()=>{const selected=taxes.find(t=>t.id===$('gaDocumentTax').value);$('gaTaxAmount').readOnly=!!selected;if(selected)$('gaTaxAmount').value=purchaseTaxAmount($('gaSubtotal').value,selected.rate);recalc()};
+ $('gaSubtotal').oninput=selectedTax;$('gaTaxAmount').oninput=recalc;$('gaDocumentTax').onchange=selectedTax;
  if(purchase){$('gaPurchase').value=purchase.id;$('gaSupplier').value=purchase.supplier_id}
 }
 async function supplierPaymentForm(row){
@@ -892,9 +922,12 @@ async function entryForm(){
 
 /* ------------------------------------------------------------- impuestos */
 VIEWS.taxes={
- load:()=>rpc('taxes',{from:state.from||monthStart(),to:state.to||day()}),
+ async load(){
+  const [data,chart,settings]=await Promise.all([rpc('taxes',{from:state.from||monthStart(),to:state.to||day()}),rpc('chart'),rpc('settings')]);
+  return {...data,chart:chart.rows,settings};
+ },
  render(d){
-  state.rows=d.rows;
+  state.rows=d.rows;state.taxAccounts=d.chart;state.taxSettings=d.settings;
   const balance=Number(d.summary.collected)-Number(d.summary.deductible);
   return `<div class="arcPanel gaCard"><h3>${tr('Resumen de impuestos')}</h3>${filters({dates:true})}
    <div class="gaKpis">${kpi('Impuesto recaudado',money(d.summary.collected))}
@@ -904,11 +937,11 @@ VIEWS.taxes={
    <div class="arcPanel gaCard"><h3>${tr('Tipos configurados')}</h3>
    ${rights?.create?`<div class="gaActions"><button class="arcButton primary" id="gaNewTax">${tr('Añadir un tipo')}</button></div>`:''}
    <div class="gaScroll"><table class="arcTable gaTable"><thead><tr>
-    ${['Nombre','Código','Tipo','Uso','País','Vigente desde','Estado','Acciones'].map(h=>`<th class="${h==='Tipo'?'gaNum':''}">${tr(h)}</th>`).join('')}
+    ${['Nombre','Código','Tipo','Uso','País','Vigente desde','Vigente hasta','Estado','Acciones'].map(h=>`<th class="${h==='Tipo'?'gaNum':''}">${tr(h)}</th>`).join('')}
    </tr></thead><tbody>${d.rows.map(t=>`<tr><td><b>${esc(t.name)}</b></td><td>${esc(t.code)}</td>
     <td class="gaNum">${esc(num(t.rate,4))} %</td>
     <td>${tr({collected:'Recaudado',deductible:'Deducible',both:'Ambos'}[t.kind]||t.kind)}</td>
-    <td>${esc(t.country||'—')}</td><td>${esc(t.valid_from||'—')}</td>
+    <td>${esc(t.country||'—')}</td><td>${esc(t.valid_from||'—')}</td><td>${esc(t.valid_to||'—')}</td>
     <td>${t.active?tr('Activo'):tr('Inactivo')}</td>
     <td>${rights?.edit?`<button class="arcButton secondary" data-ga-tax="${esc(t.id)}">${tr('Editar')}</button>`:''}</td></tr>`).join('')}
    </tbody></table></div>
@@ -921,6 +954,10 @@ VIEWS.taxes={
  }
 };
 function taxForm(row){
+ if(!allowed()||scope!=='all'||!(row?rights?.edit:rights?.create))return;
+ const key=crypto.randomUUID(),chart=state.taxAccounts||[],settings=state.taxSettings||{};
+ const taxAccount=(family,selected)=>'<option value="">—</option>'+chart.filter(a=>(a.active&&a.type===family)||a.id===selected).map(a=>`<option value="${esc(a.id)}" ${a.id===selected?'selected':''}>${esc(a.code+' · '+a.name)}${a.active?'':' · '+esc(T('Inactivo'))}</option>`).join('');
+ const collected=row?row.collected_account_id:settings.tax_collected_account_id,deductible=row?row.deductible_account_id:settings.tax_deductible_account_id;
  GamaSales.modal(row?'Editar el tipo':'Añadir un tipo de impuesto',`<div class="gaGrid">
   ${field('Nombre',`<input id="gaName" required maxlength="80" value="${esc(row?.name||'')}">`)}
   ${field('Código',`<input id="gaCode" required maxlength="20" value="${esc(row?.code||'')}" ${row?'readonly':''}>`)}
@@ -928,10 +965,16 @@ function taxForm(row){
   ${field('Uso',`<select id="gaKind">${[['both','Ambos'],['collected','Recaudado'],['deductible','Deducible']].map(([k,v])=>`<option value="${k}" ${row?.kind===k?'selected':''} data-gi-live>${esc(v)}</option>`).join('')}</select>`)}
   ${field('País (ISO)',`<input id="gaCountry" maxlength="2" value="${esc(row?.country||'')}">`)}
   ${field('Vigente desde',`<input id="gaValid" type="date" value="${esc(row?.valid_from||'')}">`)}
- </div>`,'Guardar',async el=>{
+  ${field('Vigente hasta',`<input id="gaValidTo" type="date" value="${esc(row?.valid_to||'')}">`)}
+  ${field('Cuenta de impuesto recaudado',`<select id="gaTaxCollected">${taxAccount('liability',collected)}</select>`)}
+  ${field('Cuenta de impuesto deducible',`<select id="gaTaxDeductible">${taxAccount('asset',deductible)}</select>`)}
+  ${field('Estado',`<select id="gaTaxActive"><option value="true" ${row?.active===false?'':'selected'}>${esc(T('Activo'))}</option><option value="false" ${row?.active===false?'selected':''}>${esc(T('Inactivo'))}</option></select>`)}
+ </div><p class="gaHint">${tr('Los cambios se aplican a futuras operaciones. Archivar conserva los documentos y asientos existentes.')}</p><p class="gaHint">${tr('La cuenta deducible se usa al seleccionar esta tasa en facturas de proveedor y gastos. Las ventas conservan la cuenta general de impuesto recaudado.')}</p>`,'Guardar',async el=>{
   const v=id=>el.querySelector('#'+id).value;
-  await mutate('tax_save',{id:row?.id||null,name:v('gaName'),code:v('gaCode'),rate:Number(v('gaRate')),
-   kind:v('gaKind'),country:v('gaCountry').toUpperCase()||null,valid_from:v('gaValid')||null,active:true});
+  if(v('gaValid')&&v('gaValidTo')&&v('gaValidTo')<v('gaValid')){const message=T(ERRORS.TAX_DATES_INVALID);throw Object.assign(Error(message),{gamaMessage:message})}
+  await mutate('tax_save',{request_key:key,id:row?.id||null,...(row?{version:row.version}:{}),name:v('gaName'),code:v('gaCode'),rate:Number(v('gaRate')),
+   kind:v('gaKind'),country:v('gaCountry').toUpperCase()||null,valid_from:v('gaValid')||null,valid_to:v('gaValidTo')||null,
+   collected_account_id:v('gaTaxCollected')||null,deductible_account_id:v('gaTaxDeductible')||null,active:v('gaTaxActive')==='true'});
   await go();
  });
 }

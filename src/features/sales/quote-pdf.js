@@ -12,7 +12,8 @@ function build(q){
  const doc=new window.jspdf.jsPDF();let y=0;
  const base=q.companySnapshot||window.GamaCompany?.get(),issuer=base?.configured?{...base,legal_name:externalText(q.seller||base.legal_name),tax_id:q.sellerRuc??base.tax_id,address:q.sellerAddress??base.address,phone:q.sellerPhone??base.phone,email:q.sellerEmail??base.email,website:q.sellerWebsite??base.website}:undefined;
  const colors=window.GamaPdfTemplate.theme(issuer),ink=colors.ink,teal=colors.teal;
- function header(){y=window.GamaPdfTemplate.header(doc,{company:issuer,title:q.documentType==='internal_invoice'?'FACTURA INTERNA':'PRESUPUESTO',reference:q.number,date:'Fecha: '+esc(q.dateLabel||''),detail:q.validUntil?'Válido hasta: '+q.validUntil+' · v'+(q.revision||1):''})}
+ const proforma=q.documentType==='proforma',t=s=>window.GamaI18n?.t?.(s)||s;
+ function header(){y=window.GamaPdfTemplate.header(doc,{company:issuer,title:q.documentType==='internal_invoice'?'FACTURA INTERNA':proforma?t('PRO FORMA'):'PRESUPUESTO',reference:q.number,date:'Fecha: '+esc(q.dateLabel||''),detail:q.validUntil?'Válido hasta: '+q.validUntil+' · v'+(q.revision||1):''})}
  function room(h){if(y+h>272){doc.addPage();header()}}
  function paragraph(text,size=10){doc.setFontSize(size);const ls=doc.splitTextToSize(esc(text),180);for(const line of ls){room(5);doc.text(line,14,y);y+=5}y+=3}
  function tableHead(){room(15);doc.setFillColor(...colors.secondary);doc.rect(14,y-5,182,9,'F');doc.setTextColor(...colors.onSecondary);doc.setFontSize(8);[['Producto',16],['Cant.',99],['Precio',117],['Dto.',139],['IVA',153],['Subtotal',170]].forEach(([t,x])=>doc.text(t,x,y));doc.setTextColor(...ink);y+=10}
@@ -37,7 +38,7 @@ function build(q){
  if(q.terms)paragraph('Condiciones: '+q.terms,9);
  if(q.customer_comment)paragraph('Comentario del cliente: '+q.customer_comment,9);
  if(q.notes)paragraph(q.notes,9);
- window.GamaPdfTemplate.footer(doc,q.documentType==='internal_invoice'?'Factura interna de gestión. Sin validez fiscal. No es un comprobante SRI.':'Documento informativo. No constituye una factura.');
+ window.GamaPdfTemplate.footer(doc,q.documentType==='internal_invoice'?'Factura interna de gestión. Sin validez fiscal. No es un comprobante SRI.':proforma?t('Documento pro forma. No constituye una factura ni acredita un pago.'):'Documento informativo. No constituye una factura.');
  return doc.output('blob');
 }
 /* Windows y macOS aceptan navigator.share con archivos, pero su hoja de

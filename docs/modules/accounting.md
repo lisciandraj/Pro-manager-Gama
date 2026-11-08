@@ -245,3 +245,35 @@ Les rapports donnent accès à la rentabilité par commande/client et aux scéna
 ### Medios de pago y liquidación bancaria
 
 Configuración → Medios de pago distingue banco directo, cuenta de espera y sin asiento por cuenta financiera, medio y sentido. Cada pago conserva su tratamiento. La deuda y el estado En proceso de pago proceden del registro real; conciliar liquida la espera y deshacer la conciliación contra-pasa el movimiento sin borrar el pago. Consulte [las reglas y límites](../../replica/accounting/payment-modes.md).
+
+## Taxes : dates, archivage et comptes — 8 novembre 2026
+
+**Comptabilité → Impôts** permet de créer, modifier, archiver et réactiver une
+taxe, avec dates de début et de fin et comptes de taxe collectée/déductible.
+La création et la modification exigent des droits distincts. Le code reste
+stable ; une modification concurrente demande de recharger la liste. Le refus
+d’un enregistrement conserve le formulaire. Les changements ne rejouent aucune
+pièce et l’historique du module conserve leur auteur.
+
+Les nouvelles factures fournisseurs et dépenses proposent une taxe configurée
+facultative. La sélection recalcule le montant au pourcentage choisi ; modifier
+la base recalcule aussi la taxe. Le serveur vérifie le montant, les dates,
+l’usage déductible et le compte d’actif actif. Le montant manuel reste disponible
+pour les justificatifs à plusieurs taxes ou qui nécessitent une ventilation
+plus détaillée. Le compte déductible sélectionné reçoit la ligne de taxe lors de
+la comptabilisation ; la contrepassation conserve son compte d’origine même
+après archivage ou changement de compte. Les rapports conservent les lignes
+historiques après ces changements. La validité se contrôle à la date du document,
+y compris lorsqu’un verrou décale la date comptable.
+
+Le compte de taxe collectée peut être configuré mais les ventes actuelles,
+fondées sur des taux par ligne sans identifiant de taxe, continuent d’utiliser
+le compte global. Les taxes incluses, fixes, composées, les positions fiscales
+et la facture client autonome restent des écarts identifiés dans la
+[comparaison Odoo Community](../../replica/community-2026-11-08/recon.md).
+Cette livraison ne change pas l’émission SRI. La migration additive doit être
+appliquée avant utilisation du nouveau parcours sur une instance ; les tests
+utilisent uniquement des bases isolées.
+
+Vérification : `tests/accounting-tax-lifecycle-db.test.cjs` et
+`tests/accounting-tax-lifecycle.spec.js` (FR/ES/EN, téléphone et ordinateur).

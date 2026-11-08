@@ -1,4 +1,15 @@
 # Spanish source	French	English
+Descargar pro forma	Télécharger la pro forma	Download pro forma
+PRO FORMA	PRO FORMA	PRO FORMA
+Documento pro forma. No constituye una factura ni acredita un pago.	Document pro forma. Ne constitue pas une facture ni une preuve de paiement.	Pro forma document. This is not an invoice or proof of payment.
+Buscar modelo	Rechercher un modèle	Search templates
+Archivar un modelo no modifica los presupuestos creados con él.	Archiver un modèle ne modifie pas les devis créés à partir de celui-ci.	Archiving a template does not change quotes created from it.
+Archivar modelo	Archiver le modèle	Archive template
+No hay modelos para esta búsqueda.	Aucun modèle ne correspond à cette recherche.	No templates match this search.
+¿Archivar este modelo? Los documentos existentes se conservan.	Archiver ce modèle ? Les documents existants sont conservés.	Archive this template? Existing documents are kept.
+Aplicar descuento a todas las líneas	Appliquer une remise à toutes les lignes	Apply discount to all lines
+Descuento en todas las líneas	Remise sur toutes les lignes	Discount on all lines
+Sustituye los descuentos actuales de todas las líneas. Los precios manuales y los impuestos se conservan.	Remplace les remises actuelles sur toutes les lignes. Les prix manuels et les taxes sont conservés.	Replaces current discounts on all lines. Manual prices and taxes are kept.
 Espacio de trabajo	Espace de travail	Workspace
 Conversaciones, tareas, documentos y contexto del equipo	Discussions, tâches, documents et contexte d’équipe	Conversations, tasks, documents and team context
 Menú principal	Menu principal	Main menu
@@ -5908,3 +5919,24 @@ Completa los campos obligatorios para guardar el borrador automáticamente.	Comp
 Usa Guardar borrador para convertir esta solicitud.	Utilise Enregistrer le brouillon pour convertir cette demande.	Use Save draft to convert this request.
 El borrador no se ha guardado. Conserva esta página y usa Guardar borrador para reintentar.	Le brouillon n’a pas été enregistré. Garde cette page ouverte et utilise Enregistrer le brouillon pour réessayer.	The draft was not saved. Keep this page open and use Save draft to retry.
 Hay cambios sin guardar. ¿Salir y descartar los cambios pendientes?	Des modifications ne sont pas enregistrées. Quitter et abandonner les modifications en attente ?	Some changes are not saved. Leave and discard the pending changes?
+El impuesto ya no existe. Actualiza la lista.	La taxe n’existe plus. Actualisez la liste.	The tax no longer exists. Refresh the list.
+El impuesto cambió. Actualiza la lista antes de volver a modificarlo.	La taxe a changé. Actualisez la liste avant de la modifier à nouveau.	The tax changed. Refresh the list before editing it again.
+El código de un impuesto existente no se puede modificar.	Le code d’une taxe existante ne peut pas être modifié.	An existing tax code cannot be changed.
+Ya existe un impuesto con este código. Usa otro código.	Une taxe utilise déjà ce code. Choisissez un autre code.	A tax already uses this code. Choose another code.
+Indica un nombre de impuesto de hasta 80 caracteres.	Indiquez un nom de taxe de 80 caractères maximum.	Enter a tax name of up to 80 characters.
+Indica un código de impuesto de hasta 20 caracteres.	Indiquez un code de taxe de 20 caractères maximum.	Enter a tax code of up to 20 characters.
+Selecciona el uso del impuesto.	Sélectionnez l’usage de la taxe.	Select how the tax is used.
+Indica un código de país ISO de dos letras.	Indiquez un code pays ISO de deux lettres.	Enter a two-letter ISO country code.
+Indica un porcentaje entre 0 y menos de 100, con hasta cuatro decimales.	Indiquez un pourcentage compris entre 0 et moins de 100, avec quatre décimales maximum.	Enter a percentage from 0 to less than 100, with up to four decimal places.
+La fecha final del impuesto no puede ser anterior a la fecha inicial.	La date de fin de la taxe ne peut pas précéder sa date de début.	The tax end date cannot precede its start date.
+Selecciona si el impuesto está activo o archivado.	Sélectionnez si la taxe est active ou archivée.	Select whether the tax is active or archived.
+Selecciona una cuenta de pasivo activa para el impuesto recaudado.	Sélectionnez un compte de passif actif pour la taxe collectée.	Select an active liability account for collected tax.
+Selecciona una cuenta de activo activa para el impuesto deducible.	Sélectionnez un compte d’actif actif pour la taxe déductible.	Select an active asset account for deductible tax.
+El impuesto está archivado o no es válido en la fecha del documento. Revisa el tipo y sus fechas.	La taxe est archivée ou invalide à la date du document. Vérifiez la taxe et ses dates.	The tax is archived or invalid on the document date. Review the tax and its dates.
+El importe del impuesto no coincide con la base y el porcentaje seleccionados. Revisa el cálculo o utiliza un importe manual.	Le montant de taxe ne correspond pas à la base et au taux sélectionnés. Vérifiez le calcul ou utilisez un montant manuel.	The tax amount does not match the selected base and rate. Review the calculation or use a manual amount.
+Cuenta de impuesto recaudado	Compte de taxe collectée	Collected tax account
+Cuenta de impuesto deducible	Compte de taxe déductible	Deductible tax account
+Los cambios se aplican a futuras operaciones. Archivar conserva los documentos y asientos existentes.	Les changements s’appliquent aux futures opérations. L’archivage conserve les documents et écritures existants.	Changes apply to future operations. Archiving preserves existing documents and entries.
+Importe manual	Montant manuel	Manual amount
+Tipo de impuesto (opcional)	Taxe (facultatif)	Tax (optional)
+La cuenta deducible se usa al seleccionar esta tasa en facturas de proveedor y gastos. Las ventas conservan la cuenta general de impuesto recaudado.	Le compte déductible est utilisé lorsque cette taxe est sélectionnée sur les factures fournisseurs et les dépenses. Les ventes conservent le compte général de taxe collectée.	The deductible account is used when this tax is selected on supplier bills and expenses. Sales keep using the general collected tax account.

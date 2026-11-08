@@ -274,15 +274,15 @@ dialog.gsDialog h2{font-size:20px;margin:0 0 var(--arc-s4)}
 #chartGrid line{stroke:var(--arc-line)}
 
 /* Shared reference treatment, including lazy-loaded modules. */
-button.primary,.btn-primary{background:var(--color-primary);border-color:transparent;color:white;box-shadow:var(--shadow-sm)}
-button.primary:hover:not(:disabled),.btn-primary:hover:not(:disabled){background:var(--color-primary-dark);border-color:transparent}
+button.primary,.btn-primary{background:var(--coco-action);border-color:transparent;color:var(--coco-on-action);box-shadow:var(--shadow-sm)}
+button.primary:hover:not(:disabled),.btn-primary:hover:not(:disabled){background:var(--coco-action-hover);border-color:transparent}
 button.warning,.btn-warning{background:var(--arc-warning-bg);color:var(--arc-warning);border-color:var(--arc-warning-line)}
 button.warning:hover:not(:disabled),.btn-warning:hover:not(:disabled){background:var(--arc-warning);color:white}
 button.ghost,.btn-ghost{background:transparent;color:var(--arc-text-muted);border-color:transparent;box-shadow:none}
 button.ghost:hover:not(:disabled),.btn-ghost:hover:not(:disabled){background:var(--arc-surface-3);color:var(--arc-text)}
 button:active:not(:disabled){transform:translateY(1px);filter:brightness(.96)}
 button[aria-busy=true]::after{color:var(--arc-text-muted)}
-button:is(.primary,.danger,.success)[aria-busy=true]::after{color:white}
+button:is(.primary,.danger,.success)[aria-busy=true]::after{color:currentColor}
 .arcContent :is(.card,.gsCard,.gpCard,.gaCard,.gfCard,.grCard,.gqCard,.goBox,.tmsCard,.ivCard,.pmCard,.pmPanel,.gkPanel,.gfPanel){border-radius:var(--radius-lg);border-color:var(--color-border);box-shadow:var(--shadow-sm);background:var(--color-surface);color:var(--color-text)}
 .arcContent :is(.card,.gsCard,.gpCard,.gaCard,.gfCard,.grCard,.gqCard,.goBox,.tmsCard,.ivCard,.pmCard,.pmPanel,.gkPanel,.gfPanel) :is(input,select,textarea){border-radius:var(--radius-sm)}
 .arcContent table{background:var(--color-surface);font-size:13px}
@@ -361,7 +361,7 @@ button:is(.primary,.danger,.success)[aria-busy=true]::after{color:white}
  }
  body .arcContent table th{border-bottom-color:var(--arc-line-strong)}
  body .arcContent table td{border-bottom-color:var(--arc-line)}
- body .arcContent #crm .crmTablero .crmCol:not(.crmDestino){border-color:var(--arc-line-strong)}
+ body .arcContent #crm .crmTablero .crmCol:not(.crmDestino){border-color:var(--coco-line)}
  body :is(dialog,.crModalBox,.gamaFindMenu,.gamaSpotlight,#gamaCloudAdmin .box,#gamaCloudLogin .box){
   border:1px solid var(--arc-line-strong);box-shadow:var(--arc-sh-3);
  }
@@ -386,7 +386,7 @@ body .gamaTableViews>button{display:inline-flex;align-items:center;justify-conte
 body .gamaTableViews>button>span{display:block;flex:none;margin:0;padding:0;color:inherit;font:inherit;white-space:nowrap}
 body .gamaTableViews>button>svg{display:block;flex:none;width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;pointer-events:none}
 body .gamaTableViews>button:hover:not(:disabled){background:var(--coco-inset);border-color:var(--coco-muted)}
-body .gamaTableViews>button[aria-pressed=true]{--gama-blue:#FFFFFF;--gama-orange:#FFFFFF;background:var(--coco-action)!important;color:white!important;border-color:var(--coco-action)!important}
+body .gamaTableViews>button[aria-pressed=true]{--gama-blue:var(--coco-on-action);--gama-orange:var(--coco-on-action);background:var(--coco-action)!important;color:var(--coco-on-action)!important;border-color:var(--coco-action)!important}
 body .gamaTableViews>button:focus-visible{outline:2px solid var(--arc-accent-600);outline-offset:2px}
 .gamaTableToolbar{display:flex;align-items:flex-end;gap:8px;flex-wrap:wrap;padding:8px;max-width:100%;box-sizing:border-box}
 .gamaTableSearch{display:flex;flex-direction:column;gap:4px;flex:3 1 240px;min-width:0;margin:0;box-sizing:border-box}

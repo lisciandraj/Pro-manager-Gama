@@ -1,31 +1,29 @@
 /* CRM pipeline: real stages, counts, amounts and move controls. */
 #crm [hidden]{display:none!important}
-#crm .crmTablero{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(244px,1fr);gap:14px;overflow-x:auto;padding-bottom:8px;align-items:start}
-#crm .crmTablero .crmCol{--crm-phase:#A9BFF1;min-height:180px;min-width:0;padding:12px;background:#fff;border:1px solid var(--arc-line);border-radius:8px}
-#crm .crmTablero .crmCol:nth-child(4n+2){--crm-phase:#F7D7A4}
-#crm .crmTablero .crmCol:nth-child(4n+3){--crm-phase:#BAD8BF}
-#crm .crmTablero .crmCol:nth-child(4n+4){--crm-phase:#F2BABB}
-#crm .crmTablero .crmCol.ganada{--crm-phase:#BAD8BF}
-#crm .crmTablero .crmCol.perdida{--crm-phase:#F2BABB}
-#crm .crmColCab{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:12px;margin:-12px -12px 12px;background:var(--crm-phase);border:0;border-radius:7px 7px 0 0;color:var(--arc-text)}
-#crm .crmColCab b{flex:1;min-width:0;font-size:13px;font-weight:600;color:inherit}
-#crm .crmColCab i{display:block;margin:0;font-style:normal;font-size:12px;font-weight:600;color:inherit}
-#crm .crmColCab small{width:100%;margin:0;font-size:12px;color:inherit}
-#crm .crmColVacia{text-align:center;color:var(--arc-text-muted);padding:24px 8px;font-size:12px}
-#crm .crmTarjeta{background:#fff;border:1px solid var(--arc-line);border-radius:8px;padding:12px;margin:0 0 10px;cursor:pointer;box-shadow:none}
+#crm .crmTablero{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(244px,1fr);gap:14px;overflow-x:auto;overscroll-behavior-x:contain;padding:2px 2px 10px;align-items:start}
+#crm .crmTablero .crmCol{min-height:180px;min-width:0;padding:12px;background:var(--coco-surface);border:1px solid var(--coco-line);border-radius:8px}
+#crm .crmColCab{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:14px 12px;margin:-12px -12px 12px;background:var(--coco-surface);border-bottom:1px solid var(--coco-line);border-radius:7px 7px 0 0;color:var(--coco-ink)}
+#crm .crmColCab b{display:inline-flex;align-items:center;gap:6px;min-width:0;max-width:calc(100% - 32px);padding:5px 8px;border-radius:6px;background:var(--crm-phase);font-size:12px;font-weight:500;line-height:1.4;color:var(--crm-phase-ink);overflow-wrap:anywhere}
+#crm .crmColCab b::before{content:"";width:7px;height:7px;flex:none;border-radius:50%;background:currentColor}
+#crm .crmColCab i{display:grid;place-items:center;min-width:24px;min-height:24px;margin:0 0 0 auto;border-radius:5px;background:var(--coco-inset);font-style:normal;font-size:12px;font-weight:500;color:var(--coco-muted);font-variant-numeric:tabular-nums}
+#crm .crmColCab small{display:block;width:100%;margin:0;font-size:12px;line-height:1.5;color:var(--coco-muted);font-variant-numeric:tabular-nums}
+#crm .crmColVacia{text-align:center;color:var(--coco-muted);padding:28px 8px;font-size:12px}
+#crm .crmTarjeta{background:var(--coco-surface);border:1px solid var(--coco-line);border-radius:8px;padding:14px;margin:0 0 10px;cursor:pointer;box-shadow:none}
 #crm .crmTarjeta:last-child{margin-bottom:0}
-#crm .crmTarjeta:hover{border-color:var(--arc-line-strong);box-shadow:none}
+#crm .crmTarjeta:hover{border-color:var(--arc-line-strong);background:var(--coco-inset);box-shadow:none}
 #crm .crmTarjeta:focus-visible{outline:2px solid var(--arc-accent-600);outline-offset:2px}
 #crm .crmTarjeta[draggable=true]{cursor:grab}
 #crm .crmTarjeta.crmArrastrando{opacity:.45;cursor:grabbing}
-#crm .crmTablero .crmCol.crmDestino{border:2px dashed var(--arc-accent-600);background:var(--arc-accent-50)}
+#crm .crmTablero .crmCol.crmDestino{outline:2px dashed var(--arc-accent-600);outline-offset:-2px;background:var(--coco-selected)}
 #crm .crmTarjeta[aria-busy=true]{opacity:.65;cursor:wait}
 #crm .crmTarjeta.tarde{border-color:var(--arc-danger)}
 #crm .crmTarjTit{display:flex;gap:8px;align-items:flex-start;justify-content:space-between}
-#crm .crmTarjTit b{font-size:13px;font-weight:600;line-height:1.5;color:var(--arc-text);min-width:0;overflow-wrap:anywhere}
-#crm .crmTarjPie{display:flex;justify-content:space-between;align-items:baseline;padding-top:10px;margin-top:10px;border-top:1px solid var(--arc-line)}
-#crm .crmTarjPie b{font-size:15px;font-weight:600;color:var(--arc-text);font-variant-numeric:tabular-nums}
-#crm .crmTarjPie span{font-size:12px;font-weight:500;color:var(--arc-text-muted)}
-#crm .crmMover{width:100%;margin-top:10px;font-size:12px;min-height:36px;padding:6px 8px}
+#crm .crmTarjTit b{font-size:13px;font-weight:600;line-height:1.5;color:var(--coco-ink);min-width:0;overflow-wrap:anywhere}
+#crm .crmTarjTit .crmPri{flex:none;font-size:11px;padding:3px 6px}
+#crm .crmTarjTit+.crmSub{margin-top:5px}
+#crm .crmTarjPie{display:flex;justify-content:space-between;align-items:baseline;gap:8px;padding-top:12px;margin-top:12px;border-top:1px solid var(--coco-line)}
+#crm .crmTarjPie b{font-size:15px;font-weight:600;color:var(--coco-ink);font-variant-numeric:tabular-nums}
+#crm .crmTarjPie span{font-size:12px;font-weight:400;color:var(--coco-muted);font-variant-numeric:tabular-nums}
+#crm .crmMover{width:100%;margin-top:12px;font-size:12px;min-height:40px;padding:7px 9px;border-radius:6px;background:var(--coco-surface);color:var(--coco-ink)}
 #crm .crmPerdida .crmForm{max-width:420px}
 @media(max-width:760px){#crm .crmTablero{grid-auto-flow:row;grid-auto-columns:auto;overflow-x:visible}#crm .crmMover{min-height:44px;font-size:16px}}

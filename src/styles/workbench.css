@@ -1,52 +1,57 @@
-/* Coco workspace: white desktop navigation, compact CRM canvas,
-   roomy title/search header and native module controls in normal flow.
+/* Openhub reference: ivory icon column, white lists and fine grid lines.
+   The existing labelled navigation and module controls remain in normal flow.
    The 1180px breakpoint is shared with shell.js's accessible drawer state. */
 @media screen{
  body.cocoWorkbench{--arc-topbar-h:64px;--arc-workspace-title:24px;--arc-workspace-radius:var(--arc-r-lg);--arc-content-max:none}
- body.cocoWorkbench .arcShell{--arc-sidebar-w:232px}
- body.cocoWorkbench .arcMain{margin-left:calc(var(--arc-sidebar-w) + 24px);min-width:0}
- body.cocoWorkbench .arcSidebar{inset:0 auto 0 0;width:256px;border:0;border-radius:0;background:var(--coco-surface);box-shadow:none;transform:none;visibility:visible;padding:0 0 0 var(--arc-safe-l);transition:transform var(--coco-motion-overlay) var(--coco-ease);border-right:1px solid var(--arc-line)}
- body.cocoWorkbench .arcSidebar .arcBrand{padding:8px 20px;margin:0 0 12px;min-height:64px;border-bottom:1px solid var(--coco-line)}
+ body.cocoWorkbench .arcShell{--arc-sidebar-w:256px}
+ body.cocoWorkbench .arcMain{margin-left:calc(var(--arc-sidebar-w) + var(--arc-safe-l));min-width:0}
+ body.cocoWorkbench .arcSidebar{inset:0 auto 0 0;width:calc(256px + var(--arc-safe-l));border:0;border-radius:0;background:linear-gradient(90deg,var(--coco-nav-surface) 52px,var(--coco-surface) 52px) var(--coco-nav-surface);box-shadow:none;transform:none;visibility:visible;padding:0 0 0 var(--arc-safe-l);transition:transform var(--coco-motion-overlay) var(--coco-ease);border-right:1px solid var(--arc-line)}
+ body.cocoWorkbench .arcSidebar:before{content:"";position:absolute;top:0;bottom:0;left:calc(52px + var(--arc-safe-l));border-left:1px solid var(--arc-line);pointer-events:none}
+ body.cocoWorkbench .arcSidebar .arcBrand{position:relative;justify-content:flex-start;padding:8px 20px;margin:0 0 12px;min-height:64px;border-bottom:1px solid var(--coco-line);background:var(--coco-surface)}
  body.cocoWorkbench .arcSidebar .arcLogo{display:block;max-width:124px}
  body.cocoWorkbench .arcSidebar .arcLogoMark{display:none}
- body.cocoWorkbench .arcSidebar .arcNav{padding:0 16px 20px}
- body.cocoWorkbench .arcSidebar .arcNavLink{--gama-blue:var(--coco-muted);--gama-orange:var(--coco-muted);justify-content:flex-start;gap:12px;min-height:44px;padding:10px 12px;margin-bottom:4px;border:0;border-radius:8px;background:transparent;box-shadow:none;color:var(--coco-ink);font-size:13px;font-weight:400}
- body.cocoWorkbench .arcSidebar .arcNavLink>svg{color:var(--coco-muted);width:20px;height:20px;flex:none}
- body.cocoWorkbench .arcSidebar .arcNavLink:hover{background:var(--coco-inset)}
- body.cocoWorkbench .arcSidebar .arcNavLink[aria-current=page]{--gama-blue:var(--coco-ink);--gama-orange:var(--coco-ink);background:var(--coco-selected);color:var(--coco-ink);box-shadow:none}
- body.cocoWorkbench .arcSidebar .arcNavLink[aria-current=page]>svg{color:var(--coco-ink)}
- body.cocoWorkbench .arcSidebar :is(.arcNavLabel,.arcFootBrand,.arcFootVersion){display:block}
- body.cocoWorkbench .arcSidebar .arcNavGroup{height:auto;border:0;font-size:11px;font-weight:500;letter-spacing:0;text-transform:none;padding:16px 12px 8px;margin:12px 0 6px;color:var(--arc-text-muted);border-top:1px solid var(--arc-line)}
- body.cocoWorkbench .arcSidebar .arcFoot{margin:0 24px;padding:14px 0 20px;border:0;border-top:1px solid var(--arc-line)}
- body.cocoWorkbench .arcSidebar .arcLang{padding:0 12px;background:transparent;border:0;border-radius:8px}
- body.cocoWorkbench .arcSidebar .arcLang .arcIco{display:block}
+ body.cocoWorkbench .arcSidebar .arcNav{padding:0 0 20px}
+ body.cocoWorkbench .arcSidebar .arcNavLink{--gama-blue:var(--coco-ink);--gama-orange:var(--coco-ink);position:relative;display:grid;grid-template-columns:36px minmax(0,1fr);justify-content:start;gap:12px;min-height:44px;padding:10px 16px 10px 8px;margin:0;border:0;border-radius:0;background:transparent;box-shadow:none;color:var(--coco-ink);font-size:13px;font-weight:400}
+ body.cocoWorkbench .arcSidebar .arcNavLink.aclHidden{display:none}
+ body.cocoWorkbench .arcSidebar .arcNavLink>svg{justify-self:center;color:var(--coco-ink);width:21px;height:21px;flex:none}
+ body.cocoWorkbench .arcSidebar .arcNavLink:hover{background:var(--coco-selected)}
+ body.cocoWorkbench .arcSidebar .arcNavLink[aria-current=page]{--gama-blue:var(--coco-action);--gama-orange:var(--coco-action);background:linear-gradient(90deg,var(--coco-nav-active) 52px,var(--coco-selected) 52px);color:var(--coco-ink);font-weight:600;box-shadow:none}
+ body.cocoWorkbench .arcSidebar .arcNavLink[aria-current=page]:before{content:"";position:absolute;inset:0 auto 0 0;width:3px;border-radius:0 3px 3px 0;background:var(--coco-action)}
+ body.cocoWorkbench .arcSidebar .arcNavLink[aria-current=page]>svg{color:var(--coco-action)}
+ body.cocoWorkbench .arcSidebar .arcNavLabel{display:block}
+ body.cocoWorkbench .arcSidebar :is(.arcFootBrand,.arcFootVersion){display:none}
+ body.cocoWorkbench .arcSidebar .arcNavGroup{height:auto;border:0;font-size:11px;font-weight:500;letter-spacing:0;text-transform:none;padding:14px 16px 7px 56px;margin:10px 0 4px;color:var(--arc-text-muted)}
+ body.cocoWorkbench .arcSidebar .arcNavEmpty{padding:0 16px 0 56px;line-height:1.5}
+ body.cocoWorkbench .arcSidebar .arcFoot{margin:0;padding:12px 16px 16px 8px;border:0;border-top:1px solid var(--arc-line)}
+ body.cocoWorkbench .arcSidebar .arcLang{gap:12px;padding:0;background:transparent;border:0;border-radius:8px}
+ body.cocoWorkbench .arcSidebar .arcLang .arcIco{display:block;flex:0 0 36px;width:20px;height:20px;padding:0 8px}
  body.cocoWorkbench .arcSidebar .arcLang select{text-align:left;font-size:12px}
  body.cocoWorkbench .arcDrawerClose{display:none}
- body.cocoWorkbench .arcTopbar{container-type:inline-size;height:auto;min-height:64px;padding:10px calc(var(--coco-page-gutter) + var(--arc-safe-r)) 12px calc(var(--coco-page-gutter) + var(--arc-safe-l));gap:24px;flex-wrap:nowrap;background:var(--arc-surface);border:0;box-shadow:none;border-bottom:1px solid var(--arc-line);padding-top:9px;padding-bottom:9px}
+ body.cocoWorkbench .arcTopbar{container-type:inline-size;height:auto;min-height:64px;padding:9px calc(var(--coco-page-gutter) + var(--arc-safe-r)) 9px calc(var(--coco-page-gutter) + var(--arc-safe-l));gap:20px;flex-wrap:nowrap;background:var(--arc-surface);border:0;box-shadow:none;border-bottom:1px solid var(--arc-line)}
  body.cocoWorkbench .arcBurger{display:none}
- .cocoModuleHeading{display:flex;align-items:flex-start;gap:8px;min-width:0;flex:1;padding:0;border:0}
+ .cocoModuleHeading{display:flex;align-items:flex-start;gap:8px;min-width:0;flex:0 1 300px;padding:0;border:0}
  .cocoModuleText{min-width:0;flex:1}
- body.cocoWorkbench .cocoModuleContext{display:block;min-height:44px;min-width:0;max-width:none;margin:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:var(--arc-font);font-size:20px;line-height:44px;font-weight:600;letter-spacing:-.025em;color:var(--coco-ink)}
+ body.cocoWorkbench .cocoModuleContext{display:block;min-height:44px;min-width:0;max-width:none;margin:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:var(--arc-font);font-size:22px;line-height:44px;font-weight:600;letter-spacing:-.03em;color:var(--coco-ink)}
  .cocoModuleSubtitle{display:none}
- body.cocoWorkbench .cocoModuleBack{display:inline-flex;align-items:center;justify-content:center;flex:0 0 44px;width:44px;min-width:44px;height:44px;min-height:44px;padding:10px;border:0;border-radius:6px;background:var(--coco-surface);box-shadow:none;color:var(--coco-ink)}
+ body.cocoWorkbench .cocoModuleBack{display:inline-flex;align-items:center;justify-content:center;flex:0 0 44px;width:44px;min-width:44px;height:44px;min-height:44px;padding:9px;border:1px solid var(--coco-line);border-radius:8px;background:var(--coco-surface);box-shadow:none;color:var(--coco-ink)}
  body.cocoWorkbench .cocoModuleBack[hidden]{display:none}
- .cocoModuleBack .arcIco{width:24px;height:24px}
+ .cocoModuleBack .arcIco{width:24px;height:24px;flex:none}
  body.cocoWorkbench .cocoModuleBack:hover{background:var(--arc-accent-100)}
- body.cocoWorkbench .arcTopbar>.arcSearch{display:block;flex:0 1 250px;width:auto;max-width:280px;min-width:160px;margin-left:auto}
- body.cocoWorkbench .arcSearch input{width:100%;height:40px;min-height:40px;padding:8px 12px 8px 36px;border:1px solid var(--coco-line);border-radius:8px;background:var(--arc-surface);color:var(--coco-ink);font-size:12px;box-shadow:none;cursor:text}
+ body.cocoWorkbench .arcTopbar>.arcSearch{display:block;flex:1 1 360px;width:auto;max-width:520px;min-width:160px;margin-left:0}
+ body.cocoWorkbench .arcSearch input{width:100%;height:44px;min-height:44px;padding:9px 58px 9px 36px;border:1px solid var(--coco-line);border-radius:8px;background:var(--arc-surface);color:var(--coco-ink);font-size:13px;box-shadow:none;cursor:text}
  body.cocoWorkbench .arcSearch input::placeholder{color:var(--coco-muted);opacity:1}
  body.cocoWorkbench .arcSearch input:focus-visible{outline:2px solid var(--arc-accent-600);outline-offset:3px}
  body.cocoWorkbench .arcSearch .arcIco{left:12px;right:auto;width:16px;height:16px;color:var(--coco-muted)}
- body.cocoWorkbench .arcSearch kbd{display:none}
- body.cocoWorkbench .arcTopRight{gap:8px;margin-left:0}
+ body.cocoWorkbench .arcSearch kbd{display:block;right:8px;padding:2px 6px;border:0;border-radius:4px;background:var(--coco-selected);font-size:11px;color:var(--coco-muted)}
+ body.cocoWorkbench .arcTopRight{gap:8px;margin-left:auto}
  body.cocoWorkbench .arcTopRight .arcProfileText,body.cocoWorkbench .arcChevron{display:none}
- body.cocoWorkbench .arcIconBtn{background:transparent;box-shadow:none;color:var(--coco-ink)}
+ body.cocoWorkbench .arcIconBtn{border:1px solid var(--coco-line);border-radius:8px;background:var(--coco-surface);box-shadow:none;color:var(--coco-ink)}
  body.cocoWorkbench .arcIconBtn .arcIco{width:20px;height:20px}
- body.cocoWorkbench .arcDot{top:-3px;right:-3px;min-width:18px;height:18px;line-height:18px;border-radius:6px;background:var(--arc-danger);color:white;font-weight:600;font-size:10px}
+ body.cocoWorkbench .arcDot{top:-3px;right:-3px;min-width:18px;height:18px;line-height:18px;border-radius:50%;background:var(--arc-danger);color:white;font-weight:600;font-size:10px}
  body.cocoWorkbench .arcUserSlot{padding:0;border:0;margin-left:6px}
- body.cocoWorkbench .arcAvatar{width:36px;height:36px;border-radius:50%;font-size:13px;background:var(--arc-accent-100);color:var(--arc-accent-700)}
+ body.cocoWorkbench .arcAvatar{width:36px;height:36px;border-radius:50%;font-size:13px;background:var(--coco-nav-active);color:var(--coco-ink)}
  body.cocoWorkbench .arcAvatar>img{border-radius:inherit}
- body.cocoWorkbench .arcContent{padding:20px calc(var(--coco-page-gutter) + var(--arc-safe-r)) calc(32px + var(--arc-safe-b)) calc(var(--coco-page-gutter) + var(--arc-safe-l));background:var(--coco-canvas)}
+ body.cocoWorkbench .arcContent{padding:20px calc(var(--coco-page-gutter) + var(--arc-safe-r)) calc(32px + var(--arc-safe-b)) calc(var(--coco-page-gutter) + var(--arc-safe-l));background:var(--coco-surface)}
  body.cocoWorkbench .arcContent>.wrap,body.cocoWorkbench .arcContent>#mainmenu{max-width:none;min-width:0}
  body.cocoWorkbench .arcContent>.wrap>section{min-width:0;max-width:100%}
  /* These remain native buttons inside the business module, with one title. */
@@ -108,12 +113,12 @@
  body.cocoWorkbench .arcDrawerClose{position:absolute;right:8px;top:8px;display:grid;place-items:center;width:44px;height:44px;padding:10px;background:transparent;border:0;color:var(--coco-ink)}
  .arcDrawerClose svg{width:20px;height:20px}
  body.cocoWorkbench .arcSidebar .arcBrand{margin-top:44px}
- body.cocoWorkbench .arcBurger{display:flex;flex:none;min-width:44px;min-height:44px;padding:10px;border:0;border-radius:12px;background:var(--coco-surface);color:var(--arc-accent-700)}
- body.cocoWorkbench .arcTopbar{padding:9px calc(24px + var(--arc-safe-r)) 16px calc(24px + var(--arc-safe-l));gap:16px}
- body.cocoWorkbench .cocoModuleContext{font-size:23px}
+ body.cocoWorkbench .arcBurger{display:flex;flex:none;min-width:44px;min-height:44px;padding:10px;border:1px solid var(--coco-line);border-radius:8px;background:var(--coco-surface);color:var(--coco-ink)}
+ body.cocoWorkbench .arcTopbar{padding:9px calc(20px + var(--arc-safe-r)) 9px calc(20px + var(--arc-safe-l));gap:12px}
+ body.cocoWorkbench .cocoModuleContext{font-size:22px}
  body.cocoWorkbench .arcTopbar>.arcSearch{flex-basis:280px}
  body.cocoWorkbench .arcTopRight{gap:6px}
- body.cocoWorkbench .arcContent{padding:18px calc(24px + var(--arc-safe-r)) calc(36px + var(--arc-safe-b)) calc(24px + var(--arc-safe-l))}
+ body.cocoWorkbench .arcContent{padding:20px calc(20px + var(--arc-safe-r)) calc(36px + var(--arc-safe-b)) calc(20px + var(--arc-safe-l))}
  .cocoListOptions .gqAdvanced[open]{flex-basis:100%;order:4}
 }
 @media screen and (max-width:860px){body.cocoWorkbench .arcContent{padding-bottom:calc(92px + var(--arc-safe-b))}}
@@ -122,13 +127,13 @@
  body.cocoWorkbench .arcTopbar{padding:9px calc(10px + var(--arc-safe-r)) 10px calc(10px + var(--arc-safe-l));gap:6px}
  body.cocoWorkbench .arcTopbar>.arcSearch{display:none}
  body.cocoWorkbench[data-coco-module=mainmenu] .cocoModuleHeading{display:none}
- .cocoModuleHeading{gap:5px}
- body.cocoWorkbench .cocoModuleContext{font-size:18px}
+ .cocoModuleHeading{gap:5px;flex:1}
+ body.cocoWorkbench .cocoModuleContext{font-size:20px}
  .cocoModuleSubtitle{display:none}
  body.cocoWorkbench .arcTopRight{gap:0;margin-left:auto}
  body.cocoWorkbench .arcUserSlot{margin-left:2px}
- body.cocoWorkbench .arcAvatar{width:38px;height:38px;font-size:13px;border-radius:12px}
- body.cocoWorkbench .arcContent{padding:16px calc(14px + var(--arc-safe-r)) calc(92px + var(--arc-safe-b)) calc(14px + var(--arc-safe-l))}
+ body.cocoWorkbench .arcAvatar{width:36px;height:36px;font-size:13px;border-radius:50%}
+ body.cocoWorkbench .arcContent{padding:16px calc(16px + var(--arc-safe-r)) calc(92px + var(--arc-safe-b)) calc(16px + var(--arc-safe-l))}
  body.cocoWorkbench .arcContent section .cocoModuleNav{margin-bottom:16px!important;gap:8px!important}
  body.cocoWorkbench .arcContent section .cocoModuleNav>button{padding:10px 14px!important;min-height:44px}
  .cocoSalesSubnav .cocoSalesActions{width:100%}

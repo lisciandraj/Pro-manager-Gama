@@ -110,15 +110,15 @@ test('phone table mode keeps every value under its column header, empty cells in
  expect(await page.locator('#alignTest tbody tr').nth(1).locator('td').evaluateAll(c=>c.filter(x=>getComputedStyle(x).display==='none').length)).toBe(3);
 });
 
-// Los botones muestran iconos blancos al estar activos y carbón al estar inactivos.
+// Los botones usan naranja para la vista activa y texto e iconos oscuros en ambas vistas.
 test('les boutons d’affichage montrent des icônes et des libellés traduits',async({page})=>{
  await boot(page);await fixtures(page);
  const bar=page.locator('#viewShared .gamaTableViews'),cards=bar.locator('[data-table-view=cards]'),table=bar.locator('[data-table-view=table]');
  for(const b of [cards,table]){expect(await b.evaluate(x=>x.textContent.trim())).toBe(await b.getAttribute('aria-label'));const box=await b.boundingBox();expect(Math.round(box.width)).toBeGreaterThanOrEqual(44);expect(Math.round(box.height)).toBeGreaterThanOrEqual(44)}
  const expectViewStyles=async()=>{for(const button of [cards,table]){
   const active=await button.getAttribute('aria-pressed')==='true';
-  const ink=active?'rgb(255, 255, 255)':'rgb(38, 50, 56)';
-  await expect(button).toHaveCSS('background-color',active?'rgb(38, 50, 56)':'rgb(255, 255, 255)');
+  const ink='rgb(21, 21, 21)';
+  await expect(button).toHaveCSS('background-color',active?'rgb(238, 84, 0)':'rgb(255, 255, 255)');
   await expect(button).toHaveCSS('color',ink);
   const glyph=button.locator('svg');await expect(glyph).toBeVisible();
   // Check the painted geometry, independently of its paths or layer count.
@@ -128,6 +128,7 @@ test('les boutons d’affichage montrent des icônes et des libellés traduits',
    return [Number(style.fillOpacity)>0?style.fill:'none',Number(style.strokeOpacity)>0&&parseFloat(style.strokeWidth)>0?style.stroke:'none'].filter(paint=>paint!=='none');
   }))]);
   expect(paints).toEqual([ink]);
+
  }};
  await expectViewStyles();
  const names=async()=>[await cards.getAttribute('aria-label'),await cards.getAttribute('title'),await table.getAttribute('aria-label'),await table.getAttribute('title')];

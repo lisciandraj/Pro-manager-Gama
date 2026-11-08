@@ -117,7 +117,7 @@ test.describe('Usuarios — colores y traducción', () => {
     for (const name of names) badges.push(await style(page, name, '.cuBadge'));
     expect(new Set(badges.map(b => b.color + b.background)).size).toBe(names.length);
     expect(await row(page, 'Jimmy Lisciandra').locator('.cuBadge').getAttribute('data-role')).toBe('admin');
-    expect((await style(page, 'Paula Martinez', 'td.cuActive')).color).toBe('rgb(22, 120, 93)');
+    expect((await style(page, 'Paula Martinez', 'td.cuActive')).color).toBe('rgb(2, 113, 15)');
     expect((await style(page, 'Teddy Boy', 'td.cuInactive')).color).toBe('rgb(190, 56, 72)');
   });
 

@@ -299,6 +299,12 @@ Les retours de pression, d’état et de superposition durent 120, 180 et 240 ms
 
 Les commandes et champs partagés utilisent `control`, les fonds en retrait `inset`, les surfaces `panel`, et les fenêtres `dialog`. Les surfaces de travail utilisent 8 px sur PC et 12 px sur téléphone ; les fenêtres conservent 8 px. Les boutons et champs génériques utilisent 6 px. Les onglets de module, les liens latéraux et la recherche globale gardent un rayon explicite de 8 px ; la barre latérale droite n’a pas d’arrondi. Les badges conservent leur rayon compact de 6 px. Avatars, repères GPS et autres formes métier gardent leur géométrie spécifique.
 
+## Iconography
+
+Les pictogrammes de l’ERP suivent désormais le langage de [Upview Icons](https://dribbble.com/shots/27554902-Upview-Icons) : silhouettes pleines originales, coins et terminaisons arrondis, découpes transparentes et une couleur par dessin. Le catalogue partagé `src/ui/icons.js` fournit les mêmes SVG à l’accueil, aux menus, aux utilitaires et aux vues métier. Les dessins restent lisibles sur la grille 24 × 24, y compris à 20 px dans la navigation.
+
+Les couleurs de famille bleu, vert, rose et corail sont réservées aux pictogrammes des tuiles et en-têtes via le token de famille `--coco-glyph-tone`. La navigation, les KPI et les commandes gardent leurs couleurs de contexte et leurs états sélectionnés ; les favoris gardent leur contour au repos et leur remplissage à la sélection. Aucun fond décoratif, raster, ombre ou dégradé n’est ajouté. Le logo, le monogramme et les icônes PWA approuvés ne font pas partie de ce catalogue. Voir [la charte commune](../design-system.md#iconographie-commune--8-novembre-2026) pour les sources et les teintes.
+
 ## Components
 
 ### Buttons

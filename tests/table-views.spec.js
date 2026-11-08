@@ -110,7 +110,7 @@ test('phone table mode keeps every value under its column header, empty cells in
  expect(await page.locator('#alignTest tbody tr').nth(1).locator('td').evaluateAll(c=>c.filter(x=>getComputedStyle(x).display==='none').length)).toBe(3);
 });
 
-// Los botones muestran iconos blancos al estar activos y carbón al estar inactivos.
+// Los botones usan naranja para la vista activa y texto e iconos oscuros en ambas vistas.
 test('les boutons d’affichage montrent des icônes et des libellés traduits',async({page})=>{
  await boot(page);await fixtures(page);
  const bar=page.locator('#viewShared .gamaTableViews'),cards=bar.locator('[data-table-view=cards]'),table=bar.locator('[data-table-view=table]');
@@ -118,8 +118,8 @@ test('les boutons d’affichage montrent des icônes et des libellés traduits',
  await expect(cards.locator('svg rect')).toHaveCount(4);
  const expectViewStyles=async()=>{for(const button of [cards,table]){
   const active=await button.getAttribute('aria-pressed')==='true';
-  const stroke=active?'rgb(255, 255, 255)':'rgb(38, 50, 56)';
-  await expect(button).toHaveCSS('background-color',active?'rgb(38, 50, 56)':'rgb(255, 255, 255)');
+  const stroke='rgb(21, 21, 21)';
+  await expect(button).toHaveCSS('background-color',active?'rgb(238, 84, 0)':'rgb(255, 255, 255)');
   await expect(button).toHaveCSS('color',stroke);
   await expect(button.locator('svg')).toBeVisible();
   await expect(button.locator('.cocoIconPrimary')).toHaveCSS('stroke',stroke);

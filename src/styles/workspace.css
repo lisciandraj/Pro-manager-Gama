@@ -1,58 +1,35 @@
-/* Coco workspace, based on the approved October mockups and Odoo references.
+/* Coco workspace, using the verified Openhub surface and grid language.
    Shared surfaces and layouts only; domain states and permissions stay in JS. */
 body[data-app="coco-erp"]{
- --coco-blue:#263238;--coco-blue-dark:#1C252A;--coco-orange:#2F6F42;
- --coco-grid:#E2E6E9;
- --coco-blue-tint:#EEF0F2;--coco-orange-tint:#E8F2EA;
- background:#F4F5F7;color:var(--coco-ink)}
-.arcShell{--arc-sidebar-w:232px}
-.arcSidebar{border-right:1px solid #DDE5EC}
-.arcBrand{justify-content:flex-start;margin:0;padding:18px 22px;min-height:74px;border-bottom:1px solid #E1E6EC}
-.arcBrand .arcLogo{display:block}
-.arcBrand .arcLogoMark{width:42px;height:42px}
-.arcNav{padding:16px 12px}
-.arcNavLink{gap:14px;padding:12px 14px;margin-bottom:6px;font-size:14px;min-height:46px;color:var(--arc-text)}
-.arcSidebar .arcNavGroup{font-size:10px;padding:12px 14px 6px;letter-spacing:.06em;margin-top:8px}
+ --coco-blue:var(--coco-ink);--coco-blue-dark:var(--arc-navy-800);--coco-orange:var(--coco-action);
+ --coco-grid:var(--arc-line);
+ --coco-blue-tint:var(--coco-selected);--coco-orange-tint:var(--coco-nav-active);
+ background:var(--coco-canvas);color:var(--coco-ink)}
 .arcNavFavorites .arcNavGroup{display:flex;align-items:center;gap:7px;border-top:0;color:var(--arc-text)}
 .arcNavFavorites .arcNavGroup .arcIco{width:14px;height:14px;flex:none}
 .arcNavEmpty{padding:0 14px;margin:4px 0 12px;color:var(--coco-muted);font-size:12px;line-height:1.5}
-@media(min-width:861px) and (max-width:1099px){body:not(.arcDrawerOpen) .arcNavEmpty{display:none}}
-.arcSidebar .arcNavLink[aria-current=page]{background:var(--arc-warning-bg);color:var(--arc-text);box-shadow:inset 3px 0 0 var(--arc-accent-600)}
-.arcFoot{padding:12px 0 18px}
-.arcFootBrand,.arcFootVersion{display:none}
-.arcTopbar{padding:12px calc(28px + var(--arc-safe-r)) 12px calc(28px + var(--arc-safe-l));border-bottom:1px solid #DDE5EC;gap:20px}
-.arcSearch{max-width:720px}
-.arcSearch input{min-height:46px;background:#F7F9FC;border-color:#D4E0E8;font-size:14px}
-.arcAvatar{background:var(--arc-accent-700)}
-.arcContent{padding:26px 28px 32px;background:#F4F5F7}
 .cocoMobileNav{display:none}
-body .arcContent .arcButton.primary,body>dialog .arcButton.primary{background:var(--arc-accent-700);border-color:var(--arc-accent-700);color:#fff;box-shadow:none}
-body .arcContent .arcButton.primary:hover:not(:disabled){background:var(--arc-accent-700)}
-body .arcContent .arcButton.secondary{background:#fff;color:var(--arc-accent-700);border:1px solid #BDD0DC}
+body .arcContent .arcButton.primary,body>dialog .arcButton.primary{background:var(--coco-action);border-color:var(--coco-action);color:var(--coco-on-action);box-shadow:none}
+body .arcContent .arcButton.primary:hover:not(:disabled){background:var(--coco-action-hover);border-color:var(--coco-action-hover)}
+body .arcContent .arcButton.secondary{background:var(--coco-surface);color:var(--coco-ink);border:1px solid var(--arc-line-strong)}
 body .arcContent .arcButton:disabled{opacity:.5;cursor:default}
-body .arcContent :is(.arcPanel,.ivCard,.gsCard,.gaCard){border-radius:12px;box-shadow:0 2px 8px rgba(23,49,65,.025)}
 body .arcContent section:not(#mainmenu) .gamaStdHeader.gamaCompactHeader{height:auto;min-height:46px;gap:12px;margin:0 0 16px;padding-bottom:12px;border-bottom:1px solid var(--arc-command-border);align-items:center;flex-wrap:wrap}
 body .arcContent .gamaCompactHeader .gamaStdActions{order:-1}
 body .arcContent .gamaCompactHeader .gamaStdText{position:static!important;width:auto!important;height:auto!important;min-width:0;margin:0!important;padding:0!important;overflow:visible!important;clip:auto!important;white-space:normal!important;flex:1}
 body .arcContent .gamaCompactHeader .gamaStdText h2{font-size:var(--arc-workspace-title);font-weight:700;line-height:1.25;letter-spacing:-.025em;margin:0;color:var(--arc-text)}
 body .arcContent .gamaCompactHeader .gamaStdText p{display:none}
-body .arcContent section:not(#mainmenu) .gamaCompactHeader .gamaStdBack{background:white;border-color:#C9D8E3;border-radius:9px}
-body .arcContent :is(.ivTabs,.gsTabs,.gaNav,.gdfTabs,.arcTabs){border-bottom:1px solid #DDE5EC;gap:8px;padding:0;margin:0 0 20px}
+body .arcContent section:not(#mainmenu) .gamaCompactHeader .gamaStdBack{background:white;border-color:var(--arc-line-strong);border-radius:9px}
+body .arcContent :is(.ivTabs,.gsTabs,.gaNav,.gdfTabs,.arcTabs){border-bottom:1px solid var(--arc-line);gap:8px;padding:0;margin:0 0 20px}
 body .arcContent :is(.ivTabs,.gsTabs,.gaNav,.gdfTabs,.arcTabs)>button{background:transparent;border:1px solid transparent;border-radius:0;box-shadow:none;color:var(--coco-muted);min-height:44px;padding:10px 16px;font-size:14px;font-weight:600}
 body .arcContent :is(.ivTabs,.gsTabs,.gaNav,.gdfTabs,.arcTabs)>button:is(.active,.on,[aria-selected=true]){background:transparent;color:var(--arc-text);border-bottom:2px solid var(--arc-accent-600)}
-body .arcContent :is(table.arcTable,table.gamaCards){--arc-table-grid:var(--coco-grid);font-size:13px}
-body .arcContent :is(table.arcTable,table.gamaCards):not([data-gama-view=cards]) th{background:#F4F7FA;color:#324C62;padding:13px 14px;font-weight:650;border:1px solid var(--coco-grid)}
-body .arcContent :is(table.arcTable,table.gamaCards):not([data-gama-view=cards]) td{padding:14px;border:1px solid var(--coco-grid);vertical-align:middle}
-body .arcContent :is(table.arcTable,table.gamaCards):not([data-gama-view=cards]) tr:nth-child(even)>td{background:#F7F9FB}
-body .arcContent :is(table.arcTable,table.gamaCards):not([data-gama-view=cards]) tr[data-selected=true]>td{background:var(--arc-info-bg)}
 body .arcContent :is(table.arcTable,table.gamaCards) .arcNumeric{font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap}
 body .arcContent .gamaTableTools{gap:8px}
 body .arcContent .gamaTableSwitch button{gap:7px}
-.cocoStatus{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:4px 10px;font-size:12px;font-weight:600;white-space:nowrap;color:var(--arc-accent-700);background:var(--arc-info-bg)}
-.cocoStatus[data-tone=success]{background:#E4F5EC;color:var(--arc-success)}
-.cocoStatus[data-tone=warning]{background:var(--arc-warning-bg);color:var(--arc-text)}
-.cocoStatus[data-tone=danger]{background:#FCE9E7;color:#B3261E}
-.cocoStatus[data-tone=muted]{background:#EFF2F5;color:var(--coco-muted)}
+.cocoStatus{display:inline-flex;align-items:center;gap:6px;border-radius:6px;padding:4px 10px;font-size:12px;font-weight:500;white-space:nowrap;color:var(--arc-info);background:var(--arc-info-bg)}
+.cocoStatus[data-tone=success]{background:var(--arc-success-bg);color:var(--arc-success)}
+.cocoStatus[data-tone=warning]{background:var(--arc-warning-bg);color:var(--arc-warning)}
+.cocoStatus[data-tone=danger]{background:var(--arc-danger-bg);color:var(--arc-danger)}
+.cocoStatus[data-tone=muted]{background:var(--coco-selected);color:var(--coco-muted)}
 .cocoStatus svg{width:16px;height:16px;flex:none}
 .cocoSectionTitle{display:flex;justify-content:space-between;align-items:center;gap:14px;margin-bottom:16px}
 .cocoSectionTitle h2,.cocoSectionTitle h3{margin:0;font-size:18px}
@@ -60,17 +37,12 @@ body .arcContent .gamaTableSwitch button{gap:7px}
 .cocoKeyValues>div{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid var(--arc-line);font-size:13px}
 .cocoKeyValues dt{color:var(--coco-muted)}.cocoKeyValues dd{margin:0;text-align:right;font-weight:600}
 
-/* Module launcher: four columns on desktop, two on a phone. */
-#mainmenu .gamaF2Head{margin-bottom:18px}
-#mainmenu .gamaF2Grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
-#mainmenu .gamaF2Card[data-arc-fam]{background:#FFF;border:1px solid #B6DCE5;border-radius:12px;padding:24px 16px;min-height:172px;gap:16px;position:relative;color:var(--arc-accent-700);box-shadow:none}
-#mainmenu .gamaF2Card .gamaF2Icon[data-arc-fam]{background:transparent;border-radius:0;width:58px;height:58px;color:var(--arc-accent-700)}
-#mainmenu .gamaF2Icon svg{width:56px;height:56px;stroke-width:1.65}
-#mainmenu .gamaF2Title{font-size:16px;font-weight:650;color:var(--arc-text);line-height:1.35}
-#mainmenu .gamaF2Card:hover{box-shadow:0 5px 15px rgba(16,103,125,.07);border-color:#88BCC9}
-#mainmenu .arcDragHandle{font-size:18px;line-height:28px;top:7px;right:8px;color:#86A0AE;opacity:.45}
+/* Module launcher; workbench.css supplies its responsive square geometry. */
+#mainmenu .gamaF2Card .gamaF2Icon[data-arc-fam]{background:transparent;border-radius:0;color:var(--coco-ink)}
+#mainmenu .gamaF2Icon svg{stroke-width:1.65}
+#mainmenu .arcDragHandle{font-size:18px;line-height:28px;top:7px;right:8px;color:var(--coco-muted);opacity:.45}
 #mainmenu .gamaF2Card:hover .arcDragHandle,#mainmenu .gamaF2Card:focus .arcDragHandle{opacity:1}
-#mainmenu .arcCustomizeButton{min-height:42px;padding:8px 16px;font-size:13px;background:#fff;border:1px solid #BDD0DC;border-radius:8px}
+#mainmenu .arcCustomizeButton{min-height:42px;padding:8px 16px;font-size:13px;background:#fff;border:1px solid var(--arc-line-strong);border-radius:8px}
 #dashboard .adPeriod{display:flex;flex-wrap:wrap;gap:12px;align-items:end;margin:0}
 #dashboard .adPeriod .arcField{flex:1 1 140px;min-width:0;margin:0;font-size:12px}
 #dashboard .adPeriodActions{display:flex;gap:8px;margin:0}
@@ -86,6 +58,7 @@ body .arcContent .gamaTableSwitch button{gap:7px}
 #dashboard .adMetric strong{font-size:28px;letter-spacing:-.025em;margin:10px 0 6px;line-height:1.2}
 #dashboard .adMetric small,#dashboard .adDelta{font-size:11px}
 #dashboard .adMetricArrow{display:none}
+#dashboard :is(.adMetric,.adQuickActions,.adRecentOrders,.adAnalysis>article){background:var(--coco-surface);border:1px solid var(--arc-line);border-radius:var(--arc-r-lg);box-shadow:none}
 #dashboard .adCockpit{display:grid;margin:0 0 20px}
 #dashboard .adCockpit .adAnalysis{display:contents}
 #dashboard .adCockpit .adAnalysis>article:first-child{grid-column:1;grid-row:1;min-width:0}
@@ -105,15 +78,15 @@ body .arcContent .gamaTableSwitch button{gap:7px}
 #dashboard .adRecentOrders{grid-column:1/-1;grid-row:2;min-width:0}
 #dashboard .adRecentOrders .arcTableWrap{margin:0}
 #dashboard .adExecutive .adMetrics{grid-template-columns:repeat(3,minmax(0,1fr))}
-#dashboard .adDetails>summary{cursor:pointer;color:var(--arc-accent-700);font-size:14px;font-weight:650;padding:14px 18px;border:1px solid #DDE5EC;background:white;border-radius:10px;list-style-position:inside}
+#dashboard .adDetails>summary{cursor:pointer;color:var(--arc-accent-700);font-size:14px;font-weight:650;padding:14px 18px;border:1px solid var(--arc-line);background:white;border-radius:10px;list-style-position:inside}
 #dashboard .adDetails[open]>summary{margin-bottom:16px}
 #dashboard .adPrioBoard{gap:16px}
 #dashboard .adModuleGrid{grid-template-columns:repeat(3,minmax(0,1fr))}
 
 /* Inventory: compact primary columns and a real selected-product inspector. */
 #warehouses .ivKpis{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-bottom:18px}
-#warehouses .ivKpi{padding:18px;border:1px solid #B6DCE5;background:var(--arc-info-bg);border-radius:12px;box-shadow:none;min-width:0}
-#warehouses .ivKpi:nth-child(2){background:var(--arc-warning-bg);border-color:#F7D5BD;color:var(--arc-text)}
+#warehouses .ivKpi{padding:18px;border:1px solid var(--arc-line);background:var(--arc-info-bg);border-radius:12px;box-shadow:none;min-width:0}
+#warehouses .ivKpi:nth-child(2){background:var(--arc-warning-bg);border-color:var(--arc-warning-line);color:var(--arc-text)}
 #warehouses .ivKpi:nth-child(3){background:#FCE9E7;border-color:#F3BDB8;color:#B3261E}
 #warehouses .ivKpi b{font-size:28px;margin-top:9px;display:block;line-height:1.2}
 #warehouses .ivKpi span{font-size:13px;font-weight:600}
@@ -121,7 +94,7 @@ body .arcContent .gamaTableSwitch button{gap:7px}
 #warehouses .ivFiltros #ivBuscar{flex:2 1 260px;min-width:0;margin:0}
 #warehouses .ivFiltros #ivAlmacen{flex:1 1 180px;min-width:0;margin:0}
 #warehouses .ivFilterDetails{flex:none}
-#warehouses .ivFilterDetails>summary{padding:10px 14px;border:1px solid #BDD0DC;border-radius:8px;cursor:pointer;color:var(--arc-accent-700);background:white;min-height:44px;font-size:13px}
+#warehouses .ivFilterDetails>summary{padding:10px 14px;border:1px solid var(--arc-line-strong);border-radius:8px;cursor:pointer;color:var(--arc-accent-700);background:white;min-height:44px;font-size:13px}
 #warehouses .ivFilterFields{display:flex;flex-wrap:wrap;gap:12px;padding:14px 0}
 #warehouses .ivFilterFields>*{flex:1 1 180px;min-width:0;margin:0}
 #warehouses .ivStockLayout{display:grid;grid-template-columns:minmax(0,1fr) 276px;gap:16px;margin-top:16px;align-items:start}
@@ -147,7 +120,7 @@ body .arcContent .gamaTableSwitch button{gap:7px}
 #sales-orders .gsOrderHead .gsActions{margin:0;gap:8px}
 #sales-orders .gsMilestones{gap:22px 16px}
 #sales-orders .gsMilestones li{display:flex;min-width:0;position:relative}
-#sales-orders .gsMilestoneDot{display:grid;place-items:center;flex:none;border-radius:50%;background:#DFE5EB;color:var(--coco-muted);font-weight:700}
+#sales-orders .gsMilestoneDot{display:grid;place-items:center;flex:none;border-radius:50%;background:var(--coco-selected);color:var(--coco-muted);font-weight:700}
 #sales-orders .gsMilestones [data-state=done] .gsMilestoneDot{background:var(--arc-success);color:#fff}
 #sales-orders .gsMilestones [data-state=current] .gsMilestoneDot{background:var(--arc-accent-600);color:#fff}
 #sales-orders .gsMilestones strong{display:block;line-height:1.4}
@@ -174,16 +147,16 @@ body .arcContent .gamaTableSwitch button{gap:7px}
 #sales-orders .gsOrderMore[open]>summary{margin-bottom:16px}
 .gdfSteps{gap:14px}
 .gdfStep{border-radius:12px;box-shadow:none}
-.gdfHistory ol{border-left:2px solid #B6DCE5;padding-left:18px}
+.gdfHistory ol{border-left:2px solid var(--arc-line);padding-left:18px}
 
 /* SRI uses fiscal states; none is inferred from an internal validation. */
 #sri .gaSriHeader{display:flex;align-items:center;justify-content:space-between}
 #sri .gaSriHeader h2{font-size:18px;margin:0}
 #sri .gaSriEnvironment{border:1px solid var(--arc-accent-600);padding:4px 10px;border-radius:8px;color:var(--arc-text);font-weight:700}
-#sri .gaSriTabs{display:flex;border-bottom:1px solid #DDE5EC;margin-bottom:18px}
+#sri .gaSriTabs{display:flex;border-bottom:1px solid var(--arc-line);margin-bottom:18px}
 #sri .gaSriTabs button{background:transparent;border:0;border-bottom:2px solid transparent;border-radius:0;box-shadow:none;color:var(--coco-muted)}
 #sri .gaSriTabs button[aria-selected=true]{border-bottom-color:var(--arc-accent-600);color:var(--arc-text);font-weight:650}
-#sri .gaSriNotice{background:var(--arc-warning-bg);border:1px solid #F7D5BD;border-left:4px solid var(--arc-accent-600);color:var(--arc-text);border-radius:9px;line-height:1.5;margin-bottom:18px}
+#sri .gaSriNotice{background:var(--arc-warning-bg);border:1px solid var(--arc-warning-line);border-left:4px solid var(--arc-accent-600);color:var(--arc-text);border-radius:9px;line-height:1.5;margin-bottom:18px}
 #sri .gaSriTools{display:flex}
 #sri .gaSriTools label{margin:0;font-size:12px;min-width:0}
 #sri .gaSriTools label:first-child{flex:1 1 250px}
@@ -200,32 +173,20 @@ body .arcContent .gamaTableSwitch button{gap:7px}
 #sri .gaSriSettings>summary{cursor:pointer;color:var(--arc-accent-700);font-size:13px;padding:12px 0}
 #sri .gaSriKey{word-break:break-all;white-space:normal;font-size:10px}
 #sri .gaSriRowOpen{padding:0;min-height:36px;box-shadow:none;background:transparent;border:0;color:var(--arc-text);font-weight:650;font-size:13px;text-align:left}
-#sri .gaSriDocs{border-top:1px solid #E1E6EC;margin-top:16px;padding-top:16px}
+#sri .gaSriDocs{border-top:1px solid var(--arc-line);margin-top:16px;padding-top:16px}
 #sri .gaSriDocs h4{margin:0 0 10px}
 
 @media(min-width:861px) and (max-width:1099px){
- .arcBrand{justify-content:center;padding:16px 8px}.arcBrand .arcLogo{display:none}.arcBrand .arcLogoMark{display:block}
- body.arcDrawerOpen .arcBrand{justify-content:flex-start;padding:18px 22px}body.arcDrawerOpen .arcBrand .arcLogo{display:block}
- #mainmenu .gamaF2Grid{grid-template-columns:repeat(3,minmax(0,1fr))}
  #warehouses .ivStockLayout{grid-template-columns:minmax(0,1fr) 235px}
  #dashboard .adMetric strong{font-size:24px}
  #sales-orders .gsOrderWorkspace{grid-template-columns:minmax(0,1.8fr) minmax(220px,1fr)}
 }
 @media(max-width:1100px){#sri .gaSriLayout{grid-template-columns:1fr}#sri .gaSriInspector{position:static}}
 @media(max-width:860px){
- .arcShell{--arc-sidebar-w:min(84vw,280px)}
- .arcTopbar{padding:10px calc(14px + var(--arc-safe-r)) 10px calc(14px + var(--arc-safe-l));min-height:66px;gap:8px}.arcTopRight{gap:2px}.arcUserSlot{padding-left:6px}
- .arcTopbar>.arcSearch{display:none}
- .arcContent{padding:20px 16px calc(96px + env(safe-area-inset-bottom,0px))}
- .cocoMobileNav{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));position:fixed;bottom:0;left:0;right:0;z-index:45;padding:6px 10px calc(6px + env(safe-area-inset-bottom,0px));background:#fff;border-top:1px solid #DDE5EC}
- .cocoMobileNav button{display:flex;flex-direction:column;justify-content:center;align-items:center;gap:5px;border:0;box-shadow:none;background:transparent;color:#324C62;margin:0;padding:7px 2px;min-height:54px;font-size:11px;min-width:0}
+ .cocoMobileNav{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));position:fixed;bottom:0;left:0;right:0;z-index:45;padding:6px 10px calc(6px + env(safe-area-inset-bottom,0px));background:#fff;border-top:1px solid var(--arc-line)}
+ .cocoMobileNav button{display:flex;flex-direction:column;justify-content:center;align-items:center;gap:5px;border:0;box-shadow:none;background:transparent;color:var(--coco-muted);margin:0;padding:7px 2px;min-height:54px;font-size:11px;min-width:0}
  .cocoMobileNav svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.7}
  .cocoMobileNav button[aria-current=page]{color:var(--arc-text)}
- .arcBurger{width:44px;min-width:44px;padding:4px}
- #mainmenu .gamaF2Grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
- #mainmenu .gamaF2Card[data-arc-fam]{min-height:140px;padding:22px 9px 18px;gap:12px}
- #mainmenu .gamaF2Icon svg{width:43px;height:43px}#mainmenu .gamaF2Card .gamaF2Icon[data-arc-fam]{width:45px;height:45px}
- #mainmenu .gamaF2Title{font-size:14px}
  body .arcContent .gamaCompactHeader .gamaStdText h2{font-size:21px}
  body .arcContent section:not(#mainmenu) .gamaStdHeader.gamaCompactHeader{gap:12px;margin-bottom:16px}
  #dashboard .adMetrics{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
@@ -254,7 +215,7 @@ body .arcContent .gamaTableSwitch button{gap:7px}
 /* Native controls in the approved mockups retain their accessible names. */
 #mainmenu .gamaF2Card .cocoModuleOpen{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;flex:1;width:100%;padding:0;min-height:100px;background:transparent;border:0;box-shadow:none;color:inherit}
 #mainmenu .gamaF2Icon svg.arcHomeIllustration{fill:none;stroke:currentColor}
-#mainmenu .cocoModuleFavorite{position:absolute;right:12px;top:12px;width:30px;height:30px;min-height:30px;padding:4px;margin:0;border:0;background:transparent;box-shadow:none;color:#91A9B9}
+#mainmenu .cocoModuleFavorite{position:absolute;right:12px;top:12px;width:30px;height:30px;min-height:30px;padding:4px;margin:0;border:0;background:transparent;box-shadow:none;color:var(--coco-muted)}
 #mainmenu .cocoModuleFavorite svg{width:22px;height:22px;stroke:currentColor;stroke-width:1.5;fill:none}
 #mainmenu .cocoModuleFavorite[aria-pressed=true]{color:var(--arc-text)}
 #mainmenu .cocoModuleFavorite[aria-pressed=true] svg{fill:#FFD8B8}
@@ -286,12 +247,12 @@ body .arcContent .gamaTableSwitch button{gap:7px}
 #sri .gaSriBatch>span:first-child{font-weight:600;color:var(--arc-accent-700)}
 .cocoProofSteps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));list-style:none;padding:0;gap:10px;margin:8px 0 22px}
 .cocoProofSteps li{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--coco-muted)}
-.cocoProofSteps b{display:grid;place-items:center;width:27px;height:27px;flex:none;background:#EDF1F5;color:var(--coco-muted);border-radius:50%}
+.cocoProofSteps b{display:grid;place-items:center;width:27px;height:27px;flex:none;background:var(--coco-selected);color:var(--coco-muted);border-radius:50%}
 .cocoProofSteps [data-complete=true] b{background:var(--arc-accent-700);color:#fff}
 .cocoProofDialog{max-width:700px;background:#fff;border:1px solid var(--arc-line);border-radius:14px}
-.cocoProofDialog .tmsSig{border:2px dashed #B6DCE5;border-radius:10px;background:#F7F9FC;touch-action:none}
+.cocoProofDialog .tmsSig{border:2px dashed var(--arc-line-strong);border-radius:10px;background:var(--coco-surface);touch-action:none}
 .cocoProofDialog .tmsReceiptLines fieldset{border:1px solid var(--arc-line);border-radius:10px;padding:14px}
-.cocoProofDialog [type=submit]{width:100%;background:var(--arc-accent-700);color:#fff;min-height:46px}
+.cocoProofDialog [type=submit]{width:100%;background:var(--coco-action);color:var(--coco-on-action);min-height:46px}
 .cocoProofDialog [type=submit]:disabled{background:#E6EBEF;color:#728496;border-color:var(--arc-line);opacity:1}
 @media(max-width:860px){
  #mainmenu .gamaF2Card .cocoModuleOpen{min-height:98px;gap:12px}
@@ -307,7 +268,7 @@ body .arcContent .gamaTableSwitch button{gap:7px}
 .arcBrand .arcLogo{text-decoration:none}
 body .arcContent .gamaStdBack{color:var(--arc-accent-700)}
 .cocoModuleTools{margin:0 0 14px;font-size:12px;color:var(--arc-accent-700)}
-.cocoModuleTools>summary{cursor:pointer;display:inline-block;padding:9px 12px;border:1px solid #BDD0DC;background:#fff;border-radius:8px;list-style:revert}
+.cocoModuleTools>summary{cursor:pointer;display:inline-block;padding:9px 12px;border:1px solid var(--arc-line-strong);background:#fff;border-radius:8px;list-style:revert}
 .cocoModuleTools[open]>.arcToolbar{margin-top:12px}
 #warehouses .ivFiltros{margin-bottom:16px}
 #warehouses .ivHelp{margin:0 0 10px}
@@ -362,9 +323,6 @@ body .arcContent .gamaColumnHeading{max-width:100%;white-space:normal;text-align
  #dashboard .adCockpit .adCustomers{grid-column:1;grid-row:4}
  #dashboard .adMetrics,#dashboard .adExecutive .adMetrics{grid-template-columns:repeat(2,minmax(0,1fr))}
  #dashboard .adModuleGrid{grid-template-columns:1fr}
-}
-@media(max-width:360px){
- .arcTopbar{padding:10px calc(6px + var(--arc-safe-r)) 10px calc(6px + var(--arc-safe-l));gap:6px}
 }
 
 /* Reference layouts: Dashboard, order dossier and SRI, October 11 2026. */
@@ -445,18 +403,18 @@ body .arcContent .gamaColumnHeading{max-width:100%;white-space:normal;text-align
 #sales-orders .gsOrderProgress{position:relative;padding:8px 100px 12px 28px;margin-bottom:20px}
 #sales-orders .gsMilestones{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));column-gap:28px;row-gap:28px;margin:0;padding:0;list-style:none}
 #sales-orders .gsMilestones li{gap:12px;align-items:flex-start;z-index:0}
-#sales-orders .gsMilestones li:not(:nth-child(4n)):after{content:'';position:absolute;height:1px;background:#CAD2D9;left:46px;right:-16px;top:20px;z-index:-1}
+#sales-orders .gsMilestones li:not(:nth-child(4n)):after{content:'';position:absolute;height:1px;background:var(--arc-line);left:46px;right:-16px;top:20px;z-index:-1}
 #sales-orders .gsMilestones li[data-state=done]:after{background:#76B895}
-#sales-orders .gsMilestones li>span:last-child{background:#F4F5F7;padding-right:6px;min-width:0}
-#sales-orders .gsMilestoneDot{width:38px;height:38px;font-size:17px;outline:6px solid #F7F8FB}
-#sales-orders .gsMilestones strong{font-size:14px;background:#F4F5F7;margin-top:2px}
+#sales-orders .gsMilestones li>span:last-child{background:var(--coco-surface);padding-right:6px;min-width:0}
+#sales-orders .gsMilestoneDot{width:38px;height:38px;font-size:17px;outline:6px solid var(--coco-surface)}
+#sales-orders .gsMilestones strong{font-size:14px;background:var(--coco-surface);margin-top:2px}
 #sales-orders .gsMilestones small{font-size:12px;line-height:1.4}
 #sales-orders .gsMilestones [data-state=current] strong,#sales-orders .gsMilestones [data-state=current] small{color:var(--arc-text)}
-#sales-orders .gsStepCount{position:absolute;top:12px;right:0;font-size:12px;color:var(--coco-muted);padding:12px 0 12px 16px;border-left:1px solid #DDE5EC}
+#sales-orders .gsStepCount{position:absolute;top:12px;right:0;font-size:12px;color:var(--coco-muted);padding:12px 0 12px 16px;border-left:1px solid var(--arc-line)}
 #sales-orders .gsOrderWorkspace{grid-template-columns:minmax(0,1.85fr) minmax(285px,1fr);gap:18px;align-items:start}
 #sales-orders .gsOrderMain{padding:0;min-height:470px}
-#sales-orders .gsOrderTabs{display:flex;gap:14px;border-bottom:1px solid #E1E6EC;padding:0 12px}
-#sales-orders .gsOrderTabs button{background:transparent;border:0;border-bottom:2px solid transparent;border-radius:0;color:#425469;box-shadow:none;padding:16px 12px;min-height:50px;font-size:14px}
+#sales-orders .gsOrderTabs{display:flex;gap:14px;border-bottom:1px solid var(--arc-line);padding:0 12px}
+#sales-orders .gsOrderTabs button{background:transparent;border:0;border-bottom:2px solid transparent;border-radius:0;color:var(--coco-muted);box-shadow:none;padding:16px 12px;min-height:50px;font-size:14px}
 #sales-orders .gsOrderTabs button[aria-selected=true]{border-color:var(--arc-accent-600);color:var(--arc-text);font-weight:650}
 #sales-orders .gsOrderPanel{padding:18px 12px 24px}
 #sales-orders .gsOrderPanel[hidden]{display:none}
@@ -467,7 +425,7 @@ body .arcContent .gamaColumnHeading{max-width:100%;white-space:normal;text-align
 #sales-orders .gsCustomerTitle{display:flex;align-items:center;gap:10px;justify-content:space-between;flex-wrap:wrap;margin-bottom:14px}
 #sales-orders .gsCustomerTitle b{font-size:18px;color:var(--arc-text)}
 #sales-orders .gsCustomerFacts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
-#sales-orders .gsCustomerFacts>div{display:flex;gap:8px;align-items:flex-start;border-right:1px solid #E1E6EC;padding-right:8px;font-size:12px;color:var(--coco-muted)}
+#sales-orders .gsCustomerFacts>div{display:flex;gap:8px;align-items:flex-start;border-right:1px solid var(--arc-line);padding-right:8px;font-size:12px;color:var(--coco-muted)}
 #sales-orders .gsCustomerFacts>div:last-child{border:0}
 #sales-orders .gsCustomerFacts svg{width:20px;height:20px;flex:none;color:var(--arc-text)}
 #sales-orders .gsCustomerFacts strong{display:block;font-size:13px;color:var(--arc-text);margin-top:4px;font-weight:600;overflow-wrap:anywhere}
@@ -475,8 +433,8 @@ body .arcContent .gamaColumnHeading{max-width:100%;white-space:normal;text-align
 #sales-orders .gsOrderPanel td,#sales-orders .gsOrderPanel th{padding:12px 16px;font-size:13px}
 #sales-orders .gsOrderPanel .ivSub{display:none}
 #sales-orders .gsOrderTotal{max-width:300px;padding:16px 18px;font-size:14px;margin-top:16px}
-#sales-orders .gsOrderTotal>div:last-child{margin-top:8px;border-top:1px solid #BDDEE5;padding-top:12px;font-size:18px;font-weight:650}
-#sales-orders .gsOrderNext{border:1px solid #F7E6DA;padding:20px;background:var(--arc-warning-bg)}
+#sales-orders .gsOrderTotal>div:last-child{margin-top:8px;border-top:1px solid var(--arc-line);padding-top:12px;font-size:18px;font-weight:650}
+#sales-orders .gsOrderNext{border:1px solid var(--arc-warning-line);padding:20px;background:var(--arc-warning-bg)}
 #sales-orders .gsNextMessage{display:flex;align-items:center;gap:18px;margin:12px 0 18px}
 #sales-orders .gsNextIcon{width:68px;height:68px;flex:none;background:#FFE5D2;color:#DE5E08;border-radius:50%;display:grid;place-items:center}
 #sales-orders .gsNextIcon svg{width:38px;height:38px}
@@ -494,7 +452,7 @@ body .arcContent .gamaColumnHeading{max-width:100%;white-space:normal;text-align
 #sales-orders .gsHistoryList p{font-size:12px;color:var(--coco-muted);margin:3px 0}
 #sales-orders .gsHistoryAll{background:transparent;border:0;padding:12px 0 0;box-shadow:none;color:var(--arc-accent-700);font-size:12px}
 #sales-orders .gsDocumentList{padding:0;list-style:none}
-#sales-orders .gsDocumentList li{display:flex;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid #E1E6EC}
+#sales-orders .gsDocumentList li{display:flex;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--arc-line)}
 #sales-orders .gsDocumentList svg{width:22px;height:22px;color:var(--arc-accent-700)}
 #sri:has(.gaSriHeader)>.gamaStdHeader,#sri:has(.gaSriHeader)>#gaNav,#sri:has(.gaSriHeader)>.cocoModuleTools{display:none}
 #sri .gaSriHeader{gap:16px;flex-wrap:nowrap;margin-bottom:22px}
@@ -503,11 +461,11 @@ body .arcContent .gamaColumnHeading{max-width:100%;white-space:normal;text-align
 #sri .gaSriTitle>div{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
 #sri .gaSriTitle h2{font-size:30px;letter-spacing:-.03em;color:var(--arc-text)}
 #sri .gaSriTitle p{font-size:14px;color:var(--coco-muted);margin:5px 0 0}
-#sri .gaSriEnvironment{background:#FFF9F4;font-size:13px}
+#sri .gaSriEnvironment{background:var(--coco-nav-active);font-size:13px}
 #sri .gaSriHeaderActions{display:flex;gap:10px;align-items:center}
 #sri .gaSriHeaderActions button,#sri .gaSriBatch button{display:flex;align-items:center;justify-content:center;gap:10px;min-height:46px}
 #sri .gaSriHeader svg,#sri .gaSriTools svg,#sri .gaSriBatch svg{width:20px;height:20px;flex:none}
-#sri .gaSriTabRow{display:flex;align-items:center;border-bottom:1px solid #DDE5EC;margin-bottom:20px;gap:14px}
+#sri .gaSriTabRow{display:flex;align-items:center;border-bottom:1px solid var(--arc-line);margin-bottom:20px;gap:14px}
 #sri .gaSriTabs{flex:1;gap:12px;flex-wrap:nowrap;border:0;margin:0;min-width:0;overflow-x:auto}
 #sri .gaSriTabs button{font-size:14px;white-space:nowrap;padding:14px 16px;border-bottom-width:3px;min-height:52px}
 #sri .gaSriTabCount{display:inline-block;border-radius:20px;font-size:12px;padding:3px 7px;margin-left:7px}
@@ -520,14 +478,14 @@ body .arcContent .gamaColumnHeading{max-width:100%;white-space:normal;text-align
 #sri .gaSriSearchField input{font-size:14px;min-height:46px;margin:0;padding:12px 14px;background:white}
 #sri .gaSriTools>.arcButton{min-height:46px;display:flex;gap:8px;align-items:center}
 #sri .gaSriDateFilter{position:relative;flex:none;font-size:13px}
-#sri .gaSriDateFilter summary{display:flex;align-items:center;gap:12px;list-style:none;cursor:pointer;min-height:46px;padding:10px 16px;background:white;border:1px solid #BDD0DC;border-radius:8px;color:var(--arc-text)}
+#sri .gaSriDateFilter summary{display:flex;align-items:center;gap:12px;list-style:none;cursor:pointer;min-height:46px;padding:10px 16px;background:white;border:1px solid var(--arc-line-strong);border-radius:8px;color:var(--arc-text)}
 #sri .gaSriDateFilter summary:after{content:'⌄';margin-left:8px}
 #sri .gaSriDateFilter form{position:absolute;z-index:8;right:0;top:calc(100% + 6px);display:grid;gap:10px;background:white;padding:16px;border:1px solid var(--arc-line);border-radius:10px;box-shadow:0 8px 25px #1C2C3E12;width:240px}
 #sri #gaSriTableTools{flex:none;min-width:130px}
 #sri #gaSriTableTools .gamaTableToolbar{margin:0;display:block}
 #sri #gaSriTableTools .gamaTableViews,#sri #gaSriTableTools .gamaSortScope{display:none}
 #sri #gaSriTableTools .gamaTableControls{display:block;margin:0}
-#sri #gaSriTableTools .gamaColumnHeading{min-height:46px;padding:10px 14px;font-size:13px;background:white;border:1px solid #BDD0DC;border-radius:8px}
+#sri #gaSriTableTools .gamaColumnHeading{min-height:46px;padding:10px 14px;font-size:13px;background:white;border:1px solid var(--arc-line-strong);border-radius:8px}
 #sri #gaSriTableTools .gamaColumnPicker{position:relative}
 #sri #gaSriTableTools .gamaColumnOptions{position:absolute;top:calc(100% + 6px);right:0;z-index:8;width:250px;background:white;border:1px solid var(--arc-line);border-radius:10px;padding:14px;box-shadow:0 8px 25px #1C2C3E12}
 #sri .gaSriLayout{grid-template-columns:minmax(0,2.05fr) minmax(310px,1fr);align-items:stretch}
@@ -542,7 +500,7 @@ body .arcContent .gamaColumnHeading{max-width:100%;white-space:normal;text-align
 #sri .gaSriLayout input[type=checkbox]{width:20px;height:20px;min-height:20px}
 #sri .gaSriLayout .gaCard>.gaTools:not(.gaSriBatch){padding:10px 14px;margin:0;font-size:12px;justify-content:flex-end}
 #sri .gaSriLayout .gaCard>.gaTools:not(.gaSriBatch) button{min-height:30px;padding:5px 10px;font-size:11px}
-#sri .gaSriBatch{margin:0!important;padding:14px 16px!important;gap:10px;font-size:13px;border-top:1px solid #E1E6EC;flex-wrap:wrap}
+#sri .gaSriBatch{margin:0!important;padding:14px 16px!important;gap:10px;font-size:13px;border-top:1px solid var(--arc-line);flex-wrap:wrap}
 #sri .gaSriBatch #gaSriSelectionSummary{flex:1;color:var(--coco-muted);font-weight:400}
 #sri .gaSriBatch #gaSriSelectionSummary strong{font-size:19px;color:var(--arc-text)}
 #sri .gaSriBatch #gaSriBatchStatus:empty{display:none}
@@ -552,14 +510,14 @@ body .arcContent .gamaColumnHeading{max-width:100%;white-space:normal;text-align
 #sri .gaSriSelected b{color:var(--arc-text)}
 #sri .gaSriSelected>div{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:13px}
 #sri .gaSriSelected strong{font-size:17px;white-space:nowrap}
-#sri .gaSriValidation{border:1px solid #E1E6EC;border-radius:10px}
+#sri .gaSriValidation{border:1px solid var(--arc-line);border-radius:10px}
 #sri .gaSriChecks{margin:0 0 10px;font-size:13px}
 #sri .gaSriChecks li{gap:10px}
-#sri .gaSriChecks li>span{font-size:17px;color:#8A98A8}
+#sri .gaSriChecks li>span{font-size:17px;color:var(--coco-muted)}
 #sri .gaSriChecks [data-validation=valid]>span{color:var(--arc-success)}
 #sri .gaSriChecks [data-validation=error]>span{color:#B3261E}
-#sri .gaSriValidation dl{border-top:1px solid #E1E6EC;padding-top:8px;font-size:12px;margin:0}
-#sri .gaSriDocs{border:1px solid #E1E6EC;border-radius:10px;margin:12px 0;font-size:11px}
+#sri .gaSriValidation dl{border-top:1px solid var(--arc-line);padding-top:8px;font-size:12px;margin:0}
+#sri .gaSriDocs{border:1px solid var(--arc-line);border-radius:10px;margin:12px 0;font-size:11px}
 #sri .gaSriDocs h4{font-size:14px;margin-bottom:10px}
 #sri .gaSriDocs>div{display:flex;gap:8px}
 #sri .gaSriDocs button{font-size:11px;min-height:38px;padding:8px;flex:1}
@@ -609,7 +567,7 @@ body #dashboard>.gamaStdHeader .gamaStdText h2{font-size:32px}
 #sri .gaSriSelected p{margin:0}
 @media(max-width:860px){#dashboard .adMetricExecutive{flex-direction:column}body #dashboard>.gamaStdHeader .gamaStdText h2{font-size:27px}}
 #dashboard .adMetricBody>.adOverdue{color:var(--arc-warning);font-weight:600}
-#sri .gaSriTabCount{background:#E8EDF3;color:#415267}
+#sri .gaSriTabCount{background:var(--coco-selected);color:var(--coco-muted)}
 #sri .gaSriTabs [aria-selected=true] .gaSriTabCount{background:var(--arc-accent-600);color:white}
 #sri #gaSriPreparation>summary{cursor:pointer;font-size:12px;color:var(--arc-accent-700);padding:9px 0}
 #sri .gaSriChecks li{font-size:12px}
@@ -647,9 +605,7 @@ body #dashboard>.gamaStdHeader .gamaStdText h2{font-size:32px}
 #sri .gaSriLayout .gaTable [data-sri-select-column]{width:48px;min-width:48px;max-width:48px}
 #sri .gaSriSelectedEnvironment{font-weight:650;color:var(--arc-text)}
 
-/* Replica / Odoo references: quiet work surfaces, strong field boundaries,
-   one command area, and an explicit reading hierarchy. Home branding stays
-   governed by the approved launcher rules above. */
+/* Shared forms, module tools and document surfaces. */
 @media screen{
  body .arcContent section:not(#mainmenu) :is(.arcPanel,.card,.gsCard,.gpCard,.gaCard,.gfCard,.grCard,.gqCard,.ivCard,.pmCard,.gkPanel){border-radius:var(--arc-workspace-radius);box-shadow:none}
  body .arcContent section:not(#mainmenu) :is(input:not([type=hidden],[type=checkbox],[type=radio],[type=range],[type=file],[type=color]),select,textarea),body>dialog :is(input:not([type=hidden],[type=checkbox],[type=radio],[type=range],[type=file],[type=color]),select,textarea){border-color:var(--arc-input-border);border-radius:6px;color:var(--arc-text);background:var(--arc-surface)}
@@ -705,6 +661,3 @@ body #dashboard>.gamaStdHeader .gamaStdText h2{font-size:32px}
  body>dialog.arcDialog>.arcForm>.arcDialogActions{margin:20px -16px -16px;padding:12px 16px}
  body>dialog.arcDialog>.arcForm>.arcDialogActions .arcButton{flex:1}
 }
-
-/* Nozti reporting uses the same white panels as the pipeline. */
-@media screen{body.cocoWorkbench #dashboard :is(.adMetric,.adQuickActions,.adRecentOrders,.adAnalysis>article){background:#fff;border:1px solid var(--arc-line);border-radius:8px;box-shadow:none}#dashboard .adMetric[data-ad-metric=net] .adMetricIcon{background:var(--arc-success-bg);color:var(--arc-success)}#dashboard .adMetric[data-ad-metric=orders] .adMetricIcon{background:var(--arc-warning-bg);color:var(--arc-warning)}}

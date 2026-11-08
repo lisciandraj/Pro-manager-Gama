@@ -46,7 +46,7 @@ test('the avatar isolates account changes and falls back for broken images',asyn
 });
 for(const width of [1440,390])test(`Coco reference surfaces fit at ${width}px and keep top bar controls accessible`,async({page})=>{
  await page.setViewportSize({width,height:1000});await boot(page);
- await expect(page.locator('.arcSidebar')).toHaveCSS('background-color','rgb(255, 255, 255)');
+ await expect(page.locator('.arcSidebar')).toHaveCSS('background-color','rgb(253, 250, 249)');
  await expect(page.locator('#mainmenu .gamaF2Card').first()).toHaveCSS('background-color','rgb(255, 255, 255)');
  // The compact app bar hides its subtitle and contains every visible control.
  const bar=page.locator('.arcTopbar');

@@ -94,7 +94,7 @@ test('shared field validation is translated, preserves help and values, and reta
  }
 });
 
-test('quote creation action follows the white-on-green reference and retains visible keyboard focus',async({page})=>{
+test('quote creation action follows the orange reference and retains visible keyboard focus',async({page})=>{
  await boot(page);await page.locator('#gqNew').focus();await page.keyboard.press('Tab');await page.keyboard.press('Shift+Tab');
  await expect(page.locator('#gqNew')).toBeFocused();
  const measures=await page.evaluate(()=>{
@@ -104,10 +104,11 @@ test('quote creation action follows the white-on-green reference and retains vis
   const stops=s.backgroundImage.match(/rgba?\([^)]+\)/g)||[s.backgroundColor],badge=getComputedStyle(document.querySelector('#gqList .gqBadge'));
   return {actionText:s.color,actionBackground:s.backgroundColor,actionContrast:Math.min(...stops.map(c=>contrast(s.color,c))),status:contrast(badge.color,badge.backgroundColor),focus:action.matches(':focus-visible'),outline:parseFloat(s.outlineWidth)};
  });
- // Creation uses the accessible green action with white labels.
- expect(measures.actionText).toBe('rgb(255, 255, 255)');expect(measures.actionBackground).toBe('rgb(47, 111, 66)');
+ // Dark labels keep the reference orange accessible for normal-size text.
+ expect(measures.actionText).toBe('rgb(21, 21, 21)');expect(measures.actionBackground).toBe('rgb(238, 84, 0)');
  expect(measures.actionContrast).toBeGreaterThanOrEqual(4.5);
  expect(measures.status).toBeGreaterThanOrEqual(4.5);
  expect(measures.focus).toBe(true);expect(measures.outline).toBeGreaterThanOrEqual(2);
- await page.locator('#gqNew').hover();await expect(page.locator('#gqNew')).toHaveCSS('color','rgb(255, 255, 255)');
+ await page.locator('#gqNew').hover();await expect(page.locator('#gqNew')).toHaveCSS('color','rgb(21, 21, 21)');
+ await expect(page.locator('#gqNew')).toHaveCSS('background-color','rgb(229, 78, 0)');
 });

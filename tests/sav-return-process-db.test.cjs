@@ -31,7 +31,7 @@ test('request conversion inherits process identity; old quote offsets are repair
   const repaired=(await query('select * from invoices where id=$1',[oldQuote.id]))[0];
   assert.equal(repaired.invoice_number,oldAfter.document_reference);
   const unchanged=r=>Object.fromEntries(Object.entries(r).filter(([k])=>!['invoice_number','erp_reference'].includes(k)));
-  assert.deepEqual(unchanged(repaired),unchanged(oldRow));
+  assert.deepEqual(unchanged(repaired),{...unchanged(oldRow),tax_fiscal_position_id:null,tax_rounding:null,tax_calculation:null});
   assert.equal((await query('select old_reference from private.quote_process_reference_repairs where quote_id=$1',[oldQuote.id]))[0].old_reference,oldRef.document_reference);
   assert.equal(oldAfter.process_reference,'COT-'+String(oldRef.dossier_number).padStart(8,'0'));
   const reservations=await query("select d.* from stock_reservations s join gama_document_references d on d.table_name='stock_reservations' and d.document_id=s.id where s.reference_id=$1",[order.id]);

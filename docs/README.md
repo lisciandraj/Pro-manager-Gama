@@ -19,6 +19,11 @@ Documents courants :
 ## Modules et contrats
 
 - [accounting](modules/accounting.md)
+- [Ventes et comptabilité — extensions Community](modules/sales-accounting-community.md)
+- [Chiffre d’affaires et grand livre](modules/accounting-revenue.md)
+- [Encaissements à distance](modules/checkout-payments.md)
+- [Ajustements commerciaux et refacturation](modules/sales-commercial.md)
+- [Fidélité et soldes cadeaux](modules/sales-rewards.md)
 - [notifications](modules/notifications.md)
 - [Agent Coco](modules/coco-intelligence.md)
 - [commercial-chain](modules/commercial-chain.md)

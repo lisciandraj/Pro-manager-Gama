@@ -74,7 +74,7 @@ const ERRORS={
  INVALID_ACTION:'Esa operación no existe en este módulo.'};
 function err(e){
  const s=String(e?.message||e);
- const serviceErrors={SERVICE_NOT_FOUND:['La reclamación ya no existe.','Le dossier SAV n’existe plus.','The service ticket no longer exists.'],SERVICE_CLOSED:['La reclamación está cerrada o archivada.','Le dossier SAV est fermé ou archivé.','The service ticket is closed or archived.'],SERVICE_CUSTOMER_REQUIRED:['Vincula primero un cliente a la reclamación.','Associez d’abord un client au dossier SAV.','Link a customer to the service ticket first.'],SERVICE_SOURCE_MISMATCH:['La entrega no corresponde a esta reclamación.','Cette livraison ne correspond pas au dossier SAV.','This delivery does not belong to the service ticket.'],SERVICE_CONFLICT:['La reclamación cambió. Ábrela de nuevo antes de crear la devolución.','Le dossier SAV a changé. Rouvrez-le avant de créer le retour.','The service ticket changed. Reopen it before creating the return.']};
+ const serviceErrors={CREDIT_EXCEEDS_RETURN:['Los abonos superarían el importe de los productos devueltos.','Les avoirs dépasseraient le montant des produits retournés.','The credits would exceed the returned goods amount.'],RETURN_HAS_FINANCIAL_DOCUMENTS:['La devolución ya tiene un abono o reembolso. Conserva su origen contable.','Le retour comporte déjà un avoir ou un remboursement. Son origine comptable doit être conservée.','This return already has a credit or refund. Its accounting source must be retained.'],RETURN_TAX_SNAPSHOT_IMMUTABLE:['Los importes de este retorno ya están confirmados.','Les montants de ce retour sont déjà confirmés.','The amounts for this return are already confirmed.'],RETURN_INVOICE_LOCKED:['La factura de este retorno ya tiene un abono registrado.','La facture de ce retour comporte déjà un avoir enregistré.','The invoice for this return already has a recorded credit.'],SUPPLIER_INVOICE_NOT_AVAILABLE:['Elige una factura válida del proveedor de esta devolución.','Choisissez une facture valide du fournisseur de ce retour.','Choose a valid invoice from this return’s supplier.'],SERVICE_NOT_FOUND:['La reclamación ya no existe.','Le dossier SAV n’existe plus.','The service ticket no longer exists.'],SERVICE_CLOSED:['La reclamación está cerrada o archivada.','Le dossier SAV est fermé ou archivé.','The service ticket is closed or archived.'],SERVICE_CUSTOMER_REQUIRED:['Vincula primero un cliente a la reclamación.','Associez d’abord un client au dossier SAV.','Link a customer to the service ticket first.'],SERVICE_SOURCE_MISMATCH:['La entrega no corresponde a esta reclamación.','Cette livraison ne correspond pas au dossier SAV.','This delivery does not belong to the service ticket.'],SERVICE_CONFLICT:['La reclamación cambió. Ábrela de nuevo antes de crear la devolución.','Le dossier SAV a changé. Rouvrez-le avant de créer le retour.','The service ticket changed. Reopen it before creating the return.']};
  for(const [code,words] of Object.entries(serviceErrors))if(s.includes(code))return serviceText(...words);
  for(const[k,v]of Object.entries(ERRORS)){if(s.includes(k))return T(v);if(s===T(v))return T(v)}
  return T('No se pudo completar la operación. Inténtalo de nuevo.');
@@ -409,8 +409,8 @@ function processView(d){
   ${flow.stepper(steps.map(x=>({...x,state:stateOf(x)})),current)}
   <div class="gdfProcessBody">${nextBox}<ol class="gdfFlow">${steps.map((x,i)=>`<li class="arcPanel gdfStep ${stateOf(x)}" data-step="${i+1}"><div class="gdfStepHead"><span class="gdfNum" aria-hidden="true">${i+1}</span><h3>${tr(x.title)}</h3><span class="gdfBadge">${tr(STEP_STATES[stateOf(x)])}</span></div>${flow.stepDate({...x,state:stateOf(x)},i)}${x.body||''}${['active','pending'].includes(stateOf(x))&&x.need?`<p class="gdfNeed"><b>${tr('Para avanzar')}</b> ${tr(x.need)}</p>`:''}</li>`).join('')}</ol></div>
   <div class="grActions">
-   ${open&&r.create&&d.status==='to_process'?`<button class="arcButton secondary" id="grCancel">${tr('Anular')}</button>`:''}
-   ${open&&r.delete&&d.status==='to_process'?`<button class="arcButton secondary" id="grDelete">${tr('Borrar')}</button>`:''}
+   ${open&&r.create&&d.status==='to_process'&&!d.tax_calculation?`<button class="arcButton secondary" id="grCancel">${tr('Anular')}</button>`:''}
+   ${open&&r.delete&&d.status==='to_process'&&!d.tax_calculation?`<button class="arcButton secondary" id="grDelete">${tr('Borrar')}</button>`:''}
   </div>`;
 }
 /* Documentos ligados: se enlazan, nunca se copian. El rótulo y su destino
@@ -566,6 +566,7 @@ function supplierCreditForm(d){
  window.GamaSales.modal(T('Registrar el abono del proveedor'),
   `<p>${tr('Este abono lo emite el proveedor: aquí sólo se registra lo que ha mandado.')}</p>
    <div class="grGrid">
+    <label>${esc(T('Factura del proveedor'))}<select id="grScInvoice"><option value="">—</option>${(d.supplier_invoices||[]).map(i=>`<option value="${esc(i.id)}" ${i.id===d.supplier_invoice_id?'selected':''}>${esc(i.number)} · ${money(i.total)}</option>`).join('')}</select></label>
     <label data-gi-live data-gi=693a35ea5e01>Referencia del proveedor<input id="grScRef" maxlength="80"></label>
     <label data-gi-live data-gi=572a3acfd983>Importe<input id="grScAmount" type="number" inputmode="decimal" min="0.01" step="0.01" required value="${esc(d.amount)}"></label>
     <label data-gi-live data-gi=93b2a9ef782c>Fecha<input id="grScDate" type="date" required value="${esc(day())}"></label>
@@ -574,7 +575,7 @@ function supplierCreditForm(d){
   T('Validar'),
   async el=>{
    const file=el.querySelector('#grScFile').files[0];
-   let payload={id:d.id,supplier_reference:val(el,'grScRef'),amount:numval(el,'grScAmount'),issued_on:val(el,'grScDate')};
+   let payload={id:d.id,supplier_invoice_id:val(el,'grScInvoice')||null,supplier_reference:val(el,'grScRef'),amount:numval(el,'grScAmount'),issued_on:val(el,'grScDate')};
    if(file){
     if(file.size>2500000)throw reject('FILE_TOO_LARGE');
     payload.filename=file.name;payload.mime_type=file.type;

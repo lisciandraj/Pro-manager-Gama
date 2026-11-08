@@ -97,11 +97,15 @@ for(const [language,width,title] of [['es',1440,'Catálogo del presupuesto'],['f
   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
   expect(await dialog.evaluate(el=>{const r=el.getBoundingClientRect();return r.left>=0&&r.right<=innerWidth+1;})).toBe(true);
   await page.screenshot({path:testInfo.outputPath('catalog-'+language+'-'+width+'.png'),fullPage:true});
+  const pendingAutosaves=await page.evaluate(()=>structuredClone(__saved));
+  for(const payload of pendingAutosaves){expect(payload.lines).toHaveLength(1);expect(payload.lines[0]).toMatchObject({product_id:'p2',price_mode:'manual',price_reason:'Contrato anual',list_price:7});}
   await page.locator('#cocoCatalogAdd').click();await expect(dialog).toHaveCount(0);
   await expect(page.locator('#gqLines .gqLine')).toHaveCount(3);
   await expect(original.locator('[data-k=list_price]')).toHaveValue('7');
-  await page.locator('#gqSave').click();await expect.poll(()=>page.evaluate(()=>__saved.length)).toBe(1);
-  const saved=await page.evaluate(()=>__saved[0]);
+  await page.waitForFunction(()=>!CocoTaxEngine.quotePending(document.querySelector('#gqForm')));
+  const savesBeforeManual=await page.evaluate(()=>__saved.length);
+  await page.locator('#gqSave').click();await expect.poll(()=>page.evaluate(()=>__saved.length)).toBe(savesBeforeManual+1);
+  const saved=await page.evaluate(()=>__saved.at(-1));
   expect(saved.lines.find(l=>l.product_id==='p1')).toMatchObject({quantity:10,sales_quantity:2,sales_unit_factor:5,sales_unit_id:'u1',list_price:40});
   expect(saved.lines.find(l=>l.product_id==='p2')).toMatchObject({price_mode:'manual',price_reason:'Contrato anual',list_price:7});
   expect(new Set(saved.lines.map(l=>l.product_id)).size).toBe(3);expect(errors).toEqual([]);
@@ -161,10 +165,15 @@ for(const [language,width,title,margin,unknown] of [['es',1440,'Disponibilidad y
   const errors=await distributionBoot(page,language,width);await editor(page);
   await page.locator('#gqCatalog').click();await catalogCard(page,'p1').locator('[data-select]').check();await catalogCard(page,'p2').locator('[data-select]').check();await page.locator('#cocoCatalogAdd').click();
   await expect(page.locator('[data-line-margin="0"]')).toContainText(margin);await expect(page.locator('[data-line-margin="0"]')).toContainText('60');await expect(page.locator('[data-line-margin="1"]')).toContainText(unknown);
+  // Let the valid draft's autosave reach this fixture's deliberate refusal
+  // before measuring whether the availability dialog performs any write.
+  await expect.poll(()=>page.evaluate(()=>__saved.length)).toBe(1);
+  const beforeForecast=await page.evaluate(()=>structuredClone(__saved));
+  expect(beforeForecast[0].lines.map(l=>l.product_id).sort()).toEqual(['p1','p2']);
   await page.locator('#gqAvailability').click();const dialog=page.locator('dialog[data-sales-commitments]');await expect(dialog).toContainText(title);await expect(dialog.locator('[data-forecast-body]')).toContainText('2099-01-03');await expect(dialog.locator('[data-forecast-body]')).toContainText('Cable');
   await expect(dialog.locator('[data-forecast-propose]')).toHaveCount(0);
   await dialog.locator('[name=transport_days]').fill('2');await expect(dialog.locator('[data-forecast-body]')).toBeEmpty();await dialog.locator('[data-forecast-refresh]').click();await expect(dialog).toContainText('2099-01-05');
-  const calls=await page.evaluate(()=>__distributionCalls);expect(calls.at(-1).p_data).toMatchObject({transport_days:2,preparation_days:0});expect(await page.evaluate(()=>__saved.length)).toBe(0);
+  const calls=await page.evaluate(()=>__distributionCalls);expect(calls.at(-1).p_data).toMatchObject({transport_days:2,preparation_days:0});expect(await page.evaluate(()=>__saved)).toEqual(beforeForecast);
   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
   await page.screenshot({path:testInfo.outputPath('distribution-'+language+'-'+width+'.png'),fullPage:true});expect(errors).toEqual([]);
  });

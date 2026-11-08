@@ -28,5 +28,10 @@
     "source": "npm:yjs@13.6.33; npm:lib0@0.2.119",
     "sha256": "db791bd89a8d169aeff4e3ec7005b19cf764bca81bf0d1b1117ccd7e70b8944b",
     "integrity": "sha384-d/ZGl7DF119sszxv4PY6H/KBEdoqmLdv56XpaAh1HWPsiiFRBzuC+pvpdim0Ximm"
+  },
+  "pdf-lib-1.17.1.min.js": {
+    "source": "npm:pdf-lib@1.17.1",
+    "sha256": "0f9a5cad07941f0826586c94e089d89b918c46e5c17cf2d5a3c6f666e3bc694f",
+    "integrity": "sha384-weMABwrltA6jWR8DDe9Jp5blk+tZQh7ugpCsF3JwSA53WZM9/14PjS5LAJNHNjAI"
   }
 }

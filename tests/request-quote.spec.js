@@ -61,3 +61,26 @@ test('ambiguous website matches require staff selection and do not offer duplica
 test('request reference opens details in the viewport after a long list and allows quote creation',async({page})=>{
  await page.setViewportSize({width:390,height:844});await boot(page);await page.evaluate(()=>{for(let i=2;i<=20;i++)__DB.customer_requests.push({...__DB.customer_requests[0],id:'r'+i})});await page.evaluate(()=>GamaQuotes.openRequests());await page.locator('[data-gq-open="r1"]').click();await expect(page.locator('#crDetail')).toBeFocused();await expect(page.locator('#crDetail')).toBeInViewport();await expect(page.locator('#crInvoice')).toBeVisible();await page.click('#crInvoice');await expect(page.locator('#gqForm')).toBeVisible();
 });
+
+test('manual conversion waits for tax context and the pending tax preview before saving once',async({page})=>{
+ await boot(page);await page.evaluate(()=>{
+  const original=GamaCloud.db;GamaCloud.db=async()=>{const db=await original();return {...db,rpc:async(name,args)=>{
+   if(name==='coco_tax_engine'&&args.p_action==='context')await new Promise(resolve=>window.__releaseTaxContext=resolve);
+   if(name==='coco_tax_engine'&&args.p_action==='preview')await new Promise(resolve=>window.__releaseTaxPreview=resolve);
+   return db.rpc(name,args);
+  }}};
+ });await create(page);await page.locator('[data-k="discount"]').fill('10');await page.locator('#gqSave').click();await expect(page.locator('#gqSave')).toBeDisabled();expect(await page.evaluate(()=>__calls.length)).toBe(0);
+ await expect.poll(()=>page.evaluate(()=>typeof __releaseTaxContext)).toBe('function');await page.evaluate(()=>__releaseTaxContext());await expect.poll(()=>page.evaluate(()=>typeof __releaseTaxPreview)).toBe('function');expect(await page.evaluate(()=>__calls.length)).toBe(0);
+ await page.evaluate(()=>__releaseTaxPreview());await expect(page.locator('#gqSourceRequest')).toBeVisible();expect(await page.evaluate(()=>__calls.length)).toBe(1);expect(await page.evaluate(()=>__calls[0].p_data.lines[0].discount)).toBe(10);
+});
+
+test('manual conversion waits for the latest tax preview when a previous edit is still in flight',async({page})=>{
+ await boot(page);await create(page);await expect(page.locator('[data-coco-tax-quote]')).toBeVisible();await page.waitForFunction(()=>!CocoTaxEngine.quotePending(document.getElementById('gqForm')));
+ await page.evaluate(()=>{
+  window.__taxPreviews=[];const original=GamaCloud.db;GamaCloud.db=async()=>{const db=await original();return {...db,rpc:async(name,args)=>{
+   const result=await db.rpc(name,args);if(name==='coco_tax_engine'&&args.p_action==='preview')await new Promise(resolve=>__taxPreviews.push({discount:args.p_data.lines[0].discount,resolve}));return result;
+  }}};
+ });await page.locator('[data-k="discount"]').fill('5');await expect.poll(()=>page.evaluate(()=>__taxPreviews.length)).toBe(1);await page.locator('[data-k="discount"]').fill('10');await page.locator('#gqSave').click();await expect(page.locator('#gqSave')).toBeDisabled();expect(await page.evaluate(()=>__calls.length)).toBe(0);
+ await page.evaluate(()=>__taxPreviews[0].resolve());await expect.poll(()=>page.evaluate(()=>__taxPreviews.length)).toBe(2);expect(await page.evaluate(()=>__taxPreviews.map(p=>p.discount))).toEqual([5,10]);expect(await page.evaluate(()=>__calls.length)).toBe(0);
+ await page.evaluate(()=>__taxPreviews[1].resolve());await expect(page.locator('#gqSourceRequest')).toBeVisible();expect(await page.evaluate(()=>__calls.length)).toBe(1);expect(await page.evaluate(()=>__calls[0].p_data.lines[0].discount)).toBe(10);
+});

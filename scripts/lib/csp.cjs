@@ -1,7 +1,7 @@
 const crypto=require('node:crypto');
 /** Only trusted inline bootstrap scripts receive a content hash. Event attributes
  * remain forbidden; user-controlled HTML cannot acquire executable privileges. */
-function secureHtml(html,{roadRoutes=false,supabaseUrl='https://mknsaibrewksgomuslev.supabase.co'}={}){
+function secureHtml(html,{roadRoutes=false,pdfFrames=false,supabaseUrl='https://mknsaibrewksgomuslev.supabase.co'}={}){
  if(!/^https:\/\/[a-z0-9]{20}\.supabase\.co$/.test(supabaseUrl))throw Error('Invalid CSP Supabase origin');
  const socket=supabaseUrl.replace('https:','wss:');
  const hashes=[];
@@ -10,7 +10,7 @@ function secureHtml(html,{roadRoutes=false,supabaseUrl='https://mknsaibrewksgomu
   hashes.push("'sha256-"+crypto.createHash('sha256').update(match[2]).digest('base64')+"'");
  }
  const road=roadRoutes?' https://routing.openstreetmap.de/routed-car/route/':'';
- const csp="default-src 'self'; script-src 'self' "+hashes.join(' ')+"; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' "+supabaseUrl+" "+socket+road+"; frame-src 'self'; worker-src 'self' blob:; media-src 'self' blob:; form-action 'self' https://mail.google.com https://outlook.live.com; base-uri 'self'; object-src 'none'; upgrade-insecure-requests";
+ const csp="default-src 'self'; script-src 'self' "+hashes.join(' ')+"; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' "+supabaseUrl+" "+socket+road+"; frame-src 'self'"+(pdfFrames?" blob:":"")+"; worker-src 'self' blob:; media-src 'self' blob:; form-action 'self' https://mail.google.com https://outlook.live.com; base-uri 'self'; object-src 'none'; upgrade-insecure-requests";
  const meta='<meta http-equiv="Content-Security-Policy" content="'+csp+'">';
  return /<meta\s+http-equiv=["']Content-Security-Policy/i.test(html)?html.replace(/<meta\s+http-equiv=["']Content-Security-Policy["'][^>]*>/i,meta):html.replace(/<head>/i,'<head>\n'+meta);
 }

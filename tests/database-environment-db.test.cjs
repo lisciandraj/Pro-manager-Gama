@@ -78,6 +78,9 @@ test('maintenance cutover requires migration parity, deliberate admin count and 
   // Those are business content, so a new production assignment refuses them.
   await assert.rejects(assign(),/EMPTY_PRODUCTION_REQUIRED/);
   await db.exec('truncate public.fleet_drivers,public.fleet_vehicles,public.knowledge_articles,public.gama_audit,public.erp_audit_events,private.coco_module_events,public.gama_document_references,private.erp_issued_references cascade');
+  await db.exec("begin;update private.sales_checkout_payment_settings set wire_instructions='Development merchant instructions',version=2 where id");
+  await assert.rejects(assign(),/EMPTY_PRODUCTION_REQUIRED: private.sales_checkout_payment_settings/);
+  await db.exec('rollback');
   const result=await assign();assert.equal(result.environment,'production');assert.equal(result.release,release);assert.equal(result.admin_count,0);
   assert.equal((await q('select public.coco_environment_status() result'))[0].result.environment,'production');
   await assert.rejects(assign(),/ENVIRONMENT_ALREADY_ASSIGNED/);

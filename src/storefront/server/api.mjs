@@ -1,10 +1,12 @@
 import {readJsonBody,BodyError} from '../../../supabase/functions/_shared/http.mjs';
+import {securityHeaders} from './security-headers.mjs';
 import runtime from '../../../config/storefront-runtime.json' with {type:'json'};
 const commerceActions=['preview','checkout','guest_order','guest_repeat','reviews','review_eligibility','review_save','review_delete','policies','case_submit'];
 export const actions=new Set(['bootstrap','catalog','product','photos','submit',...commerceActions.map(a=>'commerce_'+a)]);
 const protectedActions=new Set(['submit','commerce_checkout','commerce_review_save','commerce_review_delete','commerce_case_submit']);
 const serverActions=new Set([...protectedActions,'commerce_guest_order','commerce_guest_repeat','commerce_review_eligibility']);
 const allowedErrors=new Set(['WEBSITE_INVALID_DATA','WEBSITE_PRODUCT_NOT_FOUND','WEBSITE_PUBLIC_PAUSED','WEBSITE_QUOTES_DISABLED','WEBSITE_CONTACT_REQUIRED','WEBSITE_INVALID_LINES','WEBSITE_INVALID_QUANTITY','WEBSITE_PACK_QUANTITY','WEBSITE_DUPLICATE_PRODUCT','WEBSITE_REQUEST_KEY_REUSED','WEBSITE_RATE_LIMIT']);
+allowedErrors.add('WEBSITE_LEGAL_INFORMATION_REQUIRED');
 for(const code of ['COMMERCE_PRICE_REQUIRED','COMMERCE_BILLING_REQUIRED','COMMERCE_TERMS_REQUIRED','COMMERCE_POLICY_CHANGED','COMMERCE_PURCHASE_REQUIRED','CART_PRICE_CHANGED','NOT_FOUND','HUMAN_VERIFICATION_REQUIRED','HUMAN_VERIFICATION_UNAVAILABLE'])allowedErrors.add(code);
 // Record only status/type codes, never request data, credentials or response bodies.
 const upstreamFailure=(status,code)=>console.error(JSON.stringify({event:'storefront_upstream_failure',status,code:typeof code==='string'&&/^[A-Za-z0-9_-]{1,64}$/.test(code)?code:'UNKNOWN'}));
@@ -26,7 +28,7 @@ export async function verifyHuman(token,request,env,fetcher){
  try{const r=await fetcher('https://challenges.cloudflare.com/turnstile/v0/siteverify',{method:'POST',redirect:'error',headers:{'Content-Type':'application/json'},body:JSON.stringify({secret:env.TURNSTILE_SECRET_KEY,response:token,remoteip:request.headers.get('CF-Connecting-IP')}),signal:AbortSignal.timeout(8000)});if(!r.ok)throw Error();result=await r.json()}catch(_){throw Error('HUMAN_VERIFICATION_UNAVAILABLE')}
  if(result.success!==true||result.hostname!==new URL(request.url).hostname||result.action!=='gama_commerce')throw Error('HUMAN_VERIFICATION_REQUIRED');
 }
-const response=(body,status=200)=>new Response(JSON.stringify(body),{status,headers:{'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store','X-Content-Type-Options':'nosniff'}});
+const response=(body,status=200)=>new Response(JSON.stringify(body),{status,headers:{...securityHeaders,'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store'}});
 export async function onRequest({request,env={},fetcher=fetch}){
  if(request.method!=='POST')return response({error:'METHOD_NOT_ALLOWED'},405);
  if(!request.headers.get('Content-Type')?.toLowerCase().startsWith('application/json'))return response({error:'WEBSITE_INVALID_DATA'},415);

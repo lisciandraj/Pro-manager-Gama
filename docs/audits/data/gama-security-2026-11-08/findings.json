@@ -1,0 +1,69 @@
+[
+  {
+    "verdict": "needs_validation",
+    "fingerprint": "b2b-product-favorites:missing-publication-and-catalogue-scope",
+    "title": "Les favoris B2B ne reprennent pas les restrictions du catalogue",
+    "description": "Un compte B2B actif connaissant un UUID produit pourrait obtenir nom, référence et prix négocié via favoris malgré exclusion du catalogue entreprise ou dépublication. Le chemin source est établi et relu indépendamment, sans reproduction SQL locale ni observation en production.",
+    "claimed_root_cause": "set/list/ids contrôlent l’entreprise dérivée mais pas website_products.public_visible ni commerce_product_allowed; le catalogue principal applique séparément ces contrôles.",
+    "trace": [
+      {
+        "kind": "entrypoint",
+        "file": "supabase/migrations/20261007190055_b2b_product_favorites.sql",
+        "line": 69,
+        "scope": "public.gama_b2b_product_favorites",
+        "description": "Façade invoker exécutable par authenticated vers implémentation privée."
+      },
+      {
+        "kind": "propagation",
+        "file": "supabase/migrations/20261007190055_b2b_product_favorites.sql",
+        "line": 18,
+        "scope": "private.gama_b2b_product_favorites",
+        "description": "Client correctement dérivé de l’identité, appartenance actuelle et MFA."
+      },
+      {
+        "kind": "propagation",
+        "file": "supabase/migrations/20261007190055_b2b_product_favorites.sql",
+        "line": 50,
+        "scope": "set",
+        "description": "Ajout UUID actif goods sans publication ni restriction entreprise."
+      },
+      {
+        "kind": "sink",
+        "file": "supabase/migrations/20261007190055_b2b_product_favorites.sql",
+        "line": 45,
+        "scope": "list.unit_price",
+        "description": "Sérialisation du prix calculé et des attributs des favoris sans le filtre de catalogue."
+      }
+    ],
+    "evidence": [
+      {
+        "file": "supabase/migrations/20261029201003_gama_ecommerce_workflows.sql",
+        "line": 289,
+        "description": "commerce_product_allowed définit la restriction entreprise."
+      },
+      {
+        "file": "src/features/website/store-admin.js",
+        "line": 67,
+        "description": "Administration promet limitation aux références autorisées et publiées."
+      },
+      {
+        "file": "supabase/migrations/20261029201003_gama_ecommerce_workflows.sql",
+        "line": 169,
+        "description": "Le catalogue historique est correctement redirigé: cette variante est réfutée."
+      },
+      {
+        "file": "supabase/migrations/20261005014142_ec_b2b_customer_portal.sql",
+        "line": 114,
+        "description": "Chemin photo historique parallèle limité aux produits actifs goods."
+      }
+    ],
+    "blockers": [
+      "La dépendance PGlite est absente: aucun résultat SQL isolé reproduit.",
+      "Les définitions et restrictions réellement déployées ne sont pas observées."
+    ],
+    "validation_plan": {
+      "local": "Restaurer en base isolée avec comptes et produits fictifs; entreprise restricted_catalog=true, produit A autorisé et B exclu. Vérifier catalogue principal refuse B puis set/list/ids favoris et photo. Après proposition SQL, ajout/photo B refusés, listes sans B, retrait toujours possible et prix A inchangé. Répéter après dépublication. Fixture préparée dans tests/b2b-product-favorites-db.test.cjs.",
+      "deployment": "Le propriétaire relève les définitions de fonctions, migrations appliquées et configuration catalogue puis compare au correctif validé; aucune requête de contournement en production."
+    }
+  }
+]

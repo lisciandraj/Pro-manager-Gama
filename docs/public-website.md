@@ -288,3 +288,9 @@ Validation : `commerce-compliance-db.test.cjs`, `commerce-workflows-db.test.cjs`
 et les parcours de `storefront.spec.js`. Les essais métier utilisent des bases
 isolées et des identités fictives ; aucune demande de test n'est créée en
 production.
+
+## Audit du 8 novembre 2026
+
+Voir le [rapport sécurité et conformité](audits/gama-security-ecuador-2026-11-08.md). Les sources web ajoutent des protections explicites aux réponses Functions, un équivalent TTC des prix B2B et la gestion du signal serveur de disponibilité des collectes commerciales. Ces changements ne sont pas encore publiés.
+
+Les restrictions des favoris/photos B2B, la révision des textes de retour/échange et la garde SQL de complétude de l’information préalable sont préparées comme **propositions non appliquées**. Leur SQL et leurs fixtures doivent être validés dans une base isolée avant génération des migrations et activation. Le canal de droits/réclamations reste accessible ; aucune identité, durée de conservation ou preuve de conformité n’a été inventée. Le rapport distingue les tests réussis, les tests non exécutés et les preuves opérationnelles à obtenir.

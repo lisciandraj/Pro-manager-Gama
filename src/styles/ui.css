@@ -277,8 +277,12 @@ dialog.gsDialog h2{font-size:20px;margin:0 0 var(--arc-s4)}
 /* Shared reference treatment, including lazy-loaded modules. */
 button.primary,.btn-primary{background:var(--coco-action);border-color:transparent;color:var(--coco-on-action);box-shadow:var(--shadow-sm)}
 button.primary:hover:not(:disabled),.btn-primary:hover:not(:disabled){background:var(--coco-action-hover);border-color:transparent}
-button.warning,.btn-warning{background:var(--arc-warning-bg);color:var(--arc-warning);border-color:var(--arc-warning-line)}
-button.warning:hover:not(:disabled),.btn-warning:hover:not(:disabled){background:var(--arc-warning);color:white}
+button.warning,.arcButton.warning,.btn-warning{background:var(--arc-warning);color:var(--arc-text-invert);border-color:var(--arc-warning)}
+button.warning:hover:not(:disabled),.arcButton.warning:hover:not(:disabled),.btn-warning:hover:not(:disabled){background:var(--arc-warning);color:var(--arc-text-invert)}
+/* Orange controls keep white labels and glyphs, including secondary text. */
+:is(button.warning,.arcButton.warning,.btn-warning,.ccAdd,.headIcon.plus) *{color:inherit!important}
+:is(button.warning,.arcButton.warning,.btn-warning,.ccAdd,.headIcon.plus):active:not(:disabled){filter:none}
+button.warning[aria-busy=true]::after{color:var(--arc-text-invert)}
 button.ghost,.btn-ghost{background:transparent;color:var(--arc-text-muted);border-color:transparent;box-shadow:none}
 button.ghost:hover:not(:disabled),.btn-ghost:hover:not(:disabled){background:var(--arc-surface-3);color:var(--arc-text)}
 button:active:not(:disabled){transform:translateY(1px);filter:brightness(.96)}

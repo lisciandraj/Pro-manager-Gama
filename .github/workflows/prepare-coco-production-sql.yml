@@ -1,0 +1,43 @@
+name: Prepare reviewed Coco production schema
+on:
+  push:
+    branches: [maintenance/coco-production-sql-20261108]
+    paths: ['.github/workflows/prepare-coco-production-sql.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  prepare:
+    if: github.ref == 'refs/heads/maintenance/coco-production-sql-20261108'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Generate reviewed SQL only; no database credentials or network calls
+        run: |
+          node <<'JS'
+          const fs=require('node:fs'),path=require('node:path');
+          const target='vhutzdfatijjpahsqkne';
+          require('./scripts/bootstrap-production.cjs').prepare(target,{startIndex:77,maxBytes:250000,outputSubdir:'ci-production-sql'});
+          require('./scripts/prepare-production-verification.cjs').prepare(target);
+          const dir='.build/ci-production-sql',manifest=JSON.parse(fs.readFileSync(dir+'/manifest.json','utf8'));
+          if(manifest.installation!=='6d1c1a9037e2f704399ef93b9db09ddcc0b7d019cde262310c9a309fb5727a1e'||manifest.sources.length!==362||manifest.start_index!==77)throw Error('Reviewed source identity mismatch');
+          const out='maintenance/production-bootstrap';
+          fs.mkdirSync(out,{recursive:true});
+          for(const entry of manifest.batches)fs.copyFileSync(path.join(dir,entry.file),path.join(out,entry.file));
+          fs.copyFileSync(dir+'/manifest.json',out+'/manifest.json');
+          fs.copyFileSync('.build/production-verification/verify.sql',out+'/verify.sql');
+          fs.copyFileSync('.build/production-verification/manifest.json',out+'/verification-manifest.json');
+          JS
+      - name: Version source-only SQL artifacts on the isolated maintenance branch
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add maintenance/production-bootstrap
+          git commit -m "Prepare reviewed empty production schema artifacts"
+          git push origin HEAD:maintenance/coco-production-sql-20261108

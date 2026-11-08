@@ -142,6 +142,12 @@
  --coco-chart-blue-top:#151515;--coco-chart-blue-bottom:#151515;
 }
 
+/* One solid glyph tone per module family, tuned for white ERP surfaces. */
+[data-arc-fam=blue]{--coco-glyph-tone:#2176B8}
+:is([data-arc-fam=teal],[data-arc-fam=cyan]){--coco-glyph-tone:#278344}
+[data-arc-fam=violet]{--coco-glyph-tone:#C7476A}
+[data-arc-fam=orange]{--coco-glyph-tone:#CC5139}
+
 /* El movimiento es decoración: quien lo ha desactivado en su sistema no lo
    recibe. */
 :root{--arc-motion:160ms}

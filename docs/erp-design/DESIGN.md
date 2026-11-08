@@ -314,6 +314,12 @@ Les retours de pression, d’état et de superposition durent 120, 180 et 240 ms
 
 Les commandes et champs partagés utilisent `control`, les fonds en retrait `inset`, les surfaces `panel`, et les fenêtres `dialog`. Les surfaces de travail utilisent 8 px sur PC et téléphone ; les fenêtres conservent 8 px. Les boutons et champs génériques utilisent 6 px. Les onglets de module et la recherche globale gardent un rayon explicite de 8 px ; les liens et la barre latérale gauche n’ont pas d’arrondi. Les badges conservent leur rayon compact de 6 px. Avatars, repères GPS et autres formes métier gardent leur géométrie spécifique.
 
+## Iconography
+
+Les pictogrammes de l’ERP suivent le langage de [Upview Icons](https://dribbble.com/shots/27554902-Upview-Icons) : silhouettes pleines originales, coins et terminaisons arrondis, découpes transparentes et une couleur par dessin. Le catalogue partagé `src/ui/icons.js` conserve 61 entrées, alias compris, et les API `icons` / `moduleIcon`. Il fournit les mêmes SVG à l’accueil, aux menus, aux utilitaires et aux vues métier. Dans `src/ui/shell.js`, `NAV_ICON` reprend aussi ce catalogue pour le menu et la navigation basse. Les dessins utilisent une grille 24 × 24 ; la navigation latérale les affiche à 21 px. Les groupes déclarent leur remplissage et neutralisent le trait hérité ; les évidements restent transparents.
+
+Les couleurs de famille sont bleu #2176B8 (`blue`), vert #278344 (`teal` / `cyan`), rose #C7476A (`violet`) et corail #CC5139 (`orange`). `--coco-glyph-tone` porte ces teintes ; seuls les emplacements `.gamaF2Icon` et `.gamaStdIcon` les consomment via `--coco-glyph-color`. La navigation reste sombre au repos, orange à la sélection. Les KPI et les commandes gardent leurs couleurs de contexte ; les boutons orange portent des icônes sombres. Les favoris restent évidés au repos et pleins à la sélection. Aucun fond décoratif, raster, ombre ou dégradé n’est ajouté. Le logo, le monogramme et les icônes PWA approuvés ne font pas partie de ce catalogue. Voir [la charte commune](../design-system.md#iconographie-commune--8-novembre-2026) pour les sources.
+
 ## Components
 
 ### Buttons

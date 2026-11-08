@@ -115,15 +115,20 @@ test('les boutons d’affichage montrent des icônes et des libellés traduits',
  await boot(page);await fixtures(page);
  const bar=page.locator('#viewShared .gamaTableViews'),cards=bar.locator('[data-table-view=cards]'),table=bar.locator('[data-table-view=table]');
  for(const b of [cards,table]){expect(await b.evaluate(x=>x.textContent.trim())).toBe(await b.getAttribute('aria-label'));const box=await b.boundingBox();expect(Math.round(box.width)).toBeGreaterThanOrEqual(44);expect(Math.round(box.height)).toBeGreaterThanOrEqual(44)}
- await expect(cards.locator('svg rect')).toHaveCount(4);
  const expectViewStyles=async()=>{for(const button of [cards,table]){
   const active=await button.getAttribute('aria-pressed')==='true';
-  const stroke='rgb(21, 21, 21)';
+  const ink='rgb(21, 21, 21)';
   await expect(button).toHaveCSS('background-color',active?'rgb(238, 84, 0)':'rgb(255, 255, 255)');
-  await expect(button).toHaveCSS('color',stroke);
-  await expect(button.locator('svg')).toBeVisible();
-  await expect(button.locator('.cocoIconPrimary')).toHaveCSS('stroke',stroke);
-  await expect(button.locator('.cocoIconAccent')).toHaveCSS('stroke',stroke);
+  await expect(button).toHaveCSS('color',ink);
+  const glyph=button.locator('svg');await expect(glyph).toBeVisible();
+  // Check the painted geometry, independently of its paths or layer count.
+  const paints=await glyph.evaluate(svg=>[...new Set([...svg.querySelectorAll('path,rect,circle,ellipse,line,polyline,polygon')].flatMap(shape=>{
+   const style=getComputedStyle(shape),box=shape.getBBox();
+   if((!box.width&&!box.height)||style.display==='none'||style.visibility==='hidden'||Number(style.opacity)===0)return [];
+   return [Number(style.fillOpacity)>0?style.fill:'none',Number(style.strokeOpacity)>0&&parseFloat(style.strokeWidth)>0?style.stroke:'none'].filter(paint=>paint!=='none');
+  }))]);
+  expect(paints).toEqual([ink]);
+
  }};
  await expectViewStyles();
  const names=async()=>[await cards.getAttribute('aria-label'),await cards.getAttribute('title'),await table.getAttribute('aria-label'),await table.getAttribute('title')];

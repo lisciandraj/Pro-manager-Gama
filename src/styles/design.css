@@ -2,14 +2,14 @@
    Module-specific finishes are loaded with their native module styles. */
 @media screen{
  body[data-app=coco-erp],body[data-app=coco-erp] :is(.arcContent,.arcSidebar,dialog,#mainmenu,#gamaCloudLogin){
-  --gama-blue:#6246CC;--gama-blue-dark:#5438BA;--gama-orange:#6246CC;
-  --arc-canvas:#FFFFFF;--arc-surface:#FFFFFF;--arc-surface-2:#FAFAFC;--arc-surface-3:#F3F2F7;
-  --arc-line:#E9E9F0;--arc-line-strong:#8E8A9C;--arc-text:#262331;--arc-text-muted:#676473;--arc-text-subtle:#676473;
-  --arc-accent-600:#6246CC;--arc-accent-700:#5438BA;--arc-accent-100:#F0EBFC;--arc-accent-50:#F8F6FE;
-  --arc-card-border:#E9E9F0;--arc-tile-border:#E9E9F0;--arc-tile-border-bottom:#E9E9F0;
+  --gama-blue:#263238;--gama-blue-dark:#1C252A;--gama-orange:#2F6F42;
+  --arc-canvas:#F4F5F7;--arc-surface:#FFFFFF;--arc-surface-2:#F7F8F9;--arc-surface-3:#EEF0F2;
+  --arc-line:#E2E6E9;--arc-line-strong:#8A9499;--arc-text:#263238;--arc-text-muted:#5F6B72;--arc-text-subtle:#5F6B72;
+  --arc-accent-600:#2F6F42;--arc-accent-700:#265A36;--arc-accent-100:#E8F2EA;--arc-accent-50:#F2F7F3;
+  --arc-card-border:#E2E6E9;--arc-tile-border:#E2E6E9;--arc-tile-border-bottom:#E2E6E9;
   --arc-card-shadow:none;--arc-tile-shadow:none;--arc-field-shadow:none;--arc-control-shadow:none;
-  --arc-table-grid:var(--coco-row-line);--coco-grid:#E9E9F0;
-  --arc-viz-1:#467CF5;--arc-viz-2:#6246CC;--arc-viz-3:#C9BDF7;--arc-viz-4:#B3A0D6;--arc-viz-5:#8E78CD;
+  --arc-table-grid:#E2E6E9;--coco-grid:#E9E9F0;
+  --arc-viz-1:#6AA775;--arc-viz-2:#E87851;--arc-viz-3:#8099C7;--arc-viz-4:#B8CABB;--arc-viz-5:#88969C;
  }
  body[data-app=coco-erp]{background:var(--coco-canvas);color:var(--coco-ink);font:.875rem/1.55 var(--arc-font);-webkit-font-smoothing:antialiased}
  body[data-app=coco-erp] :is(button,input,select,textarea){font-family:var(--arc-font)}
@@ -60,21 +60,20 @@
  body.cocoWorkbench .arcContent section#quotes .gqListCard{padding:0;border:0;border-radius:0;box-shadow:none;background:transparent}
  body.cocoWorkbench .arcContent section:not(#mainmenu) .gamaStdHeader{border-bottom:0;padding-bottom:0}
  body.cocoWorkbench .arcContent .cocoWorkspaceHeader{margin-bottom:16px;padding-bottom:0}
- body.cocoWorkbench .cocoListCommand{gap:16px;margin-bottom:16px}
- body.cocoWorkbench .cocoListCommand .cocoListHeading h3{font-size:22px}
- body.cocoWorkbench .cocoListOptions{padding-top:0;border-top:0;margin-block:12px 16px}
+ body.cocoWorkbench .cocoListCommand{gap:12px;margin-bottom:10px}
+ body.cocoWorkbench .cocoListCommand .cocoListHeading h3{font-size:18px}
+ body.cocoWorkbench .cocoListOptions{padding-top:0;border-top:0;margin-block:8px 12px}
  body.cocoWorkbench .cocoSalesSubnav{margin-bottom:12px}
- body.cocoWorkbench .arcContent .gamaTableToolbar{margin:16px 0;gap:12px}
+ body.cocoWorkbench .arcContent .gamaTableToolbar{margin:8px 0;gap:8px}
  body.cocoWorkbench .arcContent .gamaTableSearch{max-width:420px;min-width:min(240px,100%)}
  body.cocoWorkbench .arcContent .gamaTableSearch input{min-height:44px;font-size:14px}
  body.cocoWorkbench .arcContent .gamaTableSearch>span{font-size:12px;font-weight:400;color:var(--coco-muted)}
- body.cocoWorkbench .arcContent .gamaTableViews{border:0;background:transparent;gap:4px}
+ body.cocoWorkbench .arcContent .gamaTableViews{--gama-blue:var(--coco-ink);--gama-orange:var(--coco-ink);border:0;background:transparent;gap:2px}
  body.cocoWorkbench .arcContent .gamaTableViews>button{border-color:var(--coco-line);border-radius:var(--arc-r-sm);font-weight:500}
- body.cocoWorkbench .arcContent .gamaTableViews>button[aria-pressed=true]{background:var(--arc-accent-50);color:var(--arc-accent-600);border-color:var(--arc-accent-600)}
  body.cocoWorkbench .arcContent .gamaColumnHeading{font-size:13px;font-weight:500;color:var(--coco-muted)}
  body.cocoWorkbench .arcContent .gamaSortScope{font-size:11px;font-weight:400}
- body.cocoWorkbench .arcContent section:not(#mainmenu) table:not([data-gama-view=cards]){border-collapse:separate!important;border-spacing:0 8px;background:transparent;border:0}
- body.cocoWorkbench .arcContent section:not(#mainmenu) table:not([data-gama-view=cards]) :is(th,td){border:0;border-top:1px solid var(--arc-line);border-bottom:1px solid var(--arc-line);padding:12px 16px;vertical-align:middle}
+ body.cocoWorkbench .arcContent section:not(#mainmenu) table:not([data-gama-view=cards]){border-collapse:collapse!important;border-spacing:0;background:white;border:1px solid var(--coco-line)}
+ body.cocoWorkbench .arcContent section:not(#mainmenu) table:not([data-gama-view=cards]) :is(th,td){border:1px solid var(--arc-line);padding:10px 14px;vertical-align:middle}
  body.cocoWorkbench .arcContent section:not(#mainmenu) table:not([data-gama-view=cards]) th{background:var(--arc-surface);font-size:12px;font-weight:500;color:var(--coco-muted);height:var(--coco-table-heading)}
  body.cocoWorkbench .arcContent section:not(#mainmenu) table:not([data-gama-view=cards]) td{font-size:13px;height:var(--coco-table-row);background:var(--coco-surface)}
  body.cocoWorkbench .arcContent #audit table:not([data-gama-view=cards]) :is(th,td){padding-inline:10px}
@@ -226,13 +225,11 @@
 
 @media screen and (max-width:860px){body.cocoWorkbench .arcContent{padding-bottom:calc(96px + var(--arc-safe-b))}html{scroll-padding-top:72px;scroll-padding-bottom:100px}body.cocoWorkbench .arcContent :is(button,input,select,textarea,a,[tabindex]){scroll-margin-top:80px;scroll-margin-bottom:100px}}
 
-/* Reference world, November 2026: quiet white working surfaces, violet navigation.
+/* Reference world, November 2026: compact CRM surfaces, neutral navigation and green creation actions.
    Keep the production shell's 1180px drawer and all native module controls. */
 @media screen{
  body[data-app=coco-erp]{caret-color:var(--arc-accent-600);accent-color:var(--arc-accent-600)}
  body[data-app=coco-erp] ::selection{background:var(--arc-accent-100);color:var(--arc-text)}
- body.cocoWorkbench .arcContent section:not(#mainmenu) table:not([data-gama-view=cards]) :is(th,td):first-child{border-left:1px solid var(--arc-line);border-radius:7px 0 0 7px}
- body.cocoWorkbench .arcContent section:not(#mainmenu) table:not([data-gama-view=cards]) :is(th,td):last-child{border-right:1px solid var(--arc-line);border-radius:0 7px 7px 0}
  body.cocoWorkbench .arcContent section:not(#mainmenu) table:not([data-gama-view=cards]) tbody tr:nth-child(even)>td{background:var(--arc-surface)}
  body.cocoWorkbench #dashboard .adBarInvoice{fill:var(--arc-viz-1);background:var(--arc-viz-1)}
  body.cocoWorkbench #dashboard .adBarCash{fill:var(--arc-viz-2);background:var(--arc-viz-2)}
@@ -242,4 +239,10 @@
  body.cocoWorkbench .arcTopbar>.arcSearch{display:none}
  body.cocoWorkbench .arcTopRight{gap:0}
  body.cocoWorkbench .cocoModuleContext{font-size:20px}
+}
+
+@media screen{
+ body.cocoWorkbench #arcShell :is(#cocoNewProduct,#gqNew,#cocoNewQuote,#crmONueva,#gp14Save,#gsNew,#cocoNewOrder,#products [data-coco-click="click_15"]){background:var(--coco-create);border-color:var(--coco-create);color:white}
+ body.cocoWorkbench #arcShell :is(#cocoNewProduct,#gqNew,#cocoNewQuote,#crmONueva,#gp14Save,#gsNew,#cocoNewOrder,#products [data-coco-click="click_15"]):hover:not(:disabled){background:var(--coco-create-hover);border-color:var(--coco-create-hover);color:white}
+ body.cocoWorkbench .cocoMobileNav button[aria-current=page]{background:var(--coco-selected);color:var(--coco-ink)}
 }

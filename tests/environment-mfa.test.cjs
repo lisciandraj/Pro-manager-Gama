@@ -11,11 +11,12 @@ function storage(){const data=new Map();return {get length(){return data.size},k
 
 // GoTrue, profile and environment responses are local doubles. The real
 // environment transport and identity UI execute unchanged in this context.
-async function boot(flow){
+async function boot(flow,{shared=false,concurrent=false}={}){
  const requests=[],dialogs=[],listeners=new Map(),nodes=new Map();
- const state={aal:'aal1',factorVerified:flow==='challenge',session:{user:{id:'admin-uid'},access_token:'aal1-fixture'},profile:{id:'admin-uid',role:'administrador',active:true},pause:null,profileError:null,marker:'development',challengeError:null,reloads:0,activations:0,closed:0};
- let authListener,transport;
- function authorized(){return state.session&&state.profile.active&&state.profile.role==='administrador'&&(state.aal==='aal2'||!state.factorVerified)}
+ const environment=shared?'production':'development',sourceUrl='https://fixtureproject.supabase.co',dataUrl=shared?'https://fixtureproduction.supabase.co':sourceUrl;
+ const state={aal:'aal1',factorVerified:flow==='challenge',session:{user:{id:'admin-uid'},access_token:'aal1-fixture'},profile:{id:'admin-uid',role:'administrador',active:true},pause:null,profileError:null,marker:environment,challengeError:null,reloads:0,activations:0,closed:0};
+ let authListener,transport,authTransport;
+ function authorized(){return state.session&&state.profile.active&&state.profile.role==='administrador'&&(state.aal==='aal2'||!shared&&!state.factorVerified)}
  const context={console,URL,Headers,Request,Response,AbortController,setTimeout,clearTimeout,Element:class{},localStorage:storage(),sessionStorage:storage(),
   location:{href:'https://example.test/coco/development/',origin:'https://example.test',reload(){state.reloads++}},
   document:{readyState:'complete',documentElement:{lang:'fr'},getElementById:id=>nodes.get(id)||null,createElement:()=>({append(){},setAttribute(){},remove(){nodes.delete(this.id)}}),head:{appendChild(){}},body:{appendChild(node){nodes.set(node.id,node)}}},
@@ -24,15 +25,15 @@ async function boot(flow){
   FormData:class{constructor(form){this.entries=Object.entries(form.fields)}get(key){return this.entries.find(([name])=>name===key)?.[1]}[Symbol.iterator](){return this.entries[Symbol.iterator]()}},
   async fetch(input,options){
    const url=new URL(typeof input==='string'?input:input.url);requests.push(url.pathname);
-   if(url.pathname.startsWith('/auth/v1/'))return Response.json({});
+   if(url.pathname.startsWith('/auth/v1/')){assert.equal(url.origin,sourceUrl);return Response.json({})}
    if(url.pathname==='/rest/v1/profiles'){
     if(!authorized())return Response.json({code:'42501',message:'DEVELOPMENT_ADMIN_REQUIRED'},{status:403});
     if(state.pause)await state.pause.promise;
     if(state.profileError)return Response.json(state.profileError,{status:503});
     return Response.json(state.profile);
    }
-   if(url.pathname==='/rest/v1/rpc/coco_environment_status')return Response.json({environment:state.marker,allowed:!!authorized(),admin:!!authorized()});
-   if(url.pathname==='/rest/v1/rpc/coco_identity_login_status')return Response.json({authorized:true,administrator:true,policy_active:false,required:false,verified_factor:state.factorVerified});
+   if(url.pathname==='/rest/v1/rpc/coco_environment_status')return Response.json({environment:state.marker,allowed:!!authorized(),admin:!!authorized(),...(shared?{identity_issuer:sourceUrl+'/auth/v1'}:{})});
+   if(url.pathname==='/rest/v1/rpc/coco_identity_login_status')return Response.json({authorized:true,administrator:true,policy_active:shared,required:shared,verified_factor:shared?state.aal==='aal2':state.factorVerified});
    if(url.pathname==='/rest/v1/rpc/coco_security_enrollment'){
     const action=JSON.parse(options.body).p_action;
     if(action==='activate'){assert.equal(state.aal,'aal2');assert.equal(authorized(),true);state.activations++}
@@ -41,26 +42,31 @@ async function boot(flow){
    throw Error('Unexpected fixture request '+url.pathname);
   }
  };
- context.window=context;context.CocoEnvironmentConfig={environment:'development',version:'1234567890abcdef1234567890abcdef12345678',supabaseUrl:'https://fixtureproject.supabase.co',publishableKey:'sb_publishable_fixture'};
+ context.window=context;context.CocoEnvironmentConfig={environment,version:'1234567890abcdef1234567890abcdef12345678',supabaseUrl:dataUrl,publishableKey:'sb_publishable_fixture',...(shared?{identity:{supabaseUrl:sourceUrl,publishableKey:'sb_publishable_authority'}}:{})};
  function query(route,data){
   const q={};for(const key of ['select','eq','abortSignal','maybeSingle'])q[key]=()=>q;
-  q.then=(resolve,reject)=>transport('https://fixtureproject.supabase.co/rest/v1/'+route,{method:data?'POST':'GET',headers:{Authorization:'Bearer '+(state.session?.access_token||'')},...(data?{body:JSON.stringify(data)}:{})}).then(async response=>response.ok?{data:await response.json(),error:null}:{data:null,error:await response.json()}).then(resolve,reject);
+  q.then=(resolve,reject)=>transport(dataUrl+'/rest/v1/'+route,{method:data?'POST':'GET',headers:{Authorization:'Bearer '+(state.session?.access_token||'')},...(data?{body:JSON.stringify(data)}:{})}).then(async response=>response.ok?{data:await response.json(),error:null}:{data:null,error:await response.json()}).then(resolve,reject);
   return q;
  }
- const client={from:name=>query(name),rpc:(name,data={})=>query('rpc/'+name,data),auth:{
+ const client={from:name=>query(name),rpc:(name,data={})=>query('rpc/'+name,data),realtime:{setAuth:async()=>{}},auth:{
   onAuthStateChange(fn){authListener=fn},getSession:async()=>({data:{session:state.session}}),async signOut(){state.session=null;authListener('SIGNED_OUT',null);return {error:null}},
   mfa:{
    getAuthenticatorAssuranceLevel:async()=>({data:{currentLevel:state.aal,nextLevel:state.factorVerified?'aal2':'aal1'}}),
    listFactors:async()=>({data:{totp:state.factorVerified?[{id:'fixture-factor',status:'verified'}]:[]}}),
-   async enroll(){await transport('https://fixtureproject.supabase.co/auth/v1/factors',{method:'POST'});return {data:{id:'fixture-factor',totp:{qr_code:'data:image/svg+xml,fixture'}}}},
+   async enroll(){await authTransport(sourceUrl+'/auth/v1/factors',{method:'POST'});return {data:{id:'fixture-factor',totp:{qr_code:'data:image/svg+xml,fixture'}}}},
+   unenroll:async()=>({data:{}}),
    async challengeAndVerify(){
-    const response=await transport('https://fixtureproject.supabase.co/auth/v1/factors/fixture-factor/verify',{method:'POST'});assert.equal(response.status,200);
+    const response=await authTransport(sourceUrl+'/auth/v1/factors/fixture-factor/verify',{method:'POST'});assert.equal(response.status,200);
     if(state.challengeError)return {error:state.challengeError};
     state.aal='aal2';state.factorVerified=true;state.session={user:{id:'admin-uid'},access_token:'aal2-fixture'};authListener('MFA_CHALLENGE_VERIFIED',state.session);return {data:{}};
    }
   }
  }};
- context.supabase={createClient(_url,_key,options){transport=options.global.fetch;return client}};
+ context.supabase={createClient(url,_key,options){
+  if(url===sourceUrl)authTransport=options.global.fetch;
+  if(url===dataUrl)transport=options.global.fetch;
+  return client;
+ }};
  context.ArcUI={field:()=>'',esc:String,table:()=>'',dialog(options){
   const elements=new Map(),dialog={options,dataset:{},isConnected:true,append(){},addEventListener(){},querySelectorAll(){return []},close(){state.closed++},querySelector(selector){
    if(!elements.has(selector))elements.set(selector,selector==='form'?{fields:{factor:'fixture-factor',code:'123456'}}:{});return elements.get(selector);
@@ -71,14 +77,35 @@ async function boot(flow){
  vm.createContext(context);vm.runInContext(source('app/environment.js'),context);vm.runInContext(source('data/supabase.js'),context);await context.GamaCloudReady;
  vm.runInContext(source('features/access/identity.js'),context);
  let flowPromise,form;
- if(flow==='challenge'){
-  flowPromise=context.ArchitectIdentity.ensureMFA();await tick();form=dialogs[0];
+ if(flow==='challenge'||shared){
+  const mfa=context.ArchitectIdentity.ensureMFA();
+  flowPromise=concurrent?Promise.all([mfa,context.ArchitectIdentity.ensureMFA()]):mfa;
+  await tick();form=dialogs[0];
  }else{
   await context.ArchitectIdentity.security();const security=dialogs[0];await security.querySelector('[data-enroll]').onclick({target:{}});form=dialogs[1];
  }
  assert.ok(form,'MFA form remains reachable before verification');
  return {context,state,requests,dialogs,form,flowPromise,save:()=>form.options.onSave(form)};
 }
+
+test('shared Production reuses the enrolled source factor instead of starting a second enrollment',async()=>{
+ const x=await boot('challenge',{shared:true});
+ assert.equal(x.requests.includes('/auth/v1/factors'),false);
+ assert.equal(x.context.GamaCloud.verifiedProfile,null);
+ await x.save();await x.flowPromise;
+ assert.equal(x.state.activations,1);
+ assert.equal(x.context.GamaCloud.verifiedProfile.id,'admin-uid');
+});
+
+test('a shared admin without a factor can enroll at the authority before Production opens',async()=>{
+ const x=await boot('enrollment',{shared:true,concurrent:true});
+ assert.equal(x.requests.filter(p=>p==='/auth/v1/factors').length,1);
+ assert.equal(x.dialogs.length,1);
+ assert.equal(x.context.GamaCloud.verifiedProfile,null);
+ await x.save();await x.flowPromise;
+ assert.equal(x.state.activations,1);
+ assert.equal(x.context.GamaCloud.verifiedProfile.id,'admin-uid');
+});
 
 for(const flow of ['challenge','enrollment']){
  test(flow+': protected activation waits for the newly verified profile and environment',async()=>{

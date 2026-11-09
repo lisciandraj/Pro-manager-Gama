@@ -1,7 +1,8 @@
 const {test}=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm'),ts=require('typescript');
 const {webcrypto,createHmac}=require('node:crypto');
 const http=fs.readFileSync('supabase/functions/_shared/http.mjs','utf8').replace(/^export /gm,'');
-const code=http+'\n'+ts.transpileModule(fs.readFileSync('supabase/functions/gama-sri-received/index.ts','utf8').replace(/^import.*\n/gm,''),{compilerOptions:{target:ts.ScriptTarget.ES2022}}).outputText;
+const auth=fs.readFileSync('supabase/functions/_shared/coco-auth-user.mjs','utf8').replace(/^export /gm,'');
+const code=http+'\n'+auth+'\n'+ts.transpileModule(fs.readFileSync('supabase/functions/gama-sri-received/index.ts','utf8').replace(/^import.*\n/gm,''),{compilerOptions:{target:ts.ScriptTarget.ES2022}}).outputText;
 const ID='00000000-0000-4000-8000-000000000001',KEY='7'.repeat(23)+'2'+'7'.repeat(25),RUC='1719304188001';
 function harness(options={}){
  let handler;const calls=[],written=[],files=new Map(),env={SUPABASE_URL:'https://db.invalid',SUPABASE_ANON_KEY:'anon',SUPABASE_SERVICE_ROLE_KEY:'service',SRI_WORKER_URL:'https://worker.invalid',SRI_WORKER_SECRET:'fixture',...options.env};

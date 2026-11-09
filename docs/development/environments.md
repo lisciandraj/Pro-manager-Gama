@@ -17,9 +17,9 @@ Le démarrage attend `coco_environment_status` sur le backend sélectionné. Un 
 
 Le projet historique reste l’autorité d’identité. Les deux versions réutilisent sa session Supabase Auth quand leurs configurations approuvées activent `sharedIdentity`. La version Production utilise le jeton de cette session pour son API métier, sur son propre projet. Le stockage du jeton est commun à l’origine web de Coco. Préférences, brouillons, sauvegardes et caches restent rattachés à leur environnement.
 
-L’activation nécessite la découverte OpenID Connect de l’autorité et sa clé de signature asymétrique, l’intégration Custom OIDC sur le projet Production et une correspondance entre les identités externes et les droits locaux. Le contrôle Pages exige que les deux réponses `coco_environment_status` attestent le même `identity_issuer`. Cette attestation suit les essais réels de connexion, MFA, révocation, refus des profils sans accès et écritures métier sous les politiques de Production. Les références de dossier vers les utilisateurs et les fonctions qui consultent Auth font partie de la validation serveur.
+L’activation nécessite la découverte OpenID Connect de l’autorité et sa clé de signature asymétrique, l’intégration Custom OIDC sur le projet Production et une correspondance entre les identités externes et les droits locaux. Le contrôle Pages exige que les deux réponses `coco_environment_status` attestent le même `identity_issuer`. Avant la publication, tester avec des sessions réelles la connexion, le MFA, la révocation, le refus des profils sans accès et les écritures métier. Les références de dossier vers les utilisateurs et les fonctions qui consultent Auth font partie de la validation serveur.
 
-Les administrateurs existants gardent leur identifiant Auth. La Production enregistre les autorisations qui leur sont accordées sur leurs identifiants d’origine. Les comptes Auth sont administrés dans le projet d’identité.
+Les administrateurs existants gardent leur identifiant Auth. La Production enregistre leurs droits sur cet identifiant et exige le facteur MFA de l’autorité. Les comptes et les facteurs sont administrés dans le projet d’identité. Le schéma, le déroulement de la bascule et les contrôles sont décrits dans [le guide des bases Supabase](../../supabase/ENVIRONMENTS.md#identité-commune-et-autorisations-locales).
 
 ## État de préparation — 8 novembre 2026
 
@@ -33,7 +33,7 @@ La vérification des backends et de leurs droits, du catalogue public et de l’
 
 ## Installation initiale
 
-Le projet de production est créé séparément ; les données métier de la base actuelle restent en développement. Installer le schéma compatible, les règles d’accès, les comptes autorisés et les fonctions réellement nécessaires sur le nouveau projet. Les intégrations externes et leurs secrets restent des configurations indépendantes ; ne pas les copier à partir de la base de développement.
+Le projet de production est créé séparément. Les données métier de la base actuelle restent en développement. Installer le schéma compatible, les règles d’accès, les profils d’autorisation et les fonctions réellement nécessaires sur le nouveau projet. Les intégrations externes et leurs secrets ont leur propre configuration.
 
 La mise en service nécessite aussi les branches `development` et `production`, une CI réussie pour le code retenu, la source Pages **GitHub Actions** et la vérification des marqueurs servis. Un commit ou une PR préparée ne suffit pas à rendre la séparation effective en ligne. Le résultat des migrations et les vérifications d’accès doivent être établis avant d’annoncer la production utilisable.
 

@@ -1,0 +1,10 @@
+[Unit]
+Description=Check Coco security signals every fifteen minutes
+
+[Timer]
+OnCalendar=*:0/15
+Persistent=true
+Unit=coco-security-monitor.service
+
+[Install]
+WantedBy=timers.target

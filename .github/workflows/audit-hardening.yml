@@ -12,23 +12,25 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           persist-credentials: false
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 22
           cache: npm
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
         with:
           python-version: '3.12'
-      - run: python -m pip install lxml==6.1.3
+      - run: python -m pip install --require-hashes -r services/sri/requirements.lock
       - run: npm ci
       - run: npm run build && npm run build:storefront
+      - name: Verify security boundaries with isolated fixture databases
+        run: node --test --test-concurrency=2 tests/security-display.test.cjs tests/security-boundaries-db.test.cjs tests/security-crm-db.test.cjs tests/audit-valuation-db.test.cjs tests/p1-lots-db.test.cjs tests/returns-security-db.test.cjs tests/automation-db.test.cjs tests/commerce-workflows-db.test.cjs tests/sri-received-db.test.cjs tests/sri-received-edge.test.cjs tests/employee-photos-db.test.cjs tests/hr-p1-sql-db.test.cjs tests/distribution-commitments-db.test.cjs tests/notification-security-db.test.cjs tests/sales-workspace-db.test.cjs tests/accounting-payment-modes-db.test.cjs
       - run: node --test --test-concurrency=2 tests/audit-security-gates-db.test.cjs tests/coco-agent-db.test.cjs tests/offline-vault.test.cjs tests/storefront-photos.test.cjs tests/storefront-progressive.test.cjs tests/notification-polling.test.cjs tests/performance-metrics.test.cjs tests/migration-preflight.test.cjs tests/audit-csv.test.cjs
       - run: npx playwright install --with-deps chromium
-      - run: npx playwright test tests/tms-module.spec.js tests/coco-agent-ui.spec.js tests/storefront.spec.js tests/b2b-portal.spec.js tests/notifications-window.spec.js tests/loading-performance.spec.js --workers=2
-      - uses: actions/upload-artifact@v4
+      - run: npx playwright test tests/tms-module.spec.js tests/coco-agent-ui.spec.js tests/storefront.spec.js tests/b2b-portal.spec.js tests/notifications-window.spec.js tests/loading-performance.spec.js tests/browser-file-hardening.spec.js tests/identity-policy-hardening.spec.js tests/identity-admin-step-up.spec.js --workers=2
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: always()
         with:
           name: audit-hardening-results

@@ -1,0 +1,16 @@
+[Unit]
+Description=Check encrypted Coco backup integrity and freshness
+
+[Service]
+Type=oneshot
+User=coco-backup
+Group=coco-backup
+EnvironmentFile=/etc/coco/backup.env
+ExecStart=/usr/bin/python3 /opt/coco/scripts/coco-operations.py check --root /srv/coco-backups --max-age-hours 26 --drive --send-alert
+UMask=0077
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=strict
+ProtectHome=yes
+ReadOnlyPaths=/srv/coco-backups /etc/coco
+TimeoutStartSec=30m

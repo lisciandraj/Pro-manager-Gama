@@ -28,7 +28,7 @@ test('FIFO / moving average conserve value through receipts, exits, transfer and
    await assert.rejects(rpc('gama_valuation','landed',{...credit,request_key:uuid(),source_reference:method+'-INVALID-CREDIT',amount:-10000}),/check constraint/);
    assert.equal((await rpc('gama_valuation','report',{as_of:'2000-01-01T00:00:00Z'})).items.find(p=>p.id===product).value,null);
    await assert.rejects(rpc('gama_valuation','configure',{...config,request_key:uuid(),method:method==='fifo'?'avco':'fifo'}),/METHOD_CHANGE_REQUIRES_EMPTY_STOCK/);
-   const dest=(await db.query("insert into warehouse_locations(warehouse_id,code,name) values($1,$2,'Cost destination') returning id",[location.warehouse_id,method+'-COST'])).rows[0].id;
+   const dest=(await rpc('gama_location_action','save',{warehouse_id:location.warehouse_id,code:method+'-COST',name:'Cost destination'})).id;
    await rpc('gama_stock_transfer',product,loc,dest,2,'Cost transfer','COST-TRANSFER');
    assert.equal((await rpc('gama_valuation','report',{})).items.find(p=>p.id===product).value,row.value);
    await rpc('gama_stock_adjust',product,loc,0,null,'Consumed remaining six');await rpc('gama_stock_adjust',product,dest,0,null,'Consumed final two');
@@ -44,7 +44,14 @@ test('FIFO / moving average conserve value through receipts, exits, transfer and
    const ledger=(await db.query("select a.code,sum(l.debit-l.credit)::numeric balance from accounting_entry_lines l join accounting_entries e on e.id=l.entry_id join accounting_accounts a on a.id=l.account_id where e.source_type='stock_valuation' group by a.code")).rows;
    assert.equal(Number(ledger.find(a=>a.code==='1200').balance),0);assert.equal(Number(ledger.find(a=>a.code==='5000').balance),method==='fifo'?330:660);
   });
-  const recovery=await rpc('gama_recovery_export');assert.equal(recovery.tables['public.stock_cost_books'].length,2);assert.ok(recovery.tables['public.stock_valuation_entries'].length>0);assert.ok(recovery.tables['private.stock_valuation_commands'].length>0);
+  const recovery=await rpc('gama_recovery_export');
+  assert.equal(recovery.scope,'business_data_and_files');assert.equal(recovery.coverage.full_backup,false);
+  assert.equal(recovery.tables['public.stock_cost_books'].length,2);assert.ok(recovery.tables['public.stock_valuation_entries'].length>0);
+  // Valuation evidence is business data; actor/payload/result command receipts
+  // are runtime replay state, deliberately outside the scoped application export.
+  assert.equal(Object.hasOwn(recovery.tables,'private.stock_valuation_commands'),false);
+  assert.ok(recovery.coverage.excluded_tables.includes('private.stock_valuation_commands'));
+  assert.ok(recovery.excludes.includes('runtime_authorization_and_queues'));
   await db.exec('reset role;set role anon');await assert.rejects(rpc('gama_valuation','report',{}),/permission denied/);
  }finally{await db.close()}
 });

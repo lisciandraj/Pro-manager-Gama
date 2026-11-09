@@ -1,0 +1,13 @@
+{
+  "version": "20261107202657",
+  "name": "audit_access_hardening",
+  "sha256": "6f56a274f43a01768dcc5883b3f8964f57e06694c3ccc044b5182a8852950b6c",
+  "file": "20261107195204_audit_access_hardening.sql",
+  "statement_count": 1,
+  "bytes": 64835,
+  "source": "supabase_migrations.schema_migrations.statements[1]",
+  "project": "mknsaibrewksgomuslev",
+  "verified_on": "2026-11-07",
+  "encoding": "UTF-8",
+  "purpose": "Exact installed SQL SHA-256 verified against reviewed canonical source; schema-only migration, never replay in production."
+}

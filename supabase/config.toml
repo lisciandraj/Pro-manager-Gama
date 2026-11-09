@@ -24,3 +24,8 @@ verify_jwt = false
 # authorize checkout sessions before any privileged service access.
 [functions.coco-checkout-payments]
 verify_jwt = false
+
+# Human JWTs are verified by Auth.getUser in the handler. The refresh-only
+# machine capability has its own independent verifier and cannot issue invoices.
+[functions.gama-sri]
+verify_jwt = false

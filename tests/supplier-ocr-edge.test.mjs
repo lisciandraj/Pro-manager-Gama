@@ -7,6 +7,8 @@ function harness({denied=false,existing=false,invalid=false}={}){
  const calls=[];
  const handler=createHandler({env:n=>({SUPABASE_URL:'https://db.invalid',SUPABASE_ANON_KEY:'public',SUPABASE_SERVICE_ROLE_KEY:'server-only',OPENAI_API_KEY:'fixture-api-key'}[n]),fetch:async(url,opts={})=>{
   const body=opts.body?JSON.parse(opts.body):null;calls.push({url,opts,body});
+  if(url.includes('/auth/v1/user'))return Response.json({id:'11111111-1111-4111-8111-111111111111'});
+  if(url.includes('/rpc/coco_ai_provider_budget'))return Response.json(body.p_action==='reserve'?{id:'22222222-2222-4222-8222-222222222222'}:{});
   if(url.includes('/rpc/')){if(denied)return Response.json({message:'ROLE_NOT_ALLOWED'},{status:403});if(body.p_action==='begin')return Response.json(existing?{id:'intake',existing:true,state:'review'}:{id:'intake',lease:'lease',state:'processing'});return Response.json({id:'intake',state:body.p_action==='complete'?'review':'failed'});}
   if(url.includes('gama_ai_settings'))return Response.json([]);
   if(url==='https://api.openai.com/v1/responses')return Response.json({status:'completed',output:[{content:[{type:'output_text',text:invalid?'bad':JSON.stringify(extracted)}]}]});

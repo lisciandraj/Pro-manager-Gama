@@ -1,5 +1,6 @@
 import {moduleIcon} from './icons.js';
-import {escapeHtml as esc, translate as t, errorMessage, format} from '../domain/format.js';
+import {escapeHtml as esc, translate as t, errorMessage, format, attachmentBlob} from '../domain/format.js';
+export {csvCell, csvRows, attachmentBlob} from '../domain/format.js';
 import {mountFieldValidation} from './form-validation.js';
 let sequence=0;
 const attr=(key,value)=>value==null || value===false?'':value===true?' '+key:' '+key+'="'+esc(value)+'"';
@@ -267,3 +268,45 @@ export function mount(root=document) {
   bindTabs(root);window.GamaTable?.scan?.(root);window.GamaSelectSearch?.scan?.(root);window.gamaApplyAccess?.();window.GamaI18n?.scan?.(root);
 }
 export function render(element,html) {element.innerHTML=html;mount(element);const section=element.closest('section[id]');if(section)window.dispatchEvent(new CustomEvent('arc:module-rendered',{detail:{id:section.id}}));return html;}
+
+const attachmentViews = new Set();
+let attachmentLifecycle = false;
+/** Images are displayed as images; PDF receipts are downloaded for the user's
+ * PDF viewer. Neither stored markup nor a data URL is written into a document. */
+export function openAttachment(file, options = {}) {
+  const blob = attachmentBlob(file, options);
+  const url = URL.createObjectURL(blob);
+  const filename = String(file.filename || 'Documento').replace(/[\u0000-\u001f\u007f/\\]/g, '_').slice(0, 200);
+  let view, timer, disposed = false;
+  const dispose = () => {
+    if (disposed) return;
+    disposed = true; clearTimeout(timer); attachmentViews.delete(dispose);
+    if (view?.open) view.close();
+    URL.revokeObjectURL(url);
+  };
+  attachmentViews.add(dispose);
+  if (!attachmentLifecycle) {
+    attachmentLifecycle = true;
+    const closeAll = () => [...attachmentViews].forEach(close => close());
+    window.addEventListener('gama:auth-change', event => { if (event.detail?.event !== 'TOKEN_REFRESHED') closeAll(); });
+    window.addEventListener('pagehide', closeAll);
+  }
+  const download = () => {
+    const link = document.createElement('a'); link.href = url; link.download = filename;
+    document.body.appendChild(link); link.click(); link.remove();
+  };
+  try {
+    if (blob.type === 'application/pdf') { download(); timer = setTimeout(dispose, 30000); }
+    else {
+      view = dialog({title: filename, saveLabel: t('Cerrar'), body: '', onSave: async () => {}});
+      view.dataset.attachmentViewer = '';
+      const image = document.createElement('img'); image.src = url; image.alt = filename;
+      image.style.maxWidth = '100%'; image.style.maxHeight = '70vh'; image.style.objectFit = 'contain';
+      const link = document.createElement('a'); link.href = url; link.download = filename; link.className = 'arcButton secondary'; link.textContent = t('Descargar');
+      const actions = view.querySelector('.arcDialogActions'); actions.before(image); actions.prepend(link);
+      view.addEventListener('close', dispose, {once: true});
+      timer = setTimeout(dispose, 15 * 60 * 1000);
+    }
+  } catch (error) { dispose(); throw error; }
+  return {dispose, get element() { return view; }};
+}

@@ -20,6 +20,8 @@ Avant tout assemblage, `scripts/check-environment-readiness.mjs` appelle uniquem
 
 `config/erp-environments.json` contient uniquement des URL et des clés publiques. La configuration `production: null` bloque toute connexion de production : elle ne peut jamais reprendre l’URL ou les données du développement. Il faut un projet de production distinct, son schéma et ses contrôles d’accès avant la mise en service. La publication web ne copie aucune ligne métier, aucun compte, fichier, secret ou fonction Edge et n’exécute aucune migration distante.
 
+L’assemblage exige la validation de release, la recherche de secrets et les trois contrôles d’interface et de construction pour le même commit. Le manifeste de provenance valide l’artefact de développement avant assemblage. Les manifestes `coco-release.json` attestent ensuite les fichiers réellement servis. Voir aussi [la livraison sécurisée](security-release.md).
+
 ## Mises à jour et autorisation
 
 Les changements suivants sont poussés sur `development`. Sa CI reconstruit `/development/` tout en conservant l’instantané approuvé de `/production/`. `main` reste accepté pour l’installation initiale et la compatibilité des contrôles ; il ne détermine pas la version de production.

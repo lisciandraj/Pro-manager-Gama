@@ -31,7 +31,7 @@ test('Odoo 19 payment modes preserve residuals, cash, matching and immutable his
   await q("select set_config('request.jwt.claim.sub',$1,false)",[ids.admin]);
   await db.exec("update company_settings set configured=true,legal_name='Isolated payment fixture',country='EC',currency='USD',address='Quito'");
   await q("insert into customers(id,name,address,payment_terms_days) values($1,'Isolated customer','Quito',30)",[ids.customer]);
-  await q("insert into products(id,name,reference,sale_price,purchase_price,tax_rate) values($1,'Isolated item','PAYMENT-MODES',50,20,0)",[ids.product]);
+  await q("insert into products(id,name,reference,barcode,sale_price,purchase_price,tax_rate) values($1,'Isolated item','PAYMENT-MODES','PAYMENT-MODES',50,20,0)",[ids.product]);
   await q("insert into suppliers(id,name) values($1,'Isolated supplier')",[ids.supplier]);
   chart=Object.fromEntries((await q("select code,id from accounting_accounts where code in('1000','1200','2000','2090')")).rows.map(r=>[r.code,r.id]));
   await q("insert into financial_accounts(id,name,kind,account_id) values($1,'Isolated bank','bank',$2)",[ids.bank,chart['1000']]);
@@ -99,6 +99,43 @@ test('Odoo 19 payment modes preserve residuals, cash, matching and immutable his
   await scenario('a standalone no-entry receipt cannot be allocated as accounting credit',async()=>{
    await mode('none');const inv=await invoice(),n=await count();const r=await rpc('gama_receipt_action','receive',{request_key:uuid(),customer_id:ids.customer,financial_account_id:ids.bank,amount:100,paid_at:day,method:'transfer',reference:'NO-ENTRY-ADVANCE'});assert.equal(await count(),n);
    await denied(()=>rpc('gama_receipt_action','allocate',{request_key:uuid(),id:r.id,invoice_id:inv.id,amount:100}),/PAYMENT_NO_ENTRY_NOT_ALLOCATABLE/);assert.equal((await balance(inv)).balance,100);
+  });
+  await scenario('an ordinary payment consumes the residual after a return credit',async()=>{
+   const inv=await invoice();await db.exec('reset role');
+   const order=await v('select order_id from external_invoices where id=$1',[inv.id]);
+   const tms=await v("insert into tms_deliveries(customer_id,customer,address,created_by) values($1,'Isolated customer','Quito',$2) returning id",[ids.customer,ids.admin]);
+   const shipment=await v('insert into sales_deliveries(order_id,request_key,tms_delivery_id,created_by) values($1,gen_random_uuid(),$2,$3) returning id',[order,tms,ids.admin]);
+   const line=await v('insert into sales_delivery_lines(delivery_id,order_line_id,location_id,quantity) select $1,l.id,w.id,2 from sales_order_lines l cross join lateral (select id from warehouse_locations where active limit 1) w where l.order_id=$2 returning id',[shipment,order]);
+   const returned=await v("insert into return_orders(kind,customer_id,order_id,invoice_id,reason,created_by) values('customer',$1,$2,$3,'commercial',$4) returning id",[ids.customer,order,inv.id,ids.admin]);
+   await q('insert into return_lines(return_id,product_id,delivery_line_id,quantity,unit_price,tax_rate) values($1,$2,$3,1,50,0)',[returned,ids.product,line]);
+   await db.exec('set role authenticated');
+   await rpc('gama_returns_action','credit',{id:returned,amount:30});assert.equal((await balance(inv)).balance,70);
+   await denied(()=>pay(inv,71),/PAYMENT_EXCEEDS_BALANCE/);assert.equal((await balance(inv)).payments.length,0);
+   await pay(inv,70);assert.equal((await balance(inv)).balance,0);
+  });
+  await scenario('advance allocation reserves pending ordinary payments on the same invoice',async()=>{
+   await mode('none');const inv=await invoice();await pay(inv,60);
+   const r=await rpc('gama_receipt_action','receive',{request_key:uuid(),customer_id:ids.customer,financial_account_id:ids.bank,amount:70,paid_at:day,method:'cash',reference:'CAPACITY-ADVANCE'});
+   const allocate=amount=>rpc('gama_receipt_action','allocate',{request_key:uuid(),id:r.id,invoice_id:inv.id,amount});
+   await denied(()=>allocate(70),/ALLOCATION_AMOUNT_EXCEEDED/);assert.equal((await balance(inv)).payments.length,1);
+   await allocate(40);const b=await balance(inv);assert.equal(b.balance,60);assert.equal(b.unposted_payment,60);
+   await denied(()=>allocate(1),/ALLOCATION_AMOUNT_EXCEEDED/);
+  });
+  await scenario('collection readers and cancellation lose access with the payments module',async()=>{
+   const inv=await invoice(),p=await pay(inv,20);await db.exec('reset role');
+   await q("update role_module_access set disabled_modules=array_append(disabled_modules,'payments') where role='comercial'");
+   await q("select set_config('request.jwt.claim.sub',$1,false)",[ids.reader]);await db.exec('set role authenticated');
+   for(const schema of ['public','private'])for(const action of ['list','detail','reminder','cancel_payment']){
+    await denied(()=>v(`select ${schema}.gama_payment_action($1,$2::jsonb)`,[action,JSON.stringify({invoice_id:inv.id,payment_id:p.id,reason:'Denied cancellation'})]),/ROLE_NOT_ALLOWED/);
+   }
+   for(const schema of ['public','private'])await denied(()=>v(`select ${schema}.gama_commercial_action('cancel_payment',$1::jsonb)`,[JSON.stringify({invoice_id:inv.id,payment_id:p.id,reason:'Denied cancellation'})]),/ROLE_NOT_ALLOWED/);
+   assert.equal(await v('select count(*)::int from external_invoice_payments where id=$1',[p.id]),0);
+   await db.exec('reset role');assert.equal(await v('select status from external_invoice_payments where id=$1',[p.id]),'confirmed');
+   await q("select set_config('request.jwt.claim.sub',$1,false)",[ids.admin]);
+   await q("update role_module_access set disabled_modules=array_remove(disabled_modules,'payments') where role='comercial'");
+   await q("select set_config('request.jwt.claim.sub',$1,false)",[ids.reader]);await db.exec('set role authenticated');
+   assert.equal((await balance(inv)).balance,80);await rpc('gama_payment_action','cancel_payment',{invoice_id:inv.id,payment_id:p.id,reason:'Authorized cancellation'});assert.equal((await balance(inv)).balance,100);
+   await q("select set_config('request.jwt.claim.sub',$1,false)",[ids.admin]);
   });
   await scenario('supplier no-entry payment prevents duplicate reservations and settles payable on matching',async()=>{
    await mode('none','out');const inv=await rpc('gama_accounting_action','supplier_invoice_save',{request_key:uuid(),supplier_id:ids.supplier,number:'ISOLATED-VENDOR',issue_date:day,subtotal:100,tax:0,total:100});

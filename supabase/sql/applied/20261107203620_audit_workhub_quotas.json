@@ -1,0 +1,13 @@
+{
+  "version": "20261107203620",
+  "name": "audit_workhub_quotas",
+  "sha256": "18adfa61b8073cdb67110f43de35255086eb67c2013ea463b78fb63bc9b5e218",
+  "file": "20261107195556_audit_workhub_quotas.sql",
+  "statement_count": 1,
+  "bytes": 6603,
+  "source": "supabase_migrations.schema_migrations.statements[1]",
+  "project": "mknsaibrewksgomuslev",
+  "verified_on": "2026-11-07",
+  "encoding": "UTF-8",
+  "purpose": "Exact installed SQL SHA-256 verified against reviewed canonical source; schema-only migration, never replay in production."
+}

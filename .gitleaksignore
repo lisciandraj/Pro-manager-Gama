@@ -1,0 +1,15 @@
+# Exact historical detections verified against the immutable bootstrap manifest.
+# These entries identify SHA-256 source receipts in one commit.
+714989dd2ced4f9c013448ddaebce7f5e2acbf96:maintenance/production-bootstrap/batch-002.sql:generic-api-key:1381
+714989dd2ced4f9c013448ddaebce7f5e2acbf96:maintenance/production-bootstrap/batch-002.sql:generic-api-key:220
+714989dd2ced4f9c013448ddaebce7f5e2acbf96:maintenance/production-bootstrap/batch-002.sql:generic-api-key:405
+714989dd2ced4f9c013448ddaebce7f5e2acbf96:maintenance/production-bootstrap/batch-002.sql:generic-api-key:666
+714989dd2ced4f9c013448ddaebce7f5e2acbf96:maintenance/production-bootstrap/batch-002.sql:generic-api-key:907
+714989dd2ced4f9c013448ddaebce7f5e2acbf96:maintenance/production-bootstrap/batch-004.sql:generic-api-key:1597
+714989dd2ced4f9c013448ddaebce7f5e2acbf96:maintenance/production-bootstrap/batch-004.sql:generic-api-key:1666
+714989dd2ced4f9c013448ddaebce7f5e2acbf96:maintenance/production-bootstrap/batch-004.sql:generic-api-key:2312
+714989dd2ced4f9c013448ddaebce7f5e2acbf96:maintenance/production-bootstrap/batch-005.sql:generic-api-key:1427
+714989dd2ced4f9c013448ddaebce7f5e2acbf96:maintenance/production-bootstrap/batch-005.sql:generic-api-key:843
+714989dd2ced4f9c013448ddaebce7f5e2acbf96:maintenance/production-bootstrap/batch-007.sql:generic-api-key:2378
+714989dd2ced4f9c013448ddaebce7f5e2acbf96:maintenance/production-bootstrap/batch-009.sql:generic-api-key:710
+714989dd2ced4f9c013448ddaebce7f5e2acbf96:maintenance/production-bootstrap/batch-010.sql:generic-api-key:2208

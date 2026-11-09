@@ -12,7 +12,7 @@ function harness(options={}){
  let handler;
  const issue={id:ID,source_invoice_id:ID,status:'draft',environment:'pruebas',issuer_ruc:'1790012345001',establishment:'001',emission_point:'001',sequential:'000000001',numeric_code:'12345678',snapshot:{issue_date:'2026-09-27'},...options.issue};
  const calls=[],updates=[],files=new Map();
- const env={SUPABASE_URL:'https://db.invalid',SUPABASE_ANON_KEY:'anon',SUPABASE_SERVICE_ROLE_KEY:'service',SRI_WORKER_URL:'https://worker.invalid',SRI_WORKER_SECRET:'fixture-secret',SRI_PROVIDER:'openapi',SRI_EMISSION_ENABLED:'true',...options.env};
+ const env={SUPABASE_URL:'https://db.invalid',SUPABASE_ANON_KEY:'anon',SUPABASE_SERVICE_ROLE_KEY:'service',SRI_WORKER_URL:'https://worker.invalid',SRI_WORKER_SECRET:'fixture-secret',SRI_PROVIDER:'openapi',SRI_EMISSION_ENABLED:'true',...(options.serviceAuth?{SRI_LEGACY_RECONCILE_UNTIL:'2099-01-01T00:00:00Z'}:{}),...(options.capability?{SRI_RECONCILE_TOKEN:'a'.repeat(64)}:{}),...options.env};
  const access={validate:true,export:true,...options.access};
  function db(isAdmin){
   return {auth:{getUser:async()=>options.noAuth?{error:{message:'invalid'}}:{data:{user:{id:ID}}}},
@@ -52,7 +52,7 @@ function harness(options={}){
    return Response.json({status:'processing',access_key:KEY,provider_status:'RECIBIDA'});
   },Response,Request,Blob,URL,TextEncoder,TextDecoder,Uint8Array,AbortController,crypto:webcrypto,atob,btoa,setTimeout,clearTimeout,console
  });
- return {issue,calls,updates,files,request:async body=>{const r=await handler(new Request('https://edge.invalid',{method:'POST',headers:{Authorization:options.serviceAuth?'Bearer service':'Bearer user','Content-Type':'application/json'},body:JSON.stringify(body)}));return {status:r.status,...await r.json()}}};
+ return {issue,calls,updates,files,request:async body=>{const r=await handler(new Request('https://edge.invalid',{method:'POST',headers:{Authorization:options.serviceAuth?'Bearer service':'Bearer user',...(options.capability?{'x-coco-sri-reconcile':options.badCapability?'b'.repeat(64):'a'.repeat(64)}:{}),'Content-Type':'application/json'},body:JSON.stringify(body)}));return {status:r.status,...await r.json()}}};
 }
 test('Open API emit claims once, persists provider, never authorizes from POST',async()=>{
  const h=harness();const result=await h.request({action:'submit',id:ID});
@@ -171,4 +171,14 @@ test('API preview uses caller RLS and export rights with no configured worker, n
  for(const extra of [{invoiceHidden:true},{role:'comercial'},{active:false},{access:{export:false}},{noAuth:true},{serviceAuth:true}]){
   const denied=harness({...options,...extra});assert.ok((await denied.request({action:'invoice_preview',id:ID})).error);assert.deepEqual(denied.calls,[]);
  }
+});
+
+
+test('dedicated reconciliation capability cannot emit or download and legacy service authority expires',async()=>{
+ const h=harness({capability:true,issue:{status:'processing',receipt:{provider:'openapi'},updated_at:'2026-01-01'}});
+ assert.equal((await h.request({action:'refresh_pending'})).consulted,1);
+ for(const action of ['submit','notify','download','invoice_preview'])assert.equal((await h.request({action,id:ID,kind:'xml'})).status,403);
+ const retired=harness({serviceAuth:true,noAuth:true,env:{SRI_LEGACY_RECONCILE_UNTIL:''}});assert.equal((await retired.request({action:'refresh_pending'})).status,401);
+ const expired=harness({serviceAuth:true,noAuth:true,env:{SRI_LEGACY_RECONCILE_UNTIL:'2000-01-01T00:00:00Z'}});assert.equal((await expired.request({action:'refresh_pending'})).status,401);
+ const wrong=harness({capability:true,badCapability:true,noAuth:true});assert.equal((await wrong.request({action:'refresh_pending'})).status,401);
 });

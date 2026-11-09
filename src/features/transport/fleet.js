@@ -680,20 +680,22 @@ async function maintenanceForm(current){
 function download(rows,name){
  if(!rows||!rows.length){window.gamaToast?.(GamaI18n?.t?.('No hay nada que exportar.')||'No hay nada que exportar.');return}
  const keys=[...rows.reduce((s,r)=>{Object.keys(r).forEach(k=>typeof r[k]!=='object'&&s.add(k));return s},new Set())];
- const cell=v=>v==null?'':/[";\n]/.test(String(v))?'"'+String(v).replace(/"/g,'""')+'"':String(v);
- const csv='﻿'+[keys.join(';'),...rows.map(r=>keys.map(k=>cell(r[k])).join(';'))].join('\n');
+ const csv=window.ArcUI.csvRows([keys,...rows.map(r=>keys.map(k=>r[k]))]);
  const url=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));
  const a=document.createElement('a');a.href=url;a.download=`Coco-ERP-${name}-${day()}.csv`;
  document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),4000);
 }
 async function exportAll(){
+ const token=generation;
  try{
   const d=await rpc('export',{from:monthStart(),to:day()});
+  if(token!==generation||!allowed())return;
   download(d.vehicles,'flota-vehiculos');
   download(d.expenses,'flota-gastos');
  }catch(e){window.gamaToast?.(err(e))}
 }
 
 window.addEventListener('gama:currency-change',()=>{if($(ID)?.classList.contains('active'))go()});
+window.addEventListener('gama:auth-change',event=>{if(event.detail?.event==='TOKEN_REFRESHED')return;generation++;state={};vehicleId=null;$(ID)?.replaceChildren()});
 window.GamaFleet={open,openVehicle,openDriver,rpc,SECTIONS};
 })();

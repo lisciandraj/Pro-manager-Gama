@@ -1,0 +1,10 @@
+[Unit]
+Description=Report encrypted backup retention daily
+
+[Timer]
+OnCalendar=daily
+Persistent=true
+Unit=coco-backup-retention.service
+
+[Install]
+WantedBy=timers.target

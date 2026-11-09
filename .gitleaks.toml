@@ -1,0 +1,26 @@
+title = "Coco ERP secret detection"
+
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Supabase publishable keys are public identifiers, never service or secret keys"
+regexTarget = "secret"
+regexes = ['''^sb_publishable_[A-Za-z0-9_-]+$''']
+
+[[allowlists]]
+description = "Exact nonsecret module/storage identifiers and the isolated survey UUID fixture"
+regexTarget = "secret"
+regexes = [
+  '''^gama_suppliers_v1$''',
+  '''^gama_suppliers_migrated_v1$''',
+  '''^123e4567\-e89b\-42d3\-a456\-426614174000$''',
+  '''^gamaPurchasesV14$''',
+]
+
+[[allowlists]]
+description = "Synthetic assistant encryption fixture, never provisioned; exact test path and value must both match"
+condition = "AND"
+regexTarget = "secret"
+paths = ['''^tests/assistant-server[.]test[.]mjs$''']
+regexes = ['''^fixture\-dedicated\-encryption\-key\-32\-bytes$''']

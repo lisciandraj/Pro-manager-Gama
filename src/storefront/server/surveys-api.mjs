@@ -1,4 +1,5 @@
 import {readJsonBody,BodyError} from '../../../supabase/functions/_shared/http.mjs';
+import {securityHeaders} from './security-headers.mjs';
 import runtime from '../../../config/storefront-runtime.json' with {type:'json'};
 export const actions=new Set(['get','submit']);
 const allowedErrors=new Set(['SURVEY_INVALID_DATA','SURVEY_INVALID_ANSWER','SURVEY_REQUIRED_ANSWER','SURVEY_UNAVAILABLE','SURVEY_ALREADY_ANSWERED','SURVEY_REQUEST_KEY_REUSED','SURVEY_RATE_LIMIT']);
@@ -9,7 +10,7 @@ export async function dbRpc(action,data={},env={},fetcher=fetch){
  let body;try{body=await r.json()}catch(_){throw Error('SURVEY_UNAVAILABLE')}
  if(!r.ok)throw Error(allowedErrors.has(body.message)?body.message:'SURVEY_UNAVAILABLE');return body;
 }
-const response=(body,status=200)=>new Response(JSON.stringify(body),{status,headers:{'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store','X-Content-Type-Options':'nosniff'}});
+const response=(body,status=200)=>new Response(JSON.stringify(body),{status,headers:{...securityHeaders,'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store'}});
 export async function onRequest({request,env={},fetcher=fetch}){
  if(request.method!=='POST')return response({error:'METHOD_NOT_ALLOWED'},405);
  if(!request.headers.get('Content-Type')?.toLowerCase().startsWith('application/json'))return response({error:'SURVEY_INVALID_DATA'},415);

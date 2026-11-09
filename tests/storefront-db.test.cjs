@@ -1,10 +1,12 @@
 const {test}=require('node:test'),assert=require('node:assert/strict'),{randomUUID:uuid}=require('node:crypto'),fs=require('node:fs');
 const {restore}=require('../scripts/restore-schema.cjs');
+const {configureLegalInformation}=require('./helpers/storefront-legal.cjs');
 test('public catalogue exposes selected products only; staff settings and inquiries are isolated and writes are idempotent',async()=>{
  const db=await restore(),admin=uuid(),client=uuid(),product=uuid(),hidden=uuid();
  const q=async(s,a=[])=>(await db.query(s,a)).rows,web=async(a,d={})=>(await q('select gama_website($1,$2) r',[a,d]))[0].r,site=async(a,d={})=>(await q('select gama_storefront($1,$2) r',[a,d]))[0].r;
  const login=async id=>{await db.exec('reset role');await q("select set_config('request.jwt.claim.sub',$1,false)",[id]);await db.exec('set role authenticated')};
  try{
+  await configureLegalInformation(db);
   await q('insert into auth.users(id,email) values($1,$2),($3,$4)',[admin,'site-admin@example.invalid',client,'site-client@example.invalid']);await q("update profiles set active=true,role=case when id=$1 then 'cliente' else 'administrador' end",[client]);
   await q("insert into products(id,name,reference,category,purchase_price,sale_price,tax_rate,photo_data,order_minimum,order_multiple) values($1,'Café de prueba','WEB-COFFEE','Bebidas',2,10,15,'data:image/png;base64,YWJj',2,2),($2,'Producto privado','WEB-HIDDEN','Otros',7,50,0,'private photo',1,1)",[product,hidden]);
   await login(admin);let settings=await web('public_settings');assert.deepEqual(settings.schema,JSON.parse(fs.readFileSync(__dirname+'/../config/storefront-schema.json','utf8')));const conn=await web('public_connection');assert.match(conn.token,/^[a-f0-9]{64}$/);
@@ -21,7 +23,7 @@ test('public catalogue exposes selected products only; staff settings and inquir
   await db.exec('reset role');await q('update products set photo_is_illustrative=true where id=$1',[product]);await db.exec('set role anon');assert.equal((await site('photos',{ids:[product]}))[0].photo_is_illustrative,true);
   await db.exec('reset role');await q("update products set photo_data='data:image/png;base64,ZGVm' where id=$1",[product]);assert.equal((await q('select photo_is_illustrative from products where id=$1',[product]))[0].photo_is_illustrative,false);await db.exec('set role anon');
   await assert.rejects(site('product',{id:hidden}),/WEBSITE_PRODUCT_NOT_FOUND/);await assert.rejects(site('public_inquiries'),/WEBSITE_INVALID_ACTION/);await assert.rejects(web('public_connection'),/permission denied/);await assert.rejects(q('select * from private.website_public_connection'),/permission denied/);assert.equal((await q("select has_schema_privilege('anon','private','USAGE') ok"))[0].ok,false);
-  const payload={request_key:uuid(),visitor:'198.51.100.1',contact_name:'Cliente QA',email:'qa@example.invalid',company:'QA',consent:true,lines:[{product_id:product,quantity:2,unit_price:0,tax_rate:0}]};
+  const payload={request_key:uuid(),visitor:'198.51.100.1',contact_name:'Cliente QA',email:'qa@example.invalid',company:'QA',consent:true,policy_version:bootstrap.policies.version,lines:[{product_id:product,quantity:2,unit_price:0,tax_rate:0}]};
   await assert.rejects(site('submit',payload),/WEBSITE_SERVER_KEY_REQUIRED/);await q("select set_config('request.headers',$1,false)",[JSON.stringify({'x-coco-site-token':conn.token})]);
   await assert.rejects(site('submit',{...payload,consent:false}),/WEBSITE_CONTACT_REQUIRED/);await assert.rejects(site('submit',{...payload,lines:[{product_id:product,quantity:3}]}),/WEBSITE_PACK_QUANTITY/);await assert.rejects(site('submit',{...payload,lines:[{product_id:hidden,quantity:1}]}),/WEBSITE_PRODUCT_NOT_FOUND/);await assert.rejects(site('submit',{...payload,website:'bot'}),/WEBSITE_INVALID_DATA/);
   const a=await site('submit',payload),b=await site('submit',payload);assert.deepEqual(a,b);assert.deepEqual(Object.keys(a),['reference']);await assert.rejects(site('submit',{...payload,notes:'changed'}),/WEBSITE_REQUEST_KEY_REUSED/);

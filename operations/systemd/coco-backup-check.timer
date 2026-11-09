@@ -1,0 +1,10 @@
+[Unit]
+Description=Check Coco backups hourly
+
+[Timer]
+OnCalendar=hourly
+Persistent=true
+Unit=coco-backup-check.service
+
+[Install]
+WantedBy=timers.target

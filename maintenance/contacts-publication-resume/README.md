@@ -2,48 +2,55 @@
 
 La PR Contacts #289 et le correctif du snapshot initial #293 sont fusionnés dans
 `development`. La migration Contacts est installée uniquement sur le développement
-(`20261108163417`). La branche `production` reste figée ; aucune publication web
-Contacts n’a été annoncée ni effectuée.
+(`20261108163417`). Aucune publication web Contacts n’a été effectuée par cette tâche.
 
-## État distant vérifié
+## État distant vérifié le 9 novembre 2026
 
-Voir `checkpoint.json`. La production contient les 347 premières sources du
-manifeste initial approuvé et les étapes 01 et 02 de la source 348. Ces deux étapes
-ont été vérifiées dans le registre Supabase avec leurs empreintes exactes.
-Aucun compte Auth ni fichier Storage n’existe dans ce projet. La fonction principale
-de l’étape 03 et le RPC de disponibilité de l’environnement restent absents.
+Voir `checkpoint.json`. La production contient les 353 premières sources du
+manifeste initial et la première étape de la source 354, enregistrée sous la version
+`20261108224703`. Aucun compte Auth ni fichier Storage n’existe dans ce projet.
+Le RPC de disponibilité de l’environnement et la nouvelle garde Contacts restent
+absents.
 
-Ne pas rejouer les étapes 01 et 02. Relire les registres avant toute reprise, car
+Ne pas rejouer les étapes déjà enregistrées. Relire les registres avant toute reprise, car
 un autre opérateur peut avoir continué l’installation.
 
-## Prochaine opération
+## Refus de la revue automatique
 
-Après rétablissement des confirmations du connecteur Supabase, appliquer
-`source348/source348-part03-compact.sql` sous le nom
-`coco_initialization_source348_part03`, puis l’étape 04 sous son nom enregistré.
-L’alternative compacte conserve le payload canonique et les ACL finales dans
-une seule transaction ; sa comparaison isolée est enregistrée dans
-`source348/verification-compact.json`. Le fichier original plus long est conservé
-pour comparaison, pas pour un second passage.
+La revue automatique a explicitement refusé `coco_initialization_source354_part02`
+(`remaining/source354/part02.sql`, empreinte dans `checkpoint.json`). Elle considère
+les modifications du schéma, des fonctions et des droits de production trop larges
+et difficiles à annuler pour être autorisées par une demande générale de publier.
+Ce refus est distinct des anciennes confirmations expirées du connecteur.
 
-Continuer ensuite les sources 349 à 362 dans l’ordre des manifestes sous
-`remaining/`. Le manifeste figé et ses 362 sources ne doivent pas être régénérés
+Une autorisation explicite a été demandée pour les lots 354 à 362, puis la migration
+Contacts et la publication, sans copie des données de développement. Attendre la
+réponse avant toute modification dépendante. Ne pas contourner le refus par SQL
+brut, une autre identité, un autre canal ou un redécoupage destiné à éviter la revue.
+
+## Préparation conservée
+
+Après autorisation et nouvelle lecture des registres, reprendre à la deuxième étape
+de la source 354, puis suivre les manifestes sous `remaining/`.
+Le manifeste figé et ses 362 sources ne doivent pas être régénérés
 depuis l’historique courant. Les fragments conservent le payload canonique et
 ajoutent seulement des gardes de progression et un confinement intermédiaire
 des ACL. Les résultats de comparaison du schéma, des fonctions, des ACL et des
 politiques figurent dans `remaining/verification.json`.
 
 Une confirmation expirée n’atteste aucune exécution. Vérifier les reçus et les
-objets après toute réponse incertaine ; ne pas remplacer une approbation manquante
-par un appel SQL brut, une autre identité ou un autre canal.
+objets après toute réponse incertaine.
 
 Après les 362 sources, vérifier le manifeste historique, appliquer séparément
 la migration Contacts et vérifier ses fonctions, ACL, index et déclencheur.
 La bascule du catalogue/portail doit être vérifiée avant l’affectation de
 l’ancienne base au développement, car cette affectation refuse tout accès
-non administrateur. La connexion Cloudflare n’a pas répondu à la vérification.
+non administrateur. La connexion Cloudflare fonctionne de nouveau ; le contrôle
+des assets Pages avec un JWT de téléversement frais renvoie encore HTTP 403,
+code 8000013. Aucun téléversement d’assets ni nouveau déploiement Cloudflare
+n’a été effectué.
 
 Affecter les environnements seulement après ces prérequis. Conserver les contrôles
 CI de release et Pages, promouvoir le SHA testé par le workflow prévu, puis
 vérifier les marqueurs réellement servis. Aucun contrôle de publication n’est
-retiré ni contourné par ces fichiers.
+retiré ni contourné par ces fichiers. Aucune donnée de développement n’est copiée.

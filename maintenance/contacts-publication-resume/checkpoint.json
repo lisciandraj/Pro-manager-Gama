@@ -3,30 +3,64 @@
   "development_project": "mknsaibrewksgomuslev",
   "installation": "6d1c1a9037e2f704399ef93b9db09ddcc0b7d019cde262310c9a309fb5727a1e",
   "verified_on": "2026-11-09",
-  "completed_sources": 353,
+  "completed_sources": 355,
   "applied_stages": [
     {
       "name": "coco_initialization_source354_part01",
       "version": "20261108224703",
       "sha256": "fe23b2af3d7cb5a385b7de97c62f3a6bd760b56859914ac3e86f398b2fc3faa2"
+    },
+    {
+      "name": "coco_initialization_source354_part02",
+      "version": "20261109171034",
+      "sha256": "855468255e819ee08b1a8dcbc085a2f9d3cd250fafe3b4cdfebfa1293379517a"
+    },
+    {
+      "name": "coco_initialization_source354_part03",
+      "version": "20261109171138",
+      "sha256": "2d63519a438d7bcfc2a483ad7636806a29dd508cd32107e12dc3739a97e8fa7d"
+    },
+    {
+      "name": "coco_initialization_source355_part01",
+      "version": "20261109171143",
+      "sha256": "2fecfd4df15fb14489d679510ec938aecea034dfb3bd556cd1ecec0b3bec83a3"
+    },
+    {
+      "name": "coco_initialization_source355_part02",
+      "version": "20261109171148",
+      "sha256": "32ba4cd5f958c630a44233157429ef856f83f01d746a2bbdf7b360932efbf35b"
+    },
+    {
+      "name": "coco_initialization_source355_part03",
+      "version": "20261109171153",
+      "sha256": "eae7366ce8187f1c69e4fef857dbdf6e1c7679125c2e43552119a7b63ca9c0d0"
     }
   ],
-  "next_stage": "coco_initialization_source354_part02",
-  "next_sql": "remaining/source354/part02.sql",
-  "next_sha256": "855468255e819ee08b1a8dcbc085a2f9d3cd250fafe3b4cdfebfa1293379517a",
+  "next_stage": "coco_initialization_source356_part01",
+  "next_sql": "remaining/source356/part01.sql",
+  "next_sha256": "203229f672e28ded05e929afedc75be8dae1b05e0363ba47a96c8d0e2783ba59",
   "auth_users": 0,
   "storage_objects": 0,
   "environment_status_available": false,
   "contacts_available": false,
   "production_release_changed": false,
-  "approval_required_for_production_structure": {
+  "blockers": [
+    "Supabase apply_migration returned expired confirmations on three unchanged attempts for source356 part01; remote ledger confirms no application. Stop retries until connector recovers. The owner approval remains valid.",
+    "Cloudflare connection works, but Pages asset upload requires JWT authorization unavailable through the current native request interface. Check-missing returns HTTP 403 code 8000013. No asset upload or deployment performed. Do not transmit a JWT into a terminal; that route was separately rejected."
+  ],
+  "production_structure_authorization": {
     "from_source": 354,
     "through_source": 362,
     "subsequent_contacts_migration_and_publication": true,
-    "copy_development_business_data": false
+    "copy_development_business_data": false,
+    "granted": true,
+    "user_response": "Oui stp",
+    "scope_presented": "Lots 354 à 362 sur la nouvelle base Production — tables, fonctions et droits — puis migration Contacts et publication, sans copier les données de développement."
   },
-  "blockers": [
-    "Automatic approval review explicitly rejected source354 part02: broad, difficult-to-reverse production schema, function and ACL changes were not clearly authorized by a general request to publish. Explicit approval for remaining structure requested; do not bypass the rejection.",
-    "Cloudflare connection works, but Pages check-missing with a fresh project upload JWT returns HTTP 403 code 8000013. No asset upload or deployment performed."
-  ]
+  "prepared_storefront_artifact": {
+    "path": "/workspace/artifacts/gama-storefront-production-aae3ba9c.zip",
+    "sha256": "9d840f91bbc43d15a2ff7d761af5aef694d93c4063843b3efb8a765da0f2a638",
+    "release_commit": "aae3ba9c76fd40daa1aac8293a63ad9aef1fd2b9",
+    "contains_secrets": false
+  }
 }

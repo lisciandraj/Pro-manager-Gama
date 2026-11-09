@@ -1,5 +1,6 @@
 import {mergeDocument} from './crdt.mjs';
 import {readJsonBody,BodyError} from '../_shared/http.mjs';
+import {getCocoAuthUser} from '../_shared/coco-auth-user.mjs';
 const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 class Failure extends Error{constructor(code,status=400){super(code);this.status=status;}}
 export function createHandler({env,fetch:fetcher}){
@@ -19,8 +20,7 @@ export function createHandler({env,fetch:fetcher}){
   if(!root||!anon||!service)return response({error:'SERVER_CONFIGURATION'},503);
   try{
    const token=req.headers.get('authorization')?.match(/^Bearer (.+)$/i)?.[1];if(!token)throw new Failure('AUTH_REQUIRED',401);
-   const auth=await fetcher(root+'/auth/v1/user',{headers:{apikey:anon,Authorization:'Bearer '+token},signal:AbortSignal.timeout(10000)});
-   const user=auth.ok?await auth.json():null;if(!UUID.test(user?.id||''))throw new Failure('AUTH_REQUIRED',401);
+   const user=await getCocoAuthUser({env,fetcher,token});if(!user)throw new Failure('AUTH_REQUIRED',401);
    const input=await readJsonBody(req,410000);
    if(!UUID.test(input.document_id||'')||!UUID.test(input.request_key||'')||typeof input.update!=='string')throw new Failure('WORKHUB_DOCUMENT_INVALID_INPUT');
    const update_hash=Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(input.update))),b=>b.toString(16).padStart(2,'0')).join('');

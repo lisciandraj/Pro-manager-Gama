@@ -1,6 +1,7 @@
 import {invoiceContract} from '../_shared/sri-invoice-contract.mjs';
 import {readJsonBody,BodyError} from '../_shared/http.mjs';
 import { createClient } from 'npm:@supabase/supabase-js@2.115.0';
+import {getCocoAuthUser} from '../_shared/coco-auth-user.mjs';
 
 const headers = { 'content-type': 'application/json', 'access-control-allow-origin': '*', 'cache-control':'no-store', 'x-content-type-options':'nosniff' };
 const reply = (body: unknown, status = 200) => new Response(JSON.stringify(body), { status, headers });
@@ -51,9 +52,12 @@ async function handle(request: Request, scheduled = false): Promise<Response> {
   const legacyMachine = bearer === 'Bearer ' + secret && (!scopedConfigured && legacySetting == null || Number.isFinite(legacyUntil) && Date.now() < legacyUntil);
   const machine = scheduled && bearer === 'Bearer ' + secret || await reconcileCapability(request) || legacyMachine;
   const client = createClient(url, machine ? secret : publishable, { global: { headers: { Authorization: machine ? 'Bearer ' + secret : bearer } } });
-  const { data: auth, error: authError } = machine ? {data: {user: {id: 'scheduler'}}, error: null} : await client.auth.getUser(bearer.slice(7));
-  if (authError || !auth.user) return reply({ error: 'AUTH_REQUIRED' }, 401);
-  const { data: profile } = machine ? {data: {role: 'administrador', active: true}} : await client.from('profiles').select('role,active').eq('id', auth.user.id).maybeSingle();
+  const token=bearer.slice(7);
+  const user=machine?{id:'scheduler'}:await getCocoAuthUser({env:name=>Deno.env.get(name),fetcher:fetch,token,local:async()=>{
+    const {data,error}=await client.auth.getUser(token);return error?null:data.user;
+  }});
+  if (!user) return reply({ error: 'AUTH_REQUIRED' }, 401);
+  const { data: profile } = machine ? {data: {role: 'administrador', active: true}} : await client.from('profiles').select('role,active').eq('id', user.id).maybeSingle();
   const admin = createClient(url, secret);
   let input: { action: string; id: string; kind?: string; document_type?: string; payment_code?: string };
   try { input = await readJsonBody(request,12000,{objectOnly:false}); } catch(error) { return reply({ error: error instanceof BodyError?error.message:'INVALID_JSON' }, error instanceof BodyError?error.status:400); }
@@ -103,7 +107,7 @@ async function handle(request: Request, scheduled = false): Promise<Response> {
     let settings = {}, company = {};
     if (!fiscal.data) {
       const [profileSettings, identity] = await Promise.all([
-        client.from('sri_settings').select('environment,ruc,razon_social,estab,pto_emi,dir_matriz,provider_ruc,accounting_obligation,trade_name,establishment_address').eq('user_id',auth.user.id).maybeSingle(),
+        client.from('sri_settings').select('environment,ruc,razon_social,estab,pto_emi,dir_matriz,provider_ruc,accounting_obligation,trade_name,establishment_address').eq('user_id',user.id).maybeSingle(),
         client.from('company_settings').select('configured,country,currency,tax_id').eq('id',true).maybeSingle()
       ]);
       if (profileSettings.error || identity.error) return reply({error:'SRI_PREVIEW_FAILED'},500);

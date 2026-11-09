@@ -11,7 +11,7 @@ La production hérite des définitions de tables, RPC, droits et valeurs de conf
 
 ## Contrat serveur
 
-La migration `20261107195941_coco_environment_isolation.sql` crée un marqueur privé **`unassigned`**, sans modifier les lignes métier ni activer la restriction sur la base existante. Une application empaquetée doit vérifier l'identité attendue via `public.coco_environment_status()` avant d'ouvrir les modules. La réponse contient seulement `environment`, `release`, `allowed` et `admin`.
+La migration `20261107195941_coco_environment_isolation.sql` crée un marqueur privé **`unassigned`**, sans modifier les lignes métier ni activer la restriction sur la base existante. Une application empaquetée doit vérifier l'identité attendue via `public.coco_environment_status()` avant d'ouvrir les modules. La réponse contient `environment`, `release`, `allowed`, `admin` et, après la préparation de l’identité commune, `identity_issuer`.
 
 Après affectation à **`development`**, seul un profil actif dont le rôle enregistré en base est `administrador`, avec le niveau MFA requis, peut accéder aux données du développement. Les métadonnées utilisateur modifiables, le navigateur et les clés de stockage local ne donnent aucun droit.
 
@@ -24,6 +24,20 @@ Le contrôle cumule :
 La RPC authentifiée `coco_identity_login_status` indique à la personne connectée si elle doit vérifier un facteur avant l’accès au profil. Elle expose uniquement son propre statut. Les actions d’administration de la politique MFA restent derrière le contrôle d’environnement.
 
 `environment_api` contient uniquement les helpers étroits de vérification ; ne pas ajouter ce schéma aux schémas exposés de la Data API. La fonction publique de statut est un invoker. Les fonctions d'affectation et d'installation des politiques ne sont exécutables ni par un navigateur ni par `service_role`. Les clés `service_role` conservent leur privilège de traitement machine existant ; elles ne doivent jamais être publiées côté client. Les buckets du développement doivent rester privés. Une URL signée déjà émise peut rester utilisable jusqu'à son expiration : planifier la bascule après expiration ou révocation des accès temporaires concernés.
+
+## Identité commune et autorisations locales
+
+L’autorité est `https://mknsaibrewksgomuslev.supabase.co/auth/v1`. La Production vérifie la signature via l’intégration **Custom OIDC** de Supabase. Le jeton d’une session utilisateur doit contenir le même émetteur, l’audience `authenticated`, l’identifiant de session et le UUID approuvé. Les rôles et l’état actif restent des autorisations locales. La liste initiale se limite aux six administrateurs actifs et confirmés dans l’autorité.
+
+La Production exige un facteur vérifié dans le projet d’identité. À AAL1, le parcours de connexion peut lire le statut du compte et proposer son authentificateur. Les données, le stockage et les opérations restent fermés avant AAL2. Les actions sensibles conservent leur preuve MFA récente liée à la session et à l’opération. La désactivation du profil Production bloque immédiatement son accès local. Un jeton signé déjà émis suit son expiration pour les API directes de Production lorsque la session est révoquée uniquement dans le projet d’identité. Les fonctions Edge qui résolvent l’utilisateur via Auth interrogent l’autorité avant les opérations privilégiées.
+
+Après affectation de la base Production vide et installation des migrations de release examinées, la maintenance prépare le partage avec `private.coco_prepare_shared_identity`. Les paramètres sont l’environnement, une liste privée d’objets `id` et `full_name`, le nombre d’administrateurs attendu et le nombre de références applicatives à `auth.users(id)` relevé après les migrations. La procédure transactionnelle exige l’empreinte de projet matérialisée par le registre de bootstrap, rattache les références applicatives aux profils locaux et crée uniquement les profils d’autorisation. Le résultat attendu dans `auth.users` en Production est zéro ligne. Le changement du nombre de références annule toute l’opération.
+
+En Développement, la préparation accepte la liste vide `[]`, le nombre d’administrateurs éligibles et zéro référence à déplacer. Elle ajoute `identity_issuer` au statut et conserve les contrôles locaux d’Auth et de session. L’affectation `development` reste une opération séparée après la bascule des parcours publics. Vérifier les deux parcours avec des sessions réelles avant de publier.
+
+Sur les fonctions Edge de Production qui consultent Auth, configurer `COCO_AUTHORITY_URL` avec l’origine de l’autorité, sans `/auth/v1`, et `COCO_AUTHORITY_PUBLISHABLE_KEY` avec sa clé publique. Les fonctions continuent à vérifier les droits dans la base Production sous le jeton de l’appelant. Vérifier aussi le contrôle de jeton de la passerelle Edge avec un appel hébergé. Les comptes et les facteurs sont administrés dans le projet d’identité.
+
+Les flux qui nécessitent un compte Auth local, comme les invitations B2B, les délégations OAuth et la liaison d’une boîte mail, suivent leur propre mise en service. Garder ces intégrations fermées sur la nouvelle base jusqu’à validation de leurs droits et des identités concernées.
 
 ## Affectation initiale explicite
 

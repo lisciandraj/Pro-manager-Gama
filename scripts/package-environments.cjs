@@ -13,6 +13,14 @@ function publicBackend(value,name){
  }
  return {supabaseUrl,publishableKey};
 }
+function sharedIdentityBackend(configuration,productionConfiguration){
+ const development=configuration?.sharedIdentity===true,production=productionConfiguration?.sharedIdentity===true;
+ if(!development&&!production)return null;
+ if(development!==production)throw Error('Both approved releases must enable the same shared identity');
+ const identity=publicBackend(configuration.development,'identity');
+ if(identity.supabaseUrl!==publicBackend(productionConfiguration.development,'production identity').supabaseUrl)throw Error('Both releases must use the same identity issuer');
+ return identity;
+}
 function filesIn(directory){return fs.readdirSync(directory,{withFileTypes:true}).flatMap(entry=>{
  const file=path.join(directory,entry.name);
  if(entry.isSymbolicLink())throw Error('Release assets cannot contain symbolic links');
@@ -20,12 +28,12 @@ function filesIn(directory){return fs.readdirSync(directory,{withFileTypes:true}
 });}
 function patchHtml(html,config,bootstrapHash,manifestHash){
  const host=config.supabaseUrl?new URL(config.supabaseUrl).host:null;
- // Each snapshot may connect only to its own backend, even if old sources
- // accidentally retain the historical development URL.
+ // The other project's origin is restricted to GoTrue when it supplies Auth.
  html=html.replace(/(<meta\s+http-equiv=["']Content-Security-Policy["'][^>]*\bcontent=")([^"]*)(")/gi,(_,start,csp,end)=>{
   csp=csp.replace(/\bconnect-src\s+([^;]*)/i,(_directive,sources)=>{
    const filtered=sources.trim().split(/\s+/).filter(source=>!/^https?:\/\/[a-z0-9.-]*supabase\.(?:co|in)(?:\/|$)|^wss?:\/\/[a-z0-9.-]*supabase\.(?:co|in)(?:\/|$)/i.test(source));
    if(host)filtered.push('https://'+host,'wss://'+host);
+   if(config.identity&&config.identity.supabaseUrl!==config.supabaseUrl)filtered.push(config.identity.supabaseUrl+'/auth/v1/');
    return 'connect-src '+[...new Set(filtered)].join(' ');
   });
   return start+csp+end;
@@ -42,6 +50,8 @@ function packageEnvironments({developmentDirectory,productionDirectory,outputDir
  for(const input of inputs)if(output===input||output.startsWith(input+path.sep)||input.startsWith(output+path.sep))throw Error('Publication directory must be separate from both release inputs');
  const backends={development:publicBackend(configuration.development,'development'),production:publicBackend(productionConfiguration.production,'production')};
  if(backends.production.supabaseUrl===backends.development.supabaseUrl)throw Error('Production and development must use separate databases');
+ const identity=sharedIdentityBackend(configuration,productionConfiguration),identityIssuer=identity?identity.supabaseUrl+'/auth/v1':undefined;
+ if(identity&&!backends.production.supabaseUrl)throw Error('Shared identity requires both data backends');
  for(const input of inputs){
   if(!fs.existsSync(path.join(input,'index.html'))||!fs.existsSync(path.join(input,'coco-environment.js')))throw Error('Release must include the environment-aware ERP bootstrap');
   filesIn(input);
@@ -54,7 +64,7 @@ function packageEnvironments({developmentDirectory,productionDirectory,outputDir
    // Production is prepared by the packager stored in its approved source
    // snapshot. Future edits to this packager cannot rewrite production HTML.
    const receipt=JSON.parse(fs.readFileSync(path.join(target,'coco-release.json'),'utf8'));
-   if(receipt.environment!=='production'||receipt.commit!==productionVersion)throw Error('Prepared production release does not match the approved commit');
+   if(receipt.environment!=='production'||receipt.commit!==productionVersion||receipt.identity_issuer!==identityIssuer)throw Error('Prepared production release does not match the approved commit or identity issuer');
    const files=filesIn(target).filter(file=>path.basename(file)!=='coco-release.json');
    if(files.length!==Object.keys(receipt.assets).length)throw Error('Prepared production asset list differs from its receipt');
    for(const file of files){
@@ -63,7 +73,7 @@ function packageEnvironments({developmentDirectory,productionDirectory,outputDir
    }
    continue;
   }
-  const config={environment,version:versions[environment],...backends[environment],productionUrl:'../production/',developmentUrl:'../development/'};
+  const config={environment,version:versions[environment],...backends[environment],...(identity?{identity}:{}),productionUrl:'../production/',developmentUrl:'../development/'};
   const bootstrap='/* Public release configuration; contains no privileged key. */\nwindow.CocoEnvironmentConfig=Object.freeze('+JSON.stringify(config).replace(/</g,'\\u003c')+');\n';
   // Keep the configuration receipt available to diagnostics/offline preparation,
   // but combine it with the existing bootstrap for zero extra startup requests.
@@ -86,7 +96,7 @@ function packageEnvironments({developmentDirectory,productionDirectory,outputDir
   }
   fs.writeFileSync(path.join(target,'coco-build.json'),JSON.stringify({environment,commit:versions[environment],configured:!!config.supabaseUrl})+'\n');
   const hashes=Object.fromEntries(filesIn(target).sort().map(file=>[path.relative(target,file).split(path.sep).join('/'),crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex')]));
-  fs.writeFileSync(path.join(target,'coco-release.json'),JSON.stringify({environment,commit:versions[environment],assets:hashes},null,2)+'\n');
+  fs.writeFileSync(path.join(target,'coco-release.json'),JSON.stringify({environment,commit:versions[environment],identity_issuer:identityIssuer,assets:hashes},null,2)+'\n');
  }
  fs.writeFileSync(path.join(output,'index.html'),'<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="default-src \'self\'; script-src \'self\'; base-uri \'self\'; object-src \'none\'"><title>Coco ERP</title><script src="coco-entry.js" defer></script></head><body><p><a href="./production/">Ouvrir Coco ERP — Production</a></p></body></html>\n');
  fs.writeFileSync(path.join(output,'coco-entry.js'),"location.replace('./production/'+location.search+location.hash);\n");
@@ -103,4 +113,4 @@ if(require.main===module){
  if(mode&&mode!=='--production-prepared')throw Error('Unknown publication mode');
  console.log(JSON.stringify(packageEnvironments({developmentDirectory,productionDirectory,outputDirectory,developmentVersion,productionVersion,configuration:JSON.parse(fs.readFileSync(configurationFile,'utf8')),productionConfiguration:JSON.parse(fs.readFileSync(productionConfigurationFile,'utf8')),productionPrepared:mode==='--production-prepared'})));
 }
-module.exports={packageEnvironments,publicBackend,patchHtml};
+module.exports={packageEnvironments,publicBackend,sharedIdentityBackend,patchHtml};

@@ -1,5 +1,6 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
+import {generateKeyPairSync} from 'node:crypto';
 import {checkEnvironmentReadiness} from '../scripts/check-environment-readiness.mjs';
 
 const development={supabaseUrl:'https://aaaaaaaaaaaaaaaaaaaa.supabase.co',publishableKey:'sb_publishable_development'};
@@ -40,6 +41,26 @@ test('unassigned or swapped server markers block publication',async t=>{
    await assert.rejects(checkEnvironmentReadiness(options),new RegExp(name+' environment is not ready'));
   });
  }
+});
+
+test('shared identity requires both server confirmations and an asymmetric issuer',async()=>{
+ const issuer=development.supabaseUrl+'/auth/v1',jwks=issuer+'/.well-known/jwks.json',discovery=issuer+'/.well-known/openid-configuration';
+ const {options}=fixture();
+ options.configuration.sharedIdentity=true;
+ options.productionConfiguration={production,development,sharedIdentity:true};
+ let marker,keys=[];
+ options.fetchImpl=async url=>({ok:true,json:async()=>{
+  if(url===discovery)return {issuer,jwks_uri:jwks};
+  if(url===jwks)return {keys};
+  const environment=url.startsWith(production.supabaseUrl)?'production':'development';
+  return {environment,allowed:environment==='production',admin:false,identity_issuer:marker};
+ }});
+ await assert.rejects(checkEnvironmentReadiness(options),/production environment has not verified/);
+ marker=issuer;
+ await assert.rejects(checkEnvironmentReadiness(options),/asymmetric signing key/);
+ const {publicKey}=generateKeyPairSync('ec',{namedCurve:'prime256v1'});
+ keys=[{...publicKey.export({format:'jwk'}),kid:'issuer-key'}];
+ assert.equal((await checkEnvironmentReadiness(options)).production.environment,'production');
 });
 
 test('incorrect anonymous permissions, administrator sessions and malformed status fail closed',async t=>{

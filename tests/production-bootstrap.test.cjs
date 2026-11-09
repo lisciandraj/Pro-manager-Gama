@@ -98,5 +98,18 @@ test('derived first installation preserves configuration and access controls whi
   const activated=(await q('select private.coco_assign_environment($1,$2,$3,$4) result',['production',release,362,0]))[0].result;
   assert.equal(activated.environment,'production');
   await assert.rejects(db.exec(verification),/ALREADY_ASSIGNED/);
+
+  // The hosted database received the frozen 362 first, then receives reviewed
+  // follow-up migrations. Rehearse that order rather than a fresh sorted restore.
+  for(const file of manifest.excluded_migrations){
+   const sql=fs.readFileSync(path.join(root,'supabase/migrations',file),'utf8')
+    .replace(/create extension if not exists (pgcrypto|pg_cron|pg_net)(?: with schema \w+)?;/gi,'');
+   try{await db.exec(sql)}catch(error){throw Error(file+': '+error.message,{cause:error})}
+  }
+  const [{references}]=await q("select count(*)::int as references from pg_constraint f join pg_class c on c.oid=f.conrelid join pg_namespace n on n.oid=c.relnamespace where f.contype='f' and f.confrelid='auth.users'::regclass and f.conparentid=0 and n.nspname in ('public','private')");
+  const admins=Array.from({length:6},(_,i)=>({id:'a0000000-0000-4000-8000-00000000000'+i,full_name:'Rehearsal administrator '+i}));
+  const [{staged}]=await q("select private.coco_prepare_shared_identity('production',$1,6,$2) as staged",[JSON.stringify(admins),references]);
+  assert.equal(staged.repointed_references,references);
+  assert.deepEqual((await q('select (select count(*)::int from auth.users) as auth_users,(select count(*)::int from public.profiles where active) as admins,(select count(*)::int from public.products) as products'))[0],{auth_users:0,admins:6,products:0});
  }finally{await db.close()}
 });

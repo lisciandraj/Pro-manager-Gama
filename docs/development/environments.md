@@ -7,11 +7,19 @@
 | Développement | Branche `development`, historique Git conservé | `mknsaibrewksgomuslev`, avec les données actuelles | Profil administrateur actif, vérifié par le serveur |
 | Production | Instantané approuvé de la branche `production` et étiquette de version | `vhutzdfatijjpahsqkne`, projet distinct | Utilisateurs autorisés de production, selon leurs droits |
 
-La barre latérale affiche l’environnement actif et propose un bouton pour ouvrir l’autre environnement. Sur mobile, ouvrir **Plus** pour y accéder. Depuis la production, seuls les administrateurs actifs vérifiés par le serveur voient le bouton vers le développement. Le navigateur ouvre la version et la session de destination, qui applique ses propres droits d’accès.
+La barre latérale affiche l’environnement actif et propose un bouton pour ouvrir l’autre environnement. Sur mobile, ouvrir **Plus** pour y accéder. Depuis la production, seuls les administrateurs actifs vérifiés par le serveur voient le bouton vers le développement. Le navigateur ouvre la version de destination, qui applique ses propres droits d’accès.
 
 Les fichiers de production et de développement sont servis respectivement sous `/production/` et `/development/`. La racine ouvre la production. Chaque dossier conserve ses propres actifs et son cache. Les sauvegardes hors connexion de production sont séparées des anciens fichiers de développement. Les clés de compatibilité historiques sont conservées dans le développement.
 
 Le démarrage attend `coco_environment_status` sur le backend sélectionné. Un environnement incorrect, une configuration absente ou un accès administrateur refusé bloque les lectures métier. Aucune URL de production manquante ne provoque de reprise automatique vers l’ancienne base.
+
+## Connexion commune
+
+Le projet historique reste l’autorité d’identité. Les deux versions réutilisent sa session Supabase Auth quand leurs configurations approuvées activent `sharedIdentity`. La version Production utilise le jeton de cette session pour son API métier, sur son propre projet. Le stockage du jeton est commun à l’origine web de Coco. Préférences, brouillons, sauvegardes et caches restent rattachés à leur environnement.
+
+L’activation nécessite la découverte OpenID Connect de l’autorité et sa clé de signature asymétrique, l’intégration Custom OIDC sur le projet Production et une correspondance entre les identités externes et les droits locaux. Le contrôle Pages exige que les deux réponses `coco_environment_status` attestent le même `identity_issuer`. Avant la publication, tester avec des sessions réelles la connexion, le MFA, la révocation, le refus des profils sans accès et les écritures métier. Les références de dossier vers les utilisateurs et les fonctions qui consultent Auth font partie de la validation serveur.
+
+Les administrateurs existants gardent leur identifiant Auth. La Production enregistre leurs droits sur cet identifiant et exige le facteur MFA de l’autorité. Les comptes et les facteurs sont administrés dans le projet d’identité. Le schéma, le déroulement de la bascule et les contrôles sont décrits dans [le guide des bases Supabase](../../supabase/ENVIRONMENTS.md#identité-commune-et-autorisations-locales).
 
 ## État de préparation — 8 novembre 2026
 
@@ -25,7 +33,7 @@ La vérification des backends et de leurs droits, du catalogue public et de l’
 
 ## Installation initiale
 
-Le projet de production est créé séparément ; les données métier de la base actuelle restent en développement. Installer le schéma compatible, les règles d’accès, les comptes autorisés et les fonctions réellement nécessaires sur le nouveau projet. Les intégrations externes et leurs secrets restent des configurations indépendantes ; ne pas les copier à partir de la base de développement.
+Le projet de production est créé séparément. Les données métier de la base actuelle restent en développement. Installer le schéma compatible, les règles d’accès, les profils d’autorisation et les fonctions réellement nécessaires sur le nouveau projet. Les intégrations externes et leurs secrets ont leur propre configuration.
 
 La mise en service nécessite aussi les branches `development` et `production`, une CI réussie pour le code retenu, la source Pages **GitHub Actions** et la vérification des marqueurs servis. Un commit ou une PR préparée ne suffit pas à rendre la séparation effective en ligne. Le résultat des migrations et les vérifications d’accès doivent être établis avant d’annoncer la production utilisable.
 

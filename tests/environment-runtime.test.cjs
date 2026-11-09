@@ -9,10 +9,11 @@ function memoryStorage(entries={}){
  const values=new Map(Object.entries(entries));
  return {get length(){return values.size},key:i=>[...values.keys()][i]??null,getItem:key=>values.get(String(key))??null,setItem:(key,value)=>values.set(String(key),String(value)),removeItem:key=>values.delete(String(key)),clear:()=>values.clear()};
 }
-function boot({environment='development',configured=true,local={},session={},legacy=false}={}){
- const native={localStorage:memoryStorage(local),sessionStorage:memoryStorage(session)};
+const authAuthority={supabaseUrl:'https://fixtureissuer.supabase.co',publishableKey:'sb_publishable_authority'};
+function boot({environment='development',configured=true,local={},session={},legacy=false,shared=false,native={localStorage:memoryStorage(local),sessionStorage:memoryStorage(session)}}={}){
+ const backend=shared&&environment==='development'?authAuthority.supabaseUrl:'https://fixtureproject.supabase.co';
  const nodes=new Map(),listeners=new Map(),requests=[],creates=[];
- const state={session:{user:{id:'admin-uid'},access_token:'admin-token'},profile:{id:'admin-uid',role:'administrador',active:true},status:{environment,allowed:true,admin:true},statusHook:null,profileHook:null};
+ const state={session:{user:{id:'admin-uid'},access_token:'admin-token'},profile:{id:'admin-uid',role:'administrador',active:true},status:{environment,allowed:true,admin:true,...(shared?{identity_issuer:authAuthority.supabaseUrl+'/auth/v1'}:{})},statusHook:null,profileHook:null};
  let authChange,fetchTransport;
  const node=()=>({append(...children){this.children=children},setAttribute(){},remove(){nodes.delete(this.id)}});
  const context={console,URL,Headers,Request,Response,AbortController,setTimeout,clearTimeout,...native,
@@ -31,18 +32,28 @@ function boot({environment='development',configured=true,local={},session={},leg
   }
  };
  context.window=context;
- if(!legacy)context.CocoEnvironmentConfig={environment,version:'1234567890abcdef1234567890abcdef12345678',supabaseUrl:configured?'https://fixtureproject.supabase.co':'',publishableKey:configured?'sb_publishable_fixture':'',productionUrl:'../production/',developmentUrl:'../development/'};
- function query(route,method='GET'){
+ if(!legacy)context.CocoEnvironmentConfig={environment,version:'1234567890abcdef1234567890abcdef12345678',supabaseUrl:configured?backend:'',publishableKey:configured?'sb_publishable_fixture':'',productionUrl:'../production/',developmentUrl:'../development/',...(shared?{identity:authAuthority}:{})};
+ function query(url,transport,accessToken,route,method='GET'){
   const q={};
   for(const name of ['select','eq','abortSignal','maybeSingle','single','order','range','limit'])q[name]=()=>q;
-  q.then=(resolve,reject)=>fetchTransport('https://fixtureproject.supabase.co/rest/v1/'+route,{method,headers:{Authorization:'Bearer '+(state.session?.access_token||'')}}).then(async response=>response.ok?{data:await response.json(),error:null}:{data:null,error:await response.json()}).then(resolve,reject);
+  q.then=(resolve,reject)=>Promise.resolve(accessToken?accessToken():state.session?.access_token).then(token=>transport(url+'/rest/v1/'+route,{method,headers:{Authorization:'Bearer '+(token||'')}})).then(async response=>response.ok?{data:await response.json(),error:null}:{data:null,error:await response.json()}).then(resolve,reject);
   return q;
  }
- const client={
-  auth:{onAuthStateChange(fn){authChange=fn},getSession:async()=>({data:{session:state.session}}),async signOut(){state.session=null;authChange('SIGNED_OUT',null);return {error:null}}},
-  from:table=>query(table),rpc:name=>query('rpc/'+name,'POST')
- };
- context.supabase={createClient(url,key,options){creates.push({url,key,options});fetchTransport=options?.global?.fetch||context.fetch;return client}};
+ context.supabase={createClient(url,key,options){
+  creates.push({url,key,options});const transport=options?.global?.fetch||context.fetch;
+  if(url===backend)fetchTransport=transport;
+  const {accessToken,auth:authOptions}=options||{};
+  return {
+   get auth(){
+    if(accessToken)throw Error('Auth is unavailable on a third-party data client');
+    return {onAuthStateChange(fn){authChange=fn},getSession:async()=>({data:{session:state.session}}),
+     async signInWithPassword(){return transport(url+'/auth/v1/token',{method:'POST'})},
+     async signOut(){authOptions?.storage?.removeItem(authOptions.storageKey);state.session=null;authChange('SIGNED_OUT',null);return {error:null}}};
+   },
+   from:table=>query(url,transport,accessToken,table),rpc:name=>query(url,transport,accessToken,'rpc/'+name,'POST'),
+   realtime:{async setAuth(){}}
+  };
+ }};
  vm.createContext(context);vm.runInContext(source('app/environment.js'),context);
  return {context,native,nodes,state,requests,creates,load(){vm.runInContext(source('data/supabase.js'),context);return context.GamaCloudReady},auth(event,next=state.session){state.session=next;authChange(event,next)},fetch:(input,options)=>fetchTransport(input,options)};
 }
@@ -169,4 +180,49 @@ test('a refreshed token for a different account cannot inherit verified administ
  x.auth('TOKEN_REFRESHED',{user:{id:'other-uid'},access_token:'other-token'});
  assert.equal(x.context.CocoEnvironment.canDevelop(),false);
  assert.equal((await (await x.context.GamaCloud.db()).from('products')).error.code,'ENVIRONMENT_ACCESS_DENIED');
+});
+
+test('both releases reuse the existing issuer session and keep their drafts separate',async()=>{
+ const oldKey='sb-fixtureissuer-auth-token';
+ const development=boot({shared:true,local:{[oldKey]:'existing issuer session','coco:development:draft':'dev draft','coco:production:draft':'prod draft'}});
+ await development.load();
+ const production=boot({environment:'production',shared:true,native:development.native});
+ await production.load();
+ const devAuth=development.creates[0].options.auth,prodAuth=production.creates[0].options.auth;
+ assert.equal(devAuth.storageKey,prodAuth.storageKey);
+ assert.equal(prodAuth.storage.getItem(prodAuth.storageKey),'existing issuer session');
+ assert.equal(prodAuth.storage.getItem('coco:development:draft'),null);
+ assert.equal(production.context.localStorage.getItem('draft'),'prod draft');
+ assert.equal(development.context.localStorage.getItem('draft'),'dev draft');
+ assert.equal(development.context.localStorage.getItem(prodAuth.storageKey),null);
+ assert.equal(production.context.localStorage.getItem(oldKey),null);
+ await production.context.GamaCloud.signOut();
+ assert.equal(devAuth.storage.getItem(devAuth.storageKey),null);
+ const reloaded=boot({environment:'production',shared:true,native:development.native});
+ assert.equal(reloaded.context.CocoEnvironment.identity.storage.getItem(prodAuth.storageKey),null,'logout cannot re-adopt an older session');
+});
+
+test('production sends credentials to the authority and business requests to production',async()=>{
+ const x=boot({environment:'production',shared:true});await x.load();
+ assert.deepEqual(x.creates.map(c=>c.url),[authAuthority.supabaseUrl,'https://fixtureproject.supabase.co']);
+ assert.equal(x.creates[1].options.auth,undefined);
+ assert.equal(await x.creates[1].options.accessToken(),'admin-token');
+ assert.equal(x.context.CocoEnvironment.canDevelop(),true);
+ await x.context.GamaCloud.signIn('fixture@example.invalid','fixture');
+ assert.equal((await (await x.context.GamaCloud.db()).from('products')).error,null);
+ assert.equal(x.requests.at(-2).url,authAuthority.supabaseUrl+'/auth/v1/token');
+ assert.equal(x.requests.at(-1).url,'https://fixtureproject.supabase.co/rest/v1/products');
+ const authFetch=x.creates[0].options.global.fetch;
+ assert.equal((await authFetch(authAuthority.supabaseUrl+'/rest/v1/products')).status,403);
+ assert.equal((await authFetch('https://fixtureproject.supabase.co/auth/v1/token')).status,403);
+ assert.equal((await x.fetch(authAuthority.supabaseUrl+'/rest/v1/profiles')).status,403);
+});
+
+test('a refreshed shared session cannot read business data after its issuer authorization is revoked',async()=>{
+ const x=boot({environment:'production',shared:true});await x.load();
+ x.state.status.identity_issuer=null;
+ x.auth('TOKEN_REFRESHED',{user:{id:'admin-uid'},access_token:'refreshed-token'});
+ assert.equal((await (await x.context.GamaCloud.db()).from('products')).error.code,'ENVIRONMENT_ACCESS_DENIED');
+ assert.equal((await x.context.GamaCloud.getProfile()).error.code,'ENVIRONMENT_ACCESS_DENIED');
+ assert.equal(x.context.CocoEnvironment.canDevelop(),false);
 });

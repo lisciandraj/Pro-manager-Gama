@@ -4,6 +4,7 @@ import {readJsonBody,BodyError} from '../_shared/http.mjs';
 import {encryptAiKey,decryptAiKey,aiKeyRotationRequired} from '../_shared/ai-keyring.mjs';
 import {createProviderBudget,ProviderBudgetError} from '../_shared/ai-provider-budget.mjs';
 import {questionScope,minimizeCatalog,minimizeOverview,scopedQuery,minimizeHistory} from './minimization.mjs';
+import {getCocoAuthUser} from '../_shared/coco-auth-user.mjs';
 
 const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 class Failure extends Error {constructor(code,status=500){super(code);this.status=status;}}
@@ -24,9 +25,7 @@ export function createHandler({env,fetch:fetcher}) {
   return {...summary,rows:recommendations||[],truncated:!!data.has_more,next_offset:data.has_more?offset+25:null};
  }
  async function admin(token){
-  const r=await fetcher(root+'/auth/v1/user',{headers:{apikey:anon,Authorization:'Bearer '+token},signal:AbortSignal.timeout(10000)});
-  if(!r.ok)throw new Failure('AUTH_REQUIRED',401);
-  const u=await r.json();if(!UUID.test(u.id||''))throw new Failure('AUTH_REQUIRED',401);
+  const u=await getCocoAuthUser({env,fetcher,token});if(!u)throw new Failure('AUTH_REQUIRED',401);
   const p=await db('profiles?select=id,role,active&id=eq.'+u.id,{token});
   if(p?.[0]?.role!=='administrador'||p[0].active!==true)throw new Failure('ADMIN_REQUIRED',403);
   const mod=await db('app_modules?select=enabled&id=eq.assistant-ia',{token});

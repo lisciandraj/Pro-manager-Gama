@@ -9,15 +9,23 @@ const environment=window.CocoEnvironment;
 const SUPABASE_URL=environment?.backend.supabaseUrl||(!environment?'https://mknsaibrewksgomuslev.supabase.co':'');
 const SUPABASE_PUBLISHABLE_KEY=environment?.backend.publishableKey||(!environment?'sb_publishable_4l0vZw61u5EbLkzmrqrf6Q_phOL1Be9':'');
 const SUPABASE_ANON_KEY=environment?.enforced?SUPABASE_PUBLISHABLE_KEY:(window.GAMA_SUPABASE_ANON_KEY||SUPABASE_PUBLISHABLE_KEY);
+const identity=environment?.identity;
 let verifiedProfile=null,verifiedToken=null;
 function clearVerification(){verifiedProfile=null;verifiedToken=null;window.dispatchEvent(new CustomEvent('coco:environment-access-change'));}
+const requestUrl=input=>new URL(typeof input==='string'?input:input instanceof URL?input.href:input.url);
 async function environmentFetch(input,options){
- const url=new URL(input instanceof URL?input.href:typeof input==='string'?input:input.url);
+ const url=requestUrl(input);
  const headers=new Headers(options?.headers||(typeof input!=='string'?input.headers:undefined));
  const token=headers.get('Authorization')?.replace(/^Bearer /i,'');
  const bootstrap=url.pathname.startsWith('/auth/v1/')||url.pathname==='/rest/v1/rpc/coco_environment_status'||url.pathname==='/rest/v1/rpc/coco_identity_login_status'||url.pathname==='/rest/v1/profiles';
- if(environment?.enforced&&!bootstrap&&(!verifiedToken||token!==verifiedToken))return new Response(JSON.stringify({code:'ENVIRONMENT_ACCESS_DENIED',message:'Environment access must be verified.'}),{status:403,headers:{'Content-Type':'application/json'}});
- return fetch(input,options);
+ if(url.origin!==SUPABASE_URL||(!bootstrap&&(!verifiedToken||token!==verifiedToken)))return denied();
+ return fetch(input,identity?{...options,redirect:'error'}:options);
+}
+function denied(){return new Response(JSON.stringify({code:'ENVIRONMENT_ACCESS_DENIED',message:'Environment access must be verified.'}),{status:403,headers:{'Content-Type':'application/json'}})}
+async function identityFetch(input,options){
+ const url=requestUrl(input);
+ if(url.origin!==identity.supabaseUrl||!url.pathname.startsWith('/auth/v1/'))return denied();
+ return fetch(input,{...options,redirect:'error'});
 }
 let client=null,initializing=null,realtime=[],profileRequest=null;
 const reads=new Set();
@@ -40,7 +48,39 @@ function loadClient(){if(window.supabase&&window.supabase.createClient)return Pr
 async function init(){
  if(!SUPABASE_ANON_KEY||!SUPABASE_URL){emit('gama:cloud-status',{ready:false,configured:false});if(environment?.enforced)showEnvironmentError();return null}
  if(client)return client;if(initializing)return initializing;
- initializing=(async()=>{const sb=await loadClient();client=sb.createClient(SUPABASE_URL,SUPABASE_ANON_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true},...(environment?.enforced?{global:{fetch:environmentFetch}}:{})});client.auth.onAuthStateChange((event,session)=>{if(event!=='TOKEN_REFRESHED'){clearVerification();for(const controller of reads)controller.abort();}else if(verifiedProfile&&session?.user?.id===verifiedProfile.id)verifiedToken=session.access_token;else clearVerification();emit('gama:auth-change',{event,session})});emit('gama:cloud-status',{ready:true,configured:true,url:SUPABASE_URL});return client})();
+ initializing=(async()=>{
+  const sb=await loadClient();
+  const authOptions={persistSession:true,autoRefreshToken:true,detectSessionInUrl:true};
+  if(identity)Object.assign(authOptions,{storage:identity.storage,storageKey:identity.storageKey});
+  const transport=environment?.enforced?{global:{fetch:environmentFetch}}:{};
+  if(identity&&identity.supabaseUrl!==SUPABASE_URL){
+   const auth=sb.createClient(identity.supabaseUrl,identity.publishableKey,{auth:authOptions,global:{fetch:identityFetch}}).auth;
+   const data=sb.createClient(SUPABASE_URL,SUPABASE_ANON_KEY,{
+    ...transport,accessToken:async()=>{
+     const {data:session,error}=await auth.getSession();if(error)throw error;
+     return session?.session?.access_token||null;
+    }
+   });
+   // Keep the established GamaCloud.db() contract for modules that use .auth.
+   client=new Proxy(data,{get(target,key){
+    if(key==='auth')return auth;
+    const member=Reflect.get(target,key,target);
+    return typeof member==='function'?member.bind(target):member;
+   }});
+  }else client=sb.createClient(SUPABASE_URL,SUPABASE_ANON_KEY,{auth:authOptions,...transport});
+  client.auth.onAuthStateChange((event,session)=>{
+   if(event!=='TOKEN_REFRESHED'||identity){clearVerification();for(const controller of reads)controller.abort();}
+   else if(verifiedProfile&&session?.user?.id===verifiedProfile.id)verifiedToken=session.access_token;
+   else clearVerification();
+   emit('gama:auth-change',{event,session});
+   if(identity&&event==='TOKEN_REFRESHED'&&session)setTimeout(()=>getProfile().catch(()=>{}),0);
+   if(identity&&identity.supabaseUrl!==SUPABASE_URL&&['SIGNED_IN','SIGNED_OUT','TOKEN_REFRESHED','MFA_CHALLENGE_VERIFIED'].includes(event)){
+    client.realtime.setAuth().catch(()=>{});
+   }
+  });
+  emit('gama:cloud-status',{ready:true,configured:true,url:SUPABASE_URL});
+  return client;
+ })();
  try{return await initializing}finally{initializing=null}
 }
 function showEnvironmentError(reason){
@@ -67,7 +107,7 @@ async function getProfile(){
   if(result.error||!result.data||result.data.id!==u.id||result.data.active!==true){clearVerification();return {data:null,error:result.error||{code:'ENVIRONMENT_ACCESS_DENIED',message:'Active account required.'}}}
   if(environment?.enforced){
    const status=await read(signal=>c.rpc('coco_environment_status').abortSignal(signal));
-   if(status.error||status.data?.environment!==environment.name||status.data?.allowed!==true||(environment.name==='development'&&(status.data?.admin!==true||result.data.role!=='administrador'))){
+   if(status.error||status.data?.environment!==environment.name||status.data?.allowed!==true||(identity&&status.data?.identity_issuer!==identity.issuer)||(environment.name==='development'&&(status.data?.admin!==true||result.data.role!=='administrador'))){
     clearVerification();showEnvironmentError('access');return {data:null,error:{code:'ENVIRONMENT_ACCESS_DENIED',message:'Environment access denied or configuration mismatch.'}};
    }
   }

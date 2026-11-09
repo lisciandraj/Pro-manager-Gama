@@ -11,13 +11,19 @@
  body.cocoWorkbench .arcSidebar .arcLogo{display:block;max-width:124px}
  body.cocoWorkbench .arcSidebar .arcLogoMark{display:none}
  body.cocoWorkbench .arcSidebar .arcNav{padding:0 0 20px}
- body.cocoWorkbench .arcSidebar .arcNavLink{position:relative;display:grid;grid-template-columns:36px minmax(0,1fr);justify-content:start;gap:12px;min-height:44px;padding:10px 16px 10px 8px;margin:0;border:0;border-radius:0;background:transparent;box-shadow:none;color:var(--coco-ink);font-size:13px;font-weight:400;--coco-glyph-color:var(--coco-glyph-tone,var(--coco-blue))}
+ body.cocoWorkbench .arcSidebar :is(.arcNavLink,.arcEnvironmentLink){position:relative;display:grid;grid-template-columns:36px minmax(0,1fr);justify-content:start;gap:12px;min-height:44px;padding:10px 16px 10px 8px;margin:0;border:0;border-radius:0;background:transparent;box-shadow:none;color:var(--coco-ink);font-size:13px;font-weight:400;--coco-glyph-color:var(--coco-glyph-tone,var(--coco-blue))}
  body.cocoWorkbench .arcSidebar .arcNavLink.aclHidden{display:none}
- body.cocoWorkbench .arcSidebar .arcNavLink>svg{justify-self:center;width:21px;height:21px;flex:none}
- body.cocoWorkbench .arcSidebar .arcNavLink:hover{background:var(--coco-selected)}
+ body.cocoWorkbench .arcSidebar :is(.arcNavLink,.arcEnvironmentLink)>svg{justify-self:center;width:21px;height:21px;flex:none}
+ body.cocoWorkbench .arcSidebar :is(.arcNavLink,.arcEnvironmentLink):hover{background:var(--coco-selected)}
  body.cocoWorkbench .arcSidebar .arcNavLink[aria-current=page]{background:linear-gradient(90deg,var(--coco-nav-active) 52px,var(--coco-selected) 52px);color:var(--coco-blue-hover);font-weight:600;box-shadow:none}
  body.cocoWorkbench .arcSidebar .arcNavLink[aria-current=page]:before{content:"";position:absolute;inset:0 auto 0 0;width:3px;border-radius:0 3px 3px 0;background:var(--coco-action)}
  body.cocoWorkbench .arcSidebar .arcNavLabel{display:block}
+ body.cocoWorkbench .arcEnvironment{margin-bottom:8px}
+ body.cocoWorkbench .arcEnvironmentCurrent{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 8px;padding:0 16px 4px 56px;color:var(--coco-ink);font-size:12px}
+ body.cocoWorkbench .arcEnvironmentCurrent small{color:var(--arc-text-muted);font-size:11px}
+ body.cocoWorkbench .arcSidebar .arcEnvironmentLink{text-decoration:none;text-align:left;line-height:1.4;color:var(--coco-blue-hover)}
+ body.cocoWorkbench .arcSidebar .arcEnvironmentLink[hidden]{display:none}
+ body.cocoWorkbench .arcEnvironmentLink:focus-visible{outline-offset:-3px}
  body.cocoWorkbench .arcSidebar :is(.arcFootBrand,.arcFootVersion){display:none}
  body.cocoWorkbench .arcSidebar .arcNavGroup{height:auto;border:0;font-size:11px;font-weight:500;letter-spacing:0;text-transform:none;padding:14px 16px 7px 56px;margin:10px 0 4px;color:var(--arc-text-muted)}
  body.cocoWorkbench .arcSidebar .arcNavEmpty{padding:0 16px 0 56px;line-height:1.5}

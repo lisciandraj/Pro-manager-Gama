@@ -7,7 +7,7 @@
 | Développement | Branche `development`, historique Git conservé | `mknsaibrewksgomuslev`, avec les données actuelles | Profil administrateur actif, vérifié par le serveur |
 | Production | Instantané approuvé de la branche `production` et étiquette de version | `vhutzdfatijjpahsqkne`, projet distinct | Utilisateurs autorisés de production, selon leurs droits |
 
-Le menu principal permet de passer d’un environnement à l’autre. Le lien Développement est réservé aux administrateurs vérifiés. Le serveur contrôle aussi l’accès aux données ; saisir manuellement une URL de développement ne donne aucun droit supplémentaire.
+La barre latérale affiche l’environnement actif et propose un bouton pour ouvrir l’autre environnement. Sur mobile, ouvrir **Plus** pour y accéder. Depuis la production, seuls les administrateurs actifs vérifiés par le serveur voient le bouton vers le développement. Le navigateur ouvre la version et la session de destination, qui applique ses propres droits d’accès.
 
 Les fichiers de production et de développement sont servis respectivement sous `/production/` et `/development/`. La racine ouvre la production. Chaque dossier conserve ses propres actifs et son cache. Les sauvegardes hors connexion de production sont séparées des anciens fichiers de développement. Les clés de compatibilité historiques sont conservées dans le développement.
 

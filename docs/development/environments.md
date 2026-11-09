@@ -7,11 +7,19 @@
 | Développement | Branche `development`, historique Git conservé | `mknsaibrewksgomuslev`, avec les données actuelles | Profil administrateur actif, vérifié par le serveur |
 | Production | Instantané approuvé de la branche `production` et étiquette de version | `vhutzdfatijjpahsqkne`, projet distinct | Utilisateurs autorisés de production, selon leurs droits |
 
-La barre latérale affiche l’environnement actif et propose un bouton pour ouvrir l’autre environnement. Sur mobile, ouvrir **Plus** pour y accéder. Depuis la production, seuls les administrateurs actifs vérifiés par le serveur voient le bouton vers le développement. Le navigateur ouvre la version et la session de destination, qui applique ses propres droits d’accès.
+La barre latérale affiche l’environnement actif et propose un bouton pour ouvrir l’autre environnement. Sur mobile, ouvrir **Plus** pour y accéder. Depuis la production, seuls les administrateurs actifs vérifiés par le serveur voient le bouton vers le développement. Le navigateur ouvre la version de destination, qui applique ses propres droits d’accès.
 
 Les fichiers de production et de développement sont servis respectivement sous `/production/` et `/development/`. La racine ouvre la production. Chaque dossier conserve ses propres actifs et son cache. Les sauvegardes hors connexion de production sont séparées des anciens fichiers de développement. Les clés de compatibilité historiques sont conservées dans le développement.
 
 Le démarrage attend `coco_environment_status` sur le backend sélectionné. Un environnement incorrect, une configuration absente ou un accès administrateur refusé bloque les lectures métier. Aucune URL de production manquante ne provoque de reprise automatique vers l’ancienne base.
+
+## Connexion commune
+
+Le projet historique reste l’autorité d’identité. Les deux versions réutilisent sa session Supabase Auth quand leurs configurations approuvées activent `sharedIdentity`. La version Production utilise le jeton de cette session pour son API métier, sur son propre projet. Le stockage du jeton est commun à l’origine web de Coco. Préférences, brouillons, sauvegardes et caches restent rattachés à leur environnement.
+
+L’activation nécessite la découverte OpenID Connect de l’autorité et sa clé de signature asymétrique, l’intégration Custom OIDC sur le projet Production et une correspondance entre les identités externes et les droits locaux. Le contrôle Pages exige que les deux réponses `coco_environment_status` attestent le même `identity_issuer`. Cette attestation suit les essais réels de connexion, MFA, révocation, refus des profils sans accès et écritures métier sous les politiques de Production. Les références de dossier vers les utilisateurs et les fonctions qui consultent Auth font partie de la validation serveur.
+
+Les administrateurs existants gardent leur identifiant Auth. La Production enregistre les autorisations qui leur sont accordées sur leurs identifiants d’origine. Les comptes Auth sont administrés dans le projet d’identité.
 
 ## État de préparation — 8 novembre 2026
 

@@ -47,6 +47,25 @@ test('missing production configuration is explicit and cannot connect to develop
  assert.ok(!fs.readFileSync(path.join(dir,'index.html'),'utf8').includes('.supabase.co'));
  assert.equal(JSON.parse(fs.readFileSync(path.join(dir,'coco-build.json'))).configured,false);
 });
+
+test('shared releases allow Auth on one issuer and business APIs on their own data backend',t=>{
+ const f=fixture(t),shared={...configuration,sharedIdentity:true};
+ packageEnvironments({...f,configuration:shared});
+ const production=path.join(f.outputDirectory,'production');
+ const html=fs.readFileSync(path.join(production,'index.html'),'utf8');
+ assert.ok(html.includes(configuration.production.supabaseUrl));
+ assert.ok(html.includes(configuration.development.supabaseUrl+'/auth/v1/'));
+ assert.ok(!html.includes(configuration.development.supabaseUrl+' '));
+ assert.ok(!html.includes('wss://aaaaaaaaaaaaaaaaaaaa.supabase.co'));
+ for(const name of ['development','production']){
+  const dir=path.join(f.outputDirectory,name);
+  assert.equal(JSON.parse(fs.readFileSync(path.join(dir,'coco-release.json'))).identity_issuer,configuration.development.supabaseUrl+'/auth/v1');
+  const js=fs.readFileSync(path.join(dir,'coco-environment-config.js'),'utf8');
+  assert.ok(js.includes('"identity":'+JSON.stringify(configuration.development)));
+ }
+ assert.throws(()=>packageEnvironments({...f,configuration:shared,productionConfiguration:configuration}),/Both approved releases/);
+ assert.throws(()=>packageEnvironments({...f,configuration:shared,productionConfiguration:{...shared,development:{...configuration.development,supabaseUrl:'https://cccccccccccccccccccc.supabase.co'}}}),/same identity issuer/);
+});
 test('prepared approved production is copied verbatim and rejects altered release assets',t=>{
  const f=fixture(t);packageEnvironments(f);
  const prepared=path.join(f.root,'approved');fs.cpSync(path.join(f.outputDirectory,'production'),prepared,{recursive:true});

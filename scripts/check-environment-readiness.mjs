@@ -1,10 +1,27 @@
 /* Public, read-only deployment gate. Never use a user session or privileged key. */
 import fs from 'node:fs';
 import path from 'node:path';
+import {createPublicKey} from 'node:crypto';
 import {fileURLToPath} from 'node:url';
 import packager from './package-environments.cjs';
 
-const {publicBackend}=packager;
+const {publicBackend,sharedIdentityBackend}=packager;
+
+async function checkIdentity(issuer,fetchImpl){
+ const jwksUrl=issuer+'/.well-known/jwks.json';
+ const read=async url=>{
+  const response=await fetchImpl(url,{credentials:'omit',redirect:'error',cache:'no-store',signal:AbortSignal.timeout(15000)});
+  if(!response.ok)throw Error('Identity discovery returned HTTP '+response.status);
+  return response.json();
+ };
+ const discovery=await read(issuer+'/.well-known/openid-configuration');
+ if(discovery?.issuer!==issuer||discovery.jwks_uri!==jwksUrl)throw Error('Identity discovery does not match the approved issuer');
+ const jwks=await read(jwksUrl);
+ if(!Array.isArray(jwks?.keys)||!jwks.keys.some(key=>{
+  if(typeof key?.kid!=='string'||!key.kid||!['EC','RSA'].includes(key.kty))return false;
+  try{createPublicKey({key,format:'jwk'});return true}catch{return false}
+ }))throw Error('Identity issuer must expose an asymmetric signing key');
+}
 
 export async function checkEnvironmentReadiness({configuration,productionConfiguration,fetchImpl=globalThis.fetch}){
  const backends={
@@ -17,6 +34,7 @@ export async function checkEnvironmentReadiness({configuration,productionConfigu
   if(!backend.supabaseUrl)throw Error(name+' backend is required before publication');
  }
  if(backends.production.supabaseUrl===backends.development.supabaseUrl)throw Error('Production and development must use separate databases');
+ const identity=sharedIdentityBackend(configuration,productionConfiguration);
  const results={};
  for(const name of ['production','development']){
   const backend=backends[name];let response,status;
@@ -32,8 +50,10 @@ export async function checkEnvironmentReadiness({configuration,productionConfigu
   if(!status||typeof status!=='object'||Array.isArray(status)||status.environment!==name||status.allowed!==allowed||status.admin!==false){
    throw Error(name+' environment is not ready: expected its own marker, anonymous access '+allowed+' and no administrator session');
   }
+  if(identity&&status.identity_issuer!==identity.supabaseUrl+'/auth/v1')throw Error(name+' environment has not verified the approved identity issuer');
   results[name]={environment:status.environment,allowed:status.allowed,admin:status.admin};
  }
+ if(identity)await checkIdentity(identity.supabaseUrl+'/auth/v1',fetchImpl);
  return results;
 }
 

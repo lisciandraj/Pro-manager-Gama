@@ -41,9 +41,8 @@ async function load(ids,table='products'){
 }
 window.addEventListener('gama:auth-change',e=>{if(e.detail?.event==='TOKEN_REFRESHED')return;epoch++;cache.clear();cacheBytes=0;inflight.clear();queue.splice(0).forEach(job=>job.resolve(new Map()));observer?.forEach(io=>io.disconnect());observed.clear()});
 
-/* Marcador que se pinta en la lista mientras la foto no está.
-   El id va en un atributo, nunca dentro de una URL, así que no hace falta
-   escaparlo como HTML: se compara tal cual al rellenarlo. */
+/* Cached values and identifiers remain data when a list renders HTML. */
+const attr=value=>String(value??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 /* Sin foto, el dibujo del módulo Productos: el mismo cubo que su tarjeta. */
 function placeholder(){
  const d=window.ArcUI&&window.ArcUI.icons&&window.ArcUI.icons.cube||'';
@@ -52,9 +51,9 @@ function placeholder(){
 function slot(id,cls){
  const c=cls===undefined?'product-img':cls;
  const hit=cache.get(id);
- if(hit)return '<img class="'+c+'" loading="lazy" src="'+hit+'" alt="">';
+ if(hit)return '<img class="'+attr(c)+'" loading="lazy" src="'+attr(hit)+'" alt="">';
  // La clase destino viaja en el hueco para que hydrate() la reponga en el <img>.
- return '<span class="gamaPhotoSlot '+c+'" data-gama-photo="'+String(id||'').replace(/"/g,'')+'">'+placeholder()+'</span>';
+ return '<span class="gamaPhotoSlot '+attr(c)+'" data-gama-photo="'+attr(id)+'">'+placeholder()+'</span>';
 }
 
 function fill(el,data){

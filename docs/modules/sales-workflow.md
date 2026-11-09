@@ -2,7 +2,7 @@
 
 État du 15 octobre 2026. La carte **Ventes** propose cinq onglets visibles : **Devis**, **Commandes**, **À facturer**, **Analyse**, **Configuration** (administrateur). Demandes clients et devis partagent un seul tableau dans **Devis** ; **À traiter**, **Factures et encaissements**, **Tarifs** et **Matrice commerciale** ouvrent les modules existants. Les anciennes adresses et permissions restent compatibles. Les onglets passent sur plusieurs lignes sur téléphone ; les tableaux conservent leurs contours et leurs libellés en mode cartes.
 
-Depuis le 18 octobre 2026, les demandes du site et du portail deviennent automatiquement des devis en brouillon, sans envoi, commande ni réservation. Les demandes originales restent liées ; les clients inconnus sont à compléter dans le brouillon. Voir [le parcours du site](../public-website.md#conversion-immédiate-en-brouillon).
+Depuis le 18 octobre 2026, les demandes du site public deviennent automatiquement des devis en brouillon, sans envoi, commande ni réservation. Les demandes originales restent liées ; les clients inconnus sont à compléter dans le brouillon. Voir [le parcours du site](../public-website.md#conversion-immédiate-en-brouillon).
 
 ## Observations vérifiées avant intervention
 
@@ -24,6 +24,8 @@ Le dossier conserve ses onglets opérationnels et son lien **Suivi de processus*
 
 ## Saisie et conditions
 
+Un clic sur **Guardar borrador** attend le chargement du contexte fiscal et le calcul en cours avant de lancer l’enregistrement. Le bouton reste désactivé pendant cette attente ; une erreur conserve le formulaire et permet de réessayer sans créer de doublon.
+
 Le devis récupère le client et ses adresses existantes ; une destination ponctuelle ne modifie pas Contacts. La sélection produit recherche nom/référence/code-barres et permet **Ajouter et continuer**. Les quantités sont converties vers l'unité de stock selon les facteurs historiques validés par le serveur.
 
 Sections et notes sont non facturables. Une option est exclue du total et devient une ligne normale après une action d'acceptation, avec le tarif courant et les taxes du produit. Les modèles conservent leurs sections/options et conditions dans une copie indépendante ; les documents émis ne suivent pas les modifications du modèle. Copier une vente crée un nouveau brouillon sans documents aval.
@@ -42,9 +44,9 @@ Un acompte fixe ou proportionnel utilise une facture interne du registre existan
 
 Le crédit utilise les créances actives et engagements non encore facturés, sans déduire deux fois une facture groupée. Les confirmations verrouillent le client et la transaction commerciale. Une dérogation administrateur exige un motif et une empreinte liée au devis et à son exposition ; une modification l'invalide. Une répétition de confirmation ne crée pas une autre commande ou préparation. Les créations utilisent une clé liée à l'acteur et au contenu ; réutiliser la clé avec un contenu différent est refusé.
 
-## Portail et envoi
+## Accès clients et envoi
 
-Le portail autonome conserve son identité client, sans profil ERP actif. Il peut consulter et accepter son devis valide avec date, auteur, révision et instantané. L'accord est présenté comme **en attente de confirmation par l'équipe** : le personnel confirme ensuite avec les contrôles de crédit habituels. Les identités de deux clients restent cloisonnées ; coûts, marges et notes internes ne sont pas ajoutés aux réponses portail.
+Les accès Client et les anciens endpoints du portail sont retirés, conformément à la [navigation actuelle](navigation.md#accès-clients-retirés). Les demandes publiques passent par le site, puis le tableau Devis. L'équipe enregistre la référence de l'accord externe et confirme avec les contrôles de crédit existants. Les acceptations historiques restent consultables ; aucun portail ni compte client n'est réactivé.
 
 Un document généré, un email préparé dans Gmail/Outlook et un envoi techniquement confirmé sont distincts. L'ouverture d'un brouillon ne constitue pas un envoi. Aucun nouveau fournisseur d'envoi, signature ou paiement n'est imposé.
 
@@ -110,9 +112,8 @@ réservée, préparée ou facturée reste protégée par les règles existantes.
 modification du dossier ou des coûts après approbation empêche l'application
 silencieuse de l'ancienne proposition. La réponse répétée est idempotente.
 
-Le portail B2B conserve ses droits et ses parcours actuels : cette livraison
-n'ajoute aucun bouton d'acceptation de substitution au portail et ne réactive pas
-les anciens comptes client ERP. Aucun message client n'est envoyé par ces actions.
+Les anciens accès client ERP et endpoints du portail restent retirés. Les
+accords de substitution sont référencés par l'équipe dans le dossier existant. Aucun message client n'est envoyé par ces actions.
 
 Les notifications et priorités existantes ajoutent les activités commerciales
 en retard, accords en attente et engagements de livraison dépassés. Le magasinier
@@ -139,3 +140,47 @@ contrôles de quantité, stock et remboursement. Ce raccourci ne crée ni retour
 ni avoir, ni remboursement automatiquement. La suite
 `tests/simplified-sales-contacts.spec.js` vérifie préremplissage, absence d’écriture
 avant validation et rejet d’une ligne absente du dossier.
+
+
+## Compléments Ventes — 8 novembre 2026
+
+Le détail d'un devis moderne non annulé/non rejeté propose **Télécharger la pro
+forma**. Le PDF porte le titre PRO FORMA et précise qu'il ne constitue ni une
+facture ni une preuve de paiement. Il réutilise les montants et l'instantané du
+devis accepté, lorsqu'il existe, avec la devise de ses conditions ou de son
+instantané, puis enregistre uniquement l'événement de
+génération documentaire existant. Aucune facture, commande, écriture comptable ou
+transaction de paiement n'est créée par l'export. Le PDF de devis et les factures
+internes conservent leurs titres distincts.
+
+Dans l'éditeur, **Appliquer une remise à toutes les lignes** remplace les remises
+par ligne par un même pourcentage entre 0 et 100. Le dialogue explique ce
+remplacement avant application. Les prix négociés, motifs, quantités et taux de
+taxes restent ceux des lignes ; le calcul, la sauvegarde et les seuils
+commerciaux passent par les contrôles existants. Il ne s'agit pas d'une ligne de
+remise forfaitaire ni d'un programme de fidélité.
+
+**Modèles de devis** permet de rechercher et d'archiver ses modèles autorisés.
+La recherche serveur parcourt tous les modèles autorisés avant de limiter les
+résultats à 100 ; une réponse périmée est ignorée et une erreur permet de réessayer.
+L'archivage requiert le module Devis et son droit de suppression, en plus du
+périmètre propriétaire/administrateur. Il utilise la désactivation serveur
+existante ; les devis déjà créés restent indépendants. Une reprise après réponse
+perdue ne crée ni seconde modification ni nouvel événement. Le registre commun
+conserve une référence expurgée du modèle, sans contenu des lignes ni conditions,
+avec l'acteur et la provenance Agent Coco lorsque celle-ci est fournie. Un échec conserve le modèle à l'écran et permet de
+réessayer. Copier une vente résout les prix actuels et marque ces prix comme
+automatiques : le motif de prix manuel de l'ancien document ne bloque plus les
+recalculs du nouveau brouillon.
+
+Les tests isolés `sales-community-parity.spec.js` vérifient les exports pro forma
+à 390 et 1440 px, l'absence de facture/paiement créé, l'instantané accepté,
+l'archivage avec reprise, les prix copiés et les remises avec taux mixtes.
+`sales-proforma-pdf.test.cjs` vérifie le titre et la mention du générateur PDF.
+La parité exhaustive avec Odoo n'est pas revendiquée : les paiements en ligne,
+signatures, programmes de fidélité et autres écarts restent à distinguer dans la
+matrice Replica.
+
+La [matrice Community du 8 novembre](../../replica/community-2026-11-08/features.csv)
+et l’[audit des ventes restantes](../../replica/community-2026-11-08/remaining-sales.md)
+distinguent les fonctions livrées, partielles, absentes et retirées par choix produit.

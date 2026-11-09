@@ -1,0 +1,88 @@
+name: Approve Coco production release
+on:
+  workflow_dispatch:
+    inputs:
+      promotion_mode:
+        description: Normal development release or the fixed initial MFA snapshot
+        required: true
+        default: development
+        type: choice
+        options:
+          - development
+          - initial-mfa-bootstrap
+      release_commit:
+        description: Exact tested commit (40 characters); bootstrap mode accepts only 8c465ace2b042161eed8f2c25e080c736ce836c0
+        required: true
+        type: string
+      approval:
+        description: Type AUTORISER PRODUCTION after completing your tests
+        required: true
+        type: string
+permissions:
+  contents: read
+concurrency:
+  group: coco-pages-publication
+  cancel-in-progress: false
+jobs:
+  approve:
+    if: github.ref == 'refs/heads/development'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment: production
+    permissions:
+      contents: write
+      actions: write
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - name: Validate approval and CI, then promote exactly the tested commit
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7
+        env:
+          RELEASE_COMMIT: ${{ inputs.release_commit }}
+          RELEASE_APPROVAL: ${{ inputs.approval }}
+          RELEASE_MODE: ${{ inputs.promotion_mode }}
+        with:
+          script: |
+            const {owner,repo}=context.repo;
+            if(context.actor!==owner)throw Error('Only the repository owner may authorize a production release.');
+            const sha=process.env.RELEASE_COMMIT;
+            if(process.env.RELEASE_APPROVAL!=='AUTORISER PRODUCTION')throw Error('Explicit production approval is required.');
+            if(!/^[a-f0-9]{40}$/.test(sha))throw Error('Select an exact tested commit, not a moving branch or tag.');
+            const mode=process.env.RELEASE_MODE||'development';
+            if(mode==='initial-mfa-bootstrap'){
+              const {promoteInitialMfa}=require(process.env.GITHUB_WORKSPACE+'/scripts/promote-initial-mfa.cjs');
+              await promoteInitialMfa({github,context,core,sha,approval:process.env.RELEASE_APPROVAL});
+              return;
+            }
+            if(mode!=='development')throw Error('Unknown production promotion mode.');
+            const current=(await github.rest.git.getRef({owner,repo,ref:'heads/development'})).data.object.sha;
+            const comparison=(await github.rest.repos.compareCommitsWithBasehead({owner,repo,basehead:sha+'...'+current})).data;
+            if(comparison.merge_base_commit?.sha!==sha)throw Error('The selected commit is not part of development.');
+            const validations=(await github.rest.actions.listWorkflowRuns({owner,repo,workflow_id:'validate-release.yml',head_sha:sha,branch:'development',status:'completed',per_page:30})).data.workflow_runs;
+            if(!validations.some(run=>run.conclusion==='success'&&run.event==='push'))throw Error('The complete release validation must pass for this exact development commit.');
+            const publications=(await github.rest.actions.listWorkflowRuns({owner,repo,workflow_id:'deploy-coco-pages.yml',head_sha:sha,branch:'development',status:'completed',per_page:30})).data.workflow_runs;
+            let gatesPassed=false;
+            for(const run of publications){
+              if(run.event!=='push')continue;
+              const jobs=await github.paginate(github.rest.actions.listJobsForWorkflowRun,{owner,repo,run_id:run.id,per_page:100});
+              if(['build','topbar-menus','business-modules'].every(name=>jobs.some(job=>job.name===name&&job.conclusion==='success'))){gatesPassed=true;break;}
+            }
+            if(!gatesPassed)throw Error('The Pages build and all existing interface gates must pass for this exact commit.');
+            // Keep immutable source receipts in Git. No data or database migration
+            // is copied by this workflow; schema releases are a separate approval.
+            let previous=null;
+            try{previous=(await github.rest.git.getRef({owner,repo,ref:'heads/production'})).data.object.sha;}catch(error){if(error.status!==404)throw error;}
+            const tag='production/'+new Date().toISOString().replace(/[-:]/g,'').replace(/\.\d{3}Z$/,'Z')+'-'+sha.slice(0,12);
+            await github.rest.git.createRef({owner,repo,ref:'refs/tags/'+tag,sha});
+            if(previous){
+              const stillCurrent=(await github.rest.git.getRef({owner,repo,ref:'heads/production'})).data.object.sha;
+              if(stillCurrent!==previous)throw Error('Production changed during approval; inspect it before retrying.');
+              await github.rest.git.updateRef({owner,repo,ref:'heads/production',sha,force:false});
+            }else await github.rest.git.createRef({owner,repo,ref:'refs/heads/production',sha});
+            await core.summary.addHeading('Production release approved').addTable([
+              [{data:'Field',header:true},{data:'Value',header:true}],
+              ['Approved by',context.actor],['Production commit',sha],['Previous commit',previous||'Initial setup'],['Immutable version',tag],['Database records copied','0']
+            ]).write();
+            await github.rest.actions.createWorkflowDispatch({owner,repo,workflow_id:'deploy-coco-pages.yml',ref:'development'});

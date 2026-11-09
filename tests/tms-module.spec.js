@@ -586,7 +586,8 @@ test.describe('TMS — live daily map',()=>{
   await boot(page,seed());await expect(page.locator('#tRefresh')).toBeEnabled();await page.locator('#tMapIn').click();
   const zoom=await page.locator('#tDayMap svg').getAttribute('data-zoom'),view=await page.locator('#tDayMap svg').getAttribute('viewBox');
   await page.evaluate(()=>{const d=__DB.tms_deliveries[0];Object.assign(d,{status:'Entregada',lat:-.205});window.dispatchEvent(new CustomEvent('gama:data-change',{detail:{table:'tms_deliveries'}}))});
-  await expect(page.locator('[data-map-pin=a] circle')).toHaveAttribute('fill','#15803d');await expect(page.locator('#tms-delivery-a')).toContainText('Entregada');
+  const success=await page.locator('#tDayMap').evaluate(el=>{const probe=document.createElement('span');probe.style.color='var(--arc-success)';el.append(probe);const color=getComputedStyle(probe).color;probe.remove();return color;});
+  expect(success).toBe('rgb(32, 107, 56)');await expect(page.locator('[data-map-pin=a] circle')).toHaveCSS('fill',success);await expect(page.locator('#tms-delivery-a')).toContainText('Entregada');
   await expect(page.locator('#tDayMap svg')).toHaveAttribute('data-zoom',zoom);await expect(page.locator('#tDayMap svg')).toHaveAttribute('viewBox',view);
   await expect(page.locator('[data-map-pin=b] text')).toHaveText('1');await expect(page.locator('[data-map-pin=a] text')).toHaveText('2');
   const leg=await page.locator('[data-map-route=route-live]').getAttribute('d');expect((leg.match(/L/g)||[]).length).toBe(3);

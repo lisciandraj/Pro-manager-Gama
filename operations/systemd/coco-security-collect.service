@@ -1,0 +1,26 @@
+[Unit]
+Description=Collect actual bounded Coco and Supabase security aggregates
+Wants=network-online.target
+After=network-online.target
+OnFailure=coco-security-collect-alert.service
+
+[Service]
+Type=oneshot
+User=coco-backup
+Group=coco-backup
+WorkingDirectory=/opt/coco
+EnvironmentFile=/etc/coco/monitor.env
+Environment=LC_ALL=C
+ExecStart=/usr/bin/python3 /opt/coco/scripts/coco-collect-security.py --config /etc/coco/security-monitor.json --output /var/lib/coco-monitor/signals.json --state /var/lib/coco-monitor/collector-state.json --run
+StateDirectory=coco-monitor
+StateDirectoryMode=0700
+UMask=0077
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=strict
+ProtectHome=yes
+ReadWritePaths=/var/lib/coco-monitor
+ReadOnlyPaths=/etc/coco -/srv/coco-backups
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+LimitCORE=0
+TimeoutStartSec=10m

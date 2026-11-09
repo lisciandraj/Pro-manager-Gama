@@ -1,6 +1,6 @@
 /* Coco ERP static assets only. Business/API responses never enter this cache. */
 const CACHE_PREFIX='coco-erp:'+new URL('./',self.location.href).pathname+':';
-const CACHE=CACHE_PREFIX+'c7c01467acd3-4063273b18d6';
+const CACHE=CACHE_PREFIX+'069beb6827e6-04bdefc0b0c9';
 const APP_SHELL=["./","./index.html","./manifest.json?v=20261018-co","./coco-erp-logo.png?v=20261021-minimal","./coco-erp-icon-180.png?v=20261018-co","./coco-erp-icon-192.png?v=20261018-co","./coco-erp-icon-512.png?v=20261018-co"];
 const immutable=url=>/^[a-f0-9]{12}$/.test(url.searchParams.get('v')||'');
 async function save(request,response){
@@ -48,7 +48,7 @@ self.addEventListener('message',event=>{
  event.waitUntil((async()=>{
   try{
    const base=new URL('./',self.location.href),urls=event.data.urls;
-   if(!Array.isArray(urls)||urls.length>25)throw Error('INVALID_ASSETS');
+   if(!Array.isArray(urls)||urls.length>28)throw Error('INVALID_ASSETS');
    const safe=urls.map(value=>{const url=new URL(value,base);if(url.origin!==base.origin||!url.pathname.startsWith(base.pathname)||! /\.(js|css|html)$/.test(url.pathname))throw Error('INVALID_ASSET');return url.href});
    await (await caches.open(CACHE)).addAll(safe);event.ports[0].postMessage({ok:true});
   }catch(e){event.ports[0].postMessage({ok:false,error:e.message})}

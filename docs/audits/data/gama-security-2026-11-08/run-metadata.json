@@ -1,0 +1,79 @@
+{
+  "run_id": "gama-2026-11-08",
+  "repo": "lisciandraj/Pro-manager-Gama",
+  "target": "/workspace/coco-erp",
+  "source_ref": "8569f2e52c2e0fcdd5d036a73fb039522b49841a",
+  "initial_worktree_dirty": false,
+  "profile": "standard",
+  "scope_paths": [
+    "src/storefront",
+    "src/features/website",
+    "functions",
+    "supabase/migrations (storefront and customer control dependencies)",
+    "scripts/build-storefront.cjs",
+    "config/storefront-schema.json",
+    ".github/workflows (storefront)"
+  ],
+  "budget": null,
+  "execution_policy": "sandboxed-source-and-local-only",
+  "selected_companion_files": [
+    "WEB-PROTOCOL-AND-AUTH.md",
+    "CLIENT-SIDE.md",
+    "SUPPLY-CHAIN-AND-RELEASE.md",
+    "CLOUD-AND-DEPLOYMENT.md",
+    "RESOURCE-EXHAUSTION-AND-AVAILABILITY.md",
+    "DATA-ISOLATION-AND-LIFECYCLE.md"
+  ],
+  "prior_run_paths": [
+    "docs/audits/gama-ecommerce-reglementation-2026-10-29.md"
+  ],
+  "prior_machine_ledgers": [],
+  "shared_file_owners": {
+    "*": "parent"
+  },
+  "run_status": "incomplete",
+  "user_authorized_remediation": true,
+  "scope_note": "Public GAMA website scope; unrelated internal ERP modules excluded.",
+  "incomplete_reason": "sql_and_browser_validation_dependencies_absent_and_skill_semantic_validators_unavailable",
+  "coverage_critic": {
+    "wave_1_missing_units": 2,
+    "wave_2_missing_units": 0,
+    "distinct_final_clean_critic": true
+  },
+  "candidate_validation": "one independent candidate verifier plus separate final record verifier",
+  "sandbox": {
+    "external_network": false,
+    "environment": {
+      "PATH": "/opt/node/bin:/usr/bin:/bin",
+      "HOME": "/scratch",
+      "TMPDIR": "/scratch",
+      "XDG_CACHE_HOME": "/scratch/cache",
+      "NODE_OPTIONS": "--jitless --max-old-space-size=256"
+    },
+    "source_and_tools": "read-only",
+    "writable": "private tmpfs /scratch",
+    "disk_bytes": 134217728,
+    "cpu_seconds": 60,
+    "address_space_bytes": 2147483648,
+    "processes": 64,
+    "file_bytes": 16777216,
+    "file_descriptors": 128,
+    "wall_seconds": 90
+  },
+  "validation": {
+    "web_tests": {
+      "passed": 16,
+      "failed": 0
+    },
+    "storefront_build": "passed in disposable copy",
+    "historical_migration_hashes": "297 passed",
+    "sql_regressions": "not run; PGlite absent",
+    "browser_e2e": "not run; project test dependencies absent",
+    "full_erp_build": "not run; acorn/esbuild/vite/yjs absent",
+    "findings_standard_json_schema": "passed",
+    "official_skill_validators": "both unavailable from skill package at root and scripts/ paths"
+  },
+  "publication": "The owner explicitly approved publishing the prepared corrections and detailed audit to public lisciandraj/Pro-manager-Gama in a draft pull request. Production deployment is outside this publication step.",
+  "publication_blocker": null,
+  "publication_authorization": "Explicit follow-up user confirmation: Oui stp, in response to the public-repository draft-PR publication request."
+}

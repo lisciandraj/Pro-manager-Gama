@@ -110,15 +110,16 @@ test('phone table mode keeps every value under its column header, empty cells in
  expect(await page.locator('#alignTest tbody tr').nth(1).locator('td').evaluateAll(c=>c.filter(x=>getComputedStyle(x).display==='none').length)).toBe(3);
 });
 
-// Los botones usan naranja para la vista activa y texto e iconos oscuros en ambas vistas.
+// La vista activa usa el azul del menú y blanco; la vista inactiva conserva la tinta del tema.
 test('les boutons d’affichage montrent des icônes et des libellés traduits',async({page})=>{
  await boot(page);await fixtures(page);
  const bar=page.locator('#viewShared .gamaTableViews'),cards=bar.locator('[data-table-view=cards]'),table=bar.locator('[data-table-view=table]');
  for(const b of [cards,table]){expect(await b.evaluate(x=>x.textContent.trim())).toBe(await b.getAttribute('aria-label'));const box=await b.boundingBox();expect(Math.round(box.width)).toBeGreaterThanOrEqual(44);expect(Math.round(box.height)).toBeGreaterThanOrEqual(44)}
+ const restingInk=await bar.evaluate(el=>{const probe=document.createElement('span');probe.style.color='var(--coco-ink)';el.append(probe);const ink=getComputedStyle(probe).color;probe.remove();return ink;});
  const expectViewStyles=async()=>{for(const button of [cards,table]){
   const active=await button.getAttribute('aria-pressed')==='true';
-  const ink='rgb(21, 21, 21)';
-  await expect(button).toHaveCSS('background-color',active?'rgb(238, 84, 0)':'rgb(255, 255, 255)');
+  const ink=active?'rgb(255, 255, 255)':restingInk;
+  await expect(button).toHaveCSS('background-color',active?'rgb(33, 118, 184)':'rgb(255, 255, 255)');
   await expect(button).toHaveCSS('color',ink);
   const glyph=button.locator('svg');await expect(glyph).toBeVisible();
   // Check the painted geometry, independently of its paths or layer count.

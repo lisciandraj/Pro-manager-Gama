@@ -12,7 +12,8 @@ function build(q){
  const doc=new window.jspdf.jsPDF();let y=0;
  const base=q.companySnapshot||window.GamaCompany?.get(),issuer=base?.configured?{...base,legal_name:externalText(q.seller||base.legal_name),tax_id:q.sellerRuc??base.tax_id,address:q.sellerAddress??base.address,phone:q.sellerPhone??base.phone,email:q.sellerEmail??base.email,website:q.sellerWebsite??base.website}:undefined;
  const colors=window.GamaPdfTemplate.theme(issuer),ink=colors.ink,teal=colors.teal;
- function header(){y=window.GamaPdfTemplate.header(doc,{company:issuer,title:q.documentType==='internal_invoice'?'FACTURA INTERNA':'PRESUPUESTO',reference:q.number,date:'Fecha: '+esc(q.dateLabel||''),detail:q.validUntil?'Válido hasta: '+q.validUntil+' · v'+(q.revision||1):''})}
+ const proforma=q.documentType==='proforma',t=s=>window.GamaI18n?.t?.(s)||s;
+ function header(){y=window.GamaPdfTemplate.header(doc,{company:issuer,title:q.documentType==='internal_invoice'?'FACTURA INTERNA':proforma?t('PRO FORMA'):'PRESUPUESTO',reference:q.number,date:'Fecha: '+esc(q.dateLabel||''),detail:q.validUntil?'Válido hasta: '+q.validUntil+' · v'+(q.revision||1):''})}
  function room(h){if(y+h>272){doc.addPage();header()}}
  function paragraph(text,size=10){doc.setFontSize(size);const ls=doc.splitTextToSize(esc(text),180);for(const line of ls){room(5);doc.text(line,14,y);y+=5}y+=3}
  function tableHead(){room(15);doc.setFillColor(...colors.secondary);doc.rect(14,y-5,182,9,'F');doc.setTextColor(...colors.onSecondary);doc.setFontSize(8);[['Producto',16],['Cant.',99],['Precio',117],['Dto.',139],['IVA',153],['Subtotal',170]].forEach(([t,x])=>doc.text(t,x,y));doc.setTextColor(...ink);y+=10}
@@ -26,18 +27,18 @@ function build(q){
    if(y+10>270){doc.addPage();header();tableHead()}
    const chunk=lines.splice(0,Math.max(1,Math.floor((266-y)/4)));
    doc.setFontSize(9);doc.text(chunk,16,y);
-   if(first){doc.setFontSize(8);doc.text(String(x.qty),99,y);doc.text(GamaCurrency.symbol(q.currency)+Number(x.listPrice??x.price??0).toFixed(2),117,y);doc.text(Number(x.discount||0)+'%',139,y);doc.text(Number(x.taxRate??q.rate??0)+'%',153,y);doc.text(GamaCurrency.symbol(q.currency)+(Number(x.qty||0)*Number(x.price||0)).toFixed(2),194,y,{align:'right'});first=false}
+   if(first){doc.setFontSize(8);doc.text(String(x.qty),99,y);doc.text(GamaCurrency.symbol(q.currency)+Number(x.listPrice??x.price??0).toFixed(2),117,y);doc.text(Number(x.discount||0)+'%',139,y);doc.text(q.taxCalculation?(x.taxComponents||[]).length===1?(x.taxComponents[0].calculation_type==='fixed'?GamaCurrency.symbol(q.currency)+Number(x.taxComponents[0].fixed_amount||0).toFixed(2):Number(x.taxComponents[0].rate||0)+'%'):'—':Number(x.taxRate??q.rate??0)+'%',153,y);doc.text(GamaCurrency.symbol(q.currency)+Number(x.subtotal??Number(x.qty||0)*Number(x.price||0)).toFixed(2),194,y,{align:'right'});first=false}
    y+=Math.max(9,chunk.length*4+4);
   }
   doc.setDrawColor(224,232,236);doc.setLineWidth(0.2);doc.line(14,y-4,196,y-4);
  });
- room(38);y+=4;doc.setFontSize(10);doc.text('Subtotal: '+GamaCurrency.symbol(q.currency)+Number(q.sub||0).toFixed(2),196,y,{align:'right'});y+=6;doc.text('IVA: '+GamaCurrency.symbol(q.currency)+Number(q.tax||0).toFixed(2),196,y,{align:'right'});y+=9;doc.setFontSize(15);doc.setTextColor(...teal);doc.setFont(undefined,'bold');doc.text('TOTAL  '+GamaCurrency.symbol(q.currency)+Number(q.total||0).toFixed(2),196,y,{align:'right'});doc.setTextColor(...ink);doc.setFont(undefined,'normal');y+=12;
+ room(38);y+=4;doc.setFontSize(10);doc.text('Subtotal: '+GamaCurrency.symbol(q.currency)+Number(q.sub||0).toFixed(2),196,y,{align:'right'});y+=6;if(q.taxCalculation){for(const t of q.taxCalculation.taxes||[]){const labels=doc.splitTextToSize((t.name||t.code||'Impuesto')+' ('+(t.calculation_type==='fixed'?GamaCurrency.symbol(q.currency)+Number(t.fixed_amount||0).toFixed(2):Number(t.rate||0)+'%')+'): '+GamaCurrency.symbol(q.currency)+Number(t.amount||0).toFixed(2),180);room(labels.length*5+5);doc.text(labels,196,y,{align:'right'});y+=labels.length*5+1;}}else{doc.text('IVA: '+GamaCurrency.symbol(q.currency)+Number(q.tax||0).toFixed(2),196,y,{align:'right'});y+=6;}y+=3;doc.setFontSize(15);doc.setTextColor(...teal);doc.setFont(undefined,'bold');doc.text('TOTAL  '+GamaCurrency.symbol(q.currency)+Number(q.total||0).toFixed(2),196,y,{align:'right'});doc.setTextColor(...ink);doc.setFont(undefined,'normal');y+=12;
  if(q.payment||q.pay)paragraph('Forma de pago: '+(q.payment||q.pay),9);
  for(const b of q.offer_blocks||[]){if(b.kind==='section'){doc.setFont('helvetica','bold');paragraph(b.description,11);doc.setFont('helvetica','normal')}else if(b.kind==='note')paragraph(b.description,9);else paragraph('Producto opcional (no incluido): '+b.description+' · '+b.quantity+' × '+GamaCurrency.format(b.list_price),9)}
  if(q.terms)paragraph('Condiciones: '+q.terms,9);
  if(q.customer_comment)paragraph('Comentario del cliente: '+q.customer_comment,9);
  if(q.notes)paragraph(q.notes,9);
- window.GamaPdfTemplate.footer(doc,q.documentType==='internal_invoice'?'Factura interna de gestión. Sin validez fiscal. No es un comprobante SRI.':'Documento informativo. No constituye una factura.');
+ window.GamaPdfTemplate.footer(doc,q.documentType==='internal_invoice'?'Factura interna de gestión. Sin validez fiscal. No es un comprobante SRI.':proforma?t('Documento pro forma. No constituye una factura ni acredita un pago.'):'Documento informativo. No constituye una factura.');
  return doc.output('blob');
 }
 /* Windows y macOS aceptan navigator.share con archivos, pero su hoja de
@@ -118,13 +119,14 @@ async function sendDocument({blob,email,subject,body,filename}){
  if(blob)download(blob,filename);
  composeDialog({email,subject,body,filename:blob?filename:''});
 }
+async function compose(q){const body=api.build(q);if(!q.documentComposition)return body;await window.ArcLoadScript('coco-quote-documents.js');return window.CocoQuoteDocuments.compose(q,body)}
 async function send({q,email,subject,body,filename}){
  let blob=null;
- try{await window.GamaCompany?.load(true);await window.GamaPdf.ready();await logoReady;blob=build(q)}catch(e){console.warn('[GAMA PDF]',e)}
+ try{await window.GamaCompany?.load(true);await window.GamaPdf.ready();await logoReady;blob=await api.compose(q)}catch(e){if(q.documentComposition)throw e;console.warn('[GAMA PDF]',e)}
  return sendDocument({blob,email,subject,body,filename});
 }
 /* openMail, openTab e isMobile se llaman a través de api para poder
    sustituirlos en las pruebas sin navegar de verdad ni depender del equipo. */
-const api={build,logoReady,send,sendDocument,buildMailto,composeDialog,openMail,openTab,isMobile,gmailUrl,outlookUrl};
+const api={build,compose,logoReady,send,sendDocument,buildMailto,composeDialog,openMail,openTab,isMobile,gmailUrl,outlookUrl};
 window.GamaQuotePdf=api;
 })();

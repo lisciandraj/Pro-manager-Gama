@@ -45,6 +45,14 @@
 .gaError{color:var(--arc-danger);font-weight:700}
 .gaGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:11px}
 .gaGrid label{font-size:13px;color:var(--arc-text);font-weight:700;display:block}
+.cocoDirectInvoice fieldset{min-width:0;border:1px solid var(--arc-line);border-radius:10px;margin:14px 0;padding:12px}
+.cocoDirectInvoice legend{font-weight:700;padding:0 6px}
+.cocoDirectInvoice label,.cocoDirectInvoice select{min-width:0;overflow-wrap:anywhere}
+.cocoDirectInvoice .gaTools{display:flex;flex-wrap:wrap;gap:10px;align-items:end;margin:12px 0}
+.cocoDirectInvoice .gaTools label{flex:1 1 160px}
+.cocoDirectInvoice .gaScroll{max-width:100%;overflow:auto}
+.cocoDirectInvoice textarea{box-sizing:border-box;width:100%;min-height:80px}
+@media(max-width:600px){.cocoDirectInvoice .gaGrid{grid-template-columns:minmax(0,1fr)}.cocoDirectInvoice .gaTools button{flex:1 1 160px}}
 .gaGrid input,.gaGrid select,.gaGrid textarea{width:100%;box-sizing:border-box;font-size:16px;min-height:42px;border:1px solid var(--arc-line-strong);border-radius:9px;padding:9px;background:#fff;color:var(--arc-text)}
 .gaForecast{border-left:5px solid var(--arc-warning)}
 @media(max-width:700px){.gaKpis{grid-template-columns:1fr 1fr}.gaKpis strong{font-size:20px}
@@ -73,7 +81,7 @@
  body[data-app=coco-erp] .arcContent .gaKpis>.gaCard>em.gaDown{color:var(--arc-danger)}
  body.cocoWorkbench :is(#gaShortcuts,.gaShortcuts){gap:16px;flex-wrap:nowrap;overflow-x:auto;border-bottom:1px solid var(--coco-line);padding-bottom:8px;margin:0 0 24px}
  body.cocoWorkbench .gaShortcuts>button{border:0;background:transparent;font-size:13px;font-weight:400;white-space:nowrap;box-shadow:none;border-radius:0}
- body.cocoWorkbench .gaShortcuts>button.on{background:transparent;color:var(--arc-accent-600);border-bottom:2px solid var(--arc-accent-600);font-weight:600}
+ body.cocoWorkbench .gaShortcuts>button.on{background:transparent;color:var(--arc-accent-700);border-bottom:2px solid var(--arc-accent-600);font-weight:600}
  body.cocoWorkbench .gaKpis{gap:24px;margin-block:24px}
  body.cocoWorkbench .gaKpis .gaCard{border:1px solid var(--coco-line);border-radius:8px;padding:24px}
  body.cocoWorkbench .gaKpis strong{font-size:28px;font-weight:600}

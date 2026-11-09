@@ -9,8 +9,10 @@ ERP de gestion pour PME, en français, espagnol et anglais. L’application cons
 - [Guide de développement](docs/development/README.md)
 - [Simplification des 30 parcours — livraison du 7 novembre](docs/development/flow-simplification-2026-11-07.md)
 - [Charte graphique actuelle](docs/design-system.md)
+- [Audit GAMA sécurité et conformité équatorienne — 8 novembre 2026](docs/audits/gama-security-ecuador-2026-11-08.md)
 - [Audit technique et organisation](docs/audits/2026-09-30.md)
 - [Audit complémentaire : chargement, dépendances et maintenance](docs/audits/2026-09-30-runtime.md)
+- [Sécurité : correctifs, validations et activations du 7 novembre](docs/audits/2026-11-07-security-implementation.md)
 - [Revue de maintenance et contrôles communs](docs/audits/2026-09-30-maintenance.md)
 - [Index de la documentation](docs/README.md)
 

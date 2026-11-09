@@ -1,8 +1,9 @@
 /* Public token-based status: separate from the ERP's authenticated session. */
 (function(){'use strict';
 const $=id=>document.getElementById(id),token=new URLSearchParams(location.search).get('token');
-const endpoint='https://mknsaibrewksgomuslev.supabase.co/rest/v1/rpc/gama_tms_tracking';
-const key='sb_publishable_4l0vZw61u5EbLkzmrqrf6Q_phOL1Be9';
+const backend=window.CocoEnvironment?.backend;
+const endpoint=(backend?.supabaseUrl||(!window.CocoEnvironment?'https://mknsaibrewksgomuslev.supabase.co':''))+'/rest/v1/rpc/gama_tms_tracking';
+const key=backend?.publishableKey||(!window.CocoEnvironment?'sb_publishable_4l0vZw61u5EbLkzmrqrf6Q_phOL1Be9':'');
 const date=v=>v?new Date(/^\d{4}-\d{2}-\d{2}$/.test(v)?v+'T12:00:00':v).toLocaleString(document.documentElement.lang,{dateStyle:'medium',...(!/^\d{4}-\d{2}-\d{2}$/.test(v)?{timeStyle:'short'}:{})}):t('Por confirmar','À confirmer','To be confirmed');
 let busy=false;
 const t=(es,fr,en)=>({fr,en}[new URLSearchParams(location.search).get('lang')||'es']||es);
@@ -30,6 +31,7 @@ async function refresh(){
  if(busy)return;busy=true;$('trackingRefresh').disabled=true;$('trackingStatus').textContent=t('Consultando entrega…','Consultation de la livraison…','Checking delivery…');
  const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),10000);
  try{
+  if(!key)throw Error('UNAVAILABLE');
   if(!/^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/i.test(token||''))throw Error('INVALID_LINK');
   const r=await fetch(endpoint,{method:'POST',headers:{apikey:key,'Content-Type':'application/json'},body:JSON.stringify({p_token:token}),signal:controller.signal});if(!r.ok)throw Error('UNAVAILABLE');const d=await r.json();if(!d)throw Error('INVALID_LINK');
   $('trackingReference').textContent=d.reference||'';$('trackingState').textContent=state(d.status);$('trackingState').dataset.state=d.status;

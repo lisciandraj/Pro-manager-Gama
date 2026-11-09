@@ -26,6 +26,7 @@ function harness(options={}){
   if(url.endsWith('/auth/v1/user'))return Response.json(options.noAuth?{}:{id:actor});
   if(url.includes('profiles?select='))return Response.json([{role:options.role||'administrador',active:true}]);
   if(url.includes('gama_identity_admin_allowed'))return Response.json(++allowedCalls===2?options.allowedAfter!==false:options.allowed!==false);
+  if(url.includes('coco_identity_admin_authorize'))return Response.json(options.proof!==false);
   if(url.includes('/auth/v1/admin/users')&&init.method==='POST')return Response.json({id:created});
   if(url.includes('/profiles?on_conflict'))return Response.json({}, {status:options.profileFailure?409:200});
   return Response.json({});
@@ -48,4 +49,11 @@ test('account creation preserves role validation and rolls back a lost permissio
  assert.equal((await h.handler(req())).status,201);
  const body=JSON.parse(h.calls.find(c=>c.url.includes('/admin/users')&&c.init.method==='POST').init.body);
  assert.deepEqual(body.user_metadata,{full_name:'Staff'});
+});
+
+test('legacy account creation rejects a missing bound proof before Auth Admin',async()=>{
+ const h=harness({proof:false}),r=await h.handler(req());assert.equal(r.status,403);assert.equal((await r.json()).error,'IDENTITY_STEP_UP_REQUIRED');
+ assert(!h.calls.some(c=>c.url.includes('/auth/v1/admin/users')));
+ const proof=h.calls.find(c=>c.url.includes('coco_identity_admin_authorize'));assert.equal(proof.init.headers.Authorization,'Bearer caller');
+ const {identityEdgeResource}=await import('../supabase/functions/_shared/identity-step-up.mjs');assert.deepEqual(JSON.parse(proof.init.body),{p_resource:await identityEdgeResource('create',input.email,input.role)});
 });

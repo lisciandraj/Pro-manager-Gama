@@ -20,7 +20,7 @@
 .gamaFindOpt{padding:11px 12px;font-size:14px;cursor:pointer;border-bottom:1px solid var(--arc-surface-3);line-height:1.35}
 .gamaFindOpt:last-child{border-bottom:0}
 .gamaFindOpt.on{background:var(--arc-accent-100)}
-.gamaFindOpt b{color:var(--arc-accent-600);font-weight:800}
+.gamaFindOpt b{color:var(--arc-accent-700);font-weight:800}
 .gamaFindNada{padding:14px 12px;font-size:13px;color:var(--arc-text-subtle)}
 /* Escondido pero presente: sin caja visible y sin quitarle el sitio, pero el
    navegador lo sigue teniendo por un control de la página. */

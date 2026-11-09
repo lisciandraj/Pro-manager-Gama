@@ -1,6 +1,6 @@
 const {test,expect}=require('@playwright/test'),fs=require('fs'),path=require('path');
 const mock=fs.readFileSync(path.join(__dirname,'mock-gama-cloud.js'),'utf8');
-const invoice={id:'fi1',order_id:'o1',number:'FI-2026-00000001',source_quote_id:'q1',document_kind:'internal',fiscal_status:'unverified',issue_date:'2026-09-12',subtotal:30,tax:4.5,total:34.5,document_snapshot:{quote_number:'COT-001',order_number:'PV-001',customer:'Andes <test>',customer_identification:'0991',details:{seller:'GAMA',client:'Andes',clientId:'0991',payment:'Transferencia',customer_comment:'Entregar después de las 15h <cliente>\nLlamar antes'},lines:[{product_id:'p1',name:'Café',reference:'CAFE',qty:3,price:10,taxRate:15,subtotal:30,tax:4.5}]}};
+const invoice={id:'fi1',order_id:'o1',number:'FI-2026-00000001',source_quote_id:'q1',document_kind:'internal',fiscal_status:'unverified',issue_date:'2026-09-12',subtotal:30,tax:4.5,total:34.5,document_snapshot:{currency:'EUR',quote_number:'COT-001',order_number:'PV-001',customer:'Andes <test>',customer_identification:'0991',details:{seller:'GAMA',client:'Andes',clientId:'0991',payment:'Transferencia',customer_comment:'Entregar después de las 15h <cliente>\nLlamar antes'},lines:[{product_id:'p1',name:'Café',reference:'CAFE',qty:3,price:10,taxRate:15,subtotal:30,tax:4.5}]}};
 async function boot(page,role='admin'){
  await page.addInitScript(({invoice,role})=>{localStorage.setItem('gama_session_v1',JSON.stringify({role,name:'QA'}));window.__DB={products:[],customers:[],invoices:[{id:'q1',invoice_number:'COT-001',quote_state:'accepted',quote_details:{client:'Andes'},total:34.5}],invoice_lines:[],external_invoices:[invoice]};window.__deliveryValidated=true;window.__financialInvoices=[{id:invoice.id,date:'2026-09-12T12:00:00',total:34.5,items:[]}]},{invoice,role});
  await page.route('**/gama-supabase.js*',r=>r.fulfill({contentType:'text/javascript',body:mock}));await page.goto('/index.html');await page.waitForTimeout(1200);
@@ -8,8 +8,9 @@ async function boot(page,role='admin'){
 test('validated delivery invoice is opened without a second creation step',async({page})=>{
  await boot(page);await page.evaluate(async()=>{await GamaQuotes.open();await GamaQuotes.view('q1')});
  await page.click('#gqInternalInvoice');
- await expect(page.locator('#giText')).toContainText('FI-2026-00000001');
- await expect(page.locator('#giText')).toContainText('34.5');
+ await expect(page.locator('#giText')).toHaveValue(/FI-2026-00000001/);
+ await expect(page.locator('#giText')).toHaveValue(/34\.5/);
+ await expect(page.locator('dialog[open]')).toContainText(await page.evaluate(()=>ArcFormat.money(34.5,'EUR')));
  await expect(page.locator('#giIssue')).toHaveCount(0);
  expect(await page.evaluate(()=>(__internalCalls||[]).some(x=>x.p_action==='create'))).toBe(false);
 });
@@ -33,7 +34,7 @@ test('financial dashboard uses the server snapshot independently of the quote mi
  await expect(page.locator('#ad-content')).not.toContainText('999');
 });
 test('internal PDF export uses the frozen invoice and internal document type',async({page})=>{
- await boot(page);await page.evaluate(()=>{GamaQuotePdf.build=q=>{window.__pdfInvoice=q;return new Blob(['%PDF-1.4 QA'],{type:'application/pdf'})}});const download=page.waitForEvent('download');await page.evaluate(i=>GamaInternalInvoices.pdf(i),invoice);const d=await download;expect(await page.evaluate(()=>__pdfInvoice)).toMatchObject({documentType:'internal_invoice',number:'FI-2026-00000001',total:34.5,customer_comment:invoice.document_snapshot.details.customer_comment});expect(d.suggestedFilename()).toBe('FI-2026-00000001.pdf');
+ await boot(page);await page.evaluate(()=>{GamaQuotePdf.build=q=>{window.__pdfInvoice=q;return new Blob(['%PDF-1.4 QA'],{type:'application/pdf'})}});const download=page.waitForEvent('download');await page.evaluate(i=>GamaInternalInvoices.pdf(i),invoice);const d=await download;expect(await page.evaluate(()=>__pdfInvoice)).toMatchObject({documentType:'internal_invoice',number:'FI-2026-00000001',currency:'EUR',total:34.5,customer_comment:invoice.document_snapshot.details.customer_comment});expect(d.suggestedFilename()).toBe('FI-2026-00000001.pdf');
 });
 // Ventas: la lista de presupuestos ya no arrastra facturas;
 // están en la pestaña Facturas y en la ficha de su pedido.

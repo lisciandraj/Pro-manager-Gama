@@ -1,0 +1,7 @@
+{
+  // Dedicated ERP project only. The existing wrangler.jsonc remains the public catalogue.
+  // This file does not create a project or change any hostname/access audience.
+  "name": "coco-erp",
+  "pages_build_output_dir": "dist",
+  "compatibility_date": "2026-11-07"
+}

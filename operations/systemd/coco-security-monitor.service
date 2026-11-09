@@ -1,0 +1,17 @@
+[Unit]
+Description=Check sanitized security signal freshness and deliver alerts
+Requires=coco-security-collect.service
+After=coco-security-collect.service
+
+[Service]
+Type=oneshot
+User=coco-backup
+Group=coco-backup
+EnvironmentFile=/etc/coco/monitor.env
+ExecStart=/usr/bin/python3 /opt/coco/scripts/coco-operations.py signals --file /var/lib/coco-monitor/signals.json --require-collection --send-alert
+UMask=0077
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+ReadOnlyPaths=/var/lib/coco-monitor /etc/coco
+TimeoutStartSec=2m

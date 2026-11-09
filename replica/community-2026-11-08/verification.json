@@ -1,0 +1,170 @@
+{
+  "reference": "Odoo 19.0 documented functional baseline; feature matrix scope, not a claim of exhaustive edition parity",
+  "repository": "lisciandraj/Pro-manager-Gama",
+  "pull_request": 288,
+  "base_branch": "development",
+  "production": {
+    "modified": false,
+    "hosted_migrations_applied": false,
+    "providers_activated": false,
+    "bootstrap_reviewed_migration_count": 362
+  },
+  "feature_status_source": "features.csv",
+  "external_setup": "Wire instructions and Stripe merchant secrets/webhook/public return URL must be configured before activation; all providers default disabled.",
+  "final_gates": [
+    "npm run check",
+    "npm run check:vendors",
+    "npm run typecheck",
+    "npm run check:docs",
+    "npm run verify:migrations",
+    "npm run check:generated",
+    "npm run check:startup"
+  ],
+  "isolated_feature_validation": {
+    "sales_commercial_and_returns": {
+      "cases": 19,
+      "passed": 19
+    },
+    "frozen_purchase_and_expense": {
+      "cases": 5,
+      "passed": 5
+    },
+    "rewards_and_stored_value": {
+      "cases": 11,
+      "passed": 11
+    },
+    "direct_invoices": {
+      "cases": 12,
+      "passed": 12
+    },
+    "paid_direct_credit_refunds": {
+      "cases": 7,
+      "passed": 7
+    },
+    "early_discounts": {
+      "cases": 16,
+      "passed": 16
+    },
+    "tax_arithmetic": {
+      "cases": 10,
+      "passed": 10
+    },
+    "tax_flows_and_deposits": "Passed actual quote/order/invoice, supplier, fiscal position, component report, fixed-tax deposit and earned-discount integration fixtures.",
+    "product_category_accounts": {
+      "cases": 7,
+      "passed": 7
+    },
+    "pdf_composition_unit": {
+      "cases": 4,
+      "passed": 4
+    },
+    "pdf_documents_database": {
+      "cases": 6,
+      "passed": 6
+    },
+    "quote_signature_database": {
+      "cases": 7,
+      "passed": 7
+    },
+    "quote_signature_edge": {
+      "cases": 3,
+      "passed": 3
+    },
+    "hosted_and_wire_database": {
+      "cases": 10,
+      "passed": 10
+    },
+    "hosted_payment_edge": {
+      "cases": 8,
+      "passed": 8
+    },
+    "ledger_revenue": {
+      "cases": 8,
+      "passed": 8
+    },
+    "infrastructure_and_frozen_bootstrap": {
+      "cases": 8,
+      "passed": 8
+    },
+    "dashboard_rls_compatibility": {
+      "cases": 2,
+      "passed": 2
+    }
+  },
+  "browser": {
+    "existing_priority_cases": 90,
+    "existing_additional_distinct_cases": 14,
+    "existing_failed_after_followup": 0,
+    "languages": [
+      "es",
+      "fr",
+      "en"
+    ],
+    "viewports": [
+      390,
+      768,
+      1440
+    ],
+    "new_flow_files": [
+      "sales-commercial.spec.js",
+      "sales-rewards.spec.js",
+      "direct-invoices.spec.js",
+      "direct-paid-refunds.spec.js",
+      "accounting-early-discounts.spec.js",
+      "advanced-tax-engine.spec.js",
+      "accounting-product-accounts.spec.js",
+      "quote-documents.spec.js",
+      "sales-checkout.spec.js",
+      "checkout-payments.spec.js",
+      "invoice-tools.spec.js"
+    ],
+    "signature_cases": 4,
+    "hosted_and_wire_cases": 4,
+    "paid_credit_refund_cases": 2,
+    "invoice_tools_cases": 4,
+    "evidence": "clone-screens/"
+  },
+  "initial_local_full_attempt": {
+    "status": "During active integration; superseded by corrected targeted files and the required final GitHub validation.",
+    "tests": 905,
+    "passed": 881,
+    "failed": 22,
+    "skipped": 2
+  },
+  "final_full_validation": "See required GitHub checks on the PR head; full suite and real PostgreSQL concurrency remain merge gates.",
+  "reproducible_commands": [
+    "npm ci",
+    "npm run update",
+    "PLAYWRIGHT_CHROMIUM_PATH=/usr/bin/chromium npx playwright test --workers=2"
+  ],
+  "initial_delivery_archive": "../../docs/history/odoo-community-first-verification-2026-11-08.json",
+  "post_merge_compatibility": {
+    "development_commit": "aae3ba9c76fd40daa1aac8293a63ad9aef1fd2b9",
+    "tax_purchase_returns_test_files": 14,
+    "direct_invoice_discount_refund_test_files": 5,
+    "linked_individual_company_financial_identity_scenarios": 1,
+    "contacts_and_immutable_bootstrap_cases": 71,
+    "signature_payments_refunds_contacts_browser_cases": 17,
+    "internal_invoice_and_lazy_tools_browser_cases": 12,
+    "failed": 0,
+    "notes": "Canonical build, source/type/documentation/migration checks, generated reproducibility and original startup budgets pass. Frozen invoice currency is verified independently from the current company currency.",
+    "sales_quote_regression_browser_cases": 36,
+    "tax_preview_async_unit_cases": 3,
+    "shared_tax_and_commercial_browser_cases": 9,
+    "quote_autosave_browser_cases": 11,
+    "daily_workflow_browser_cases": 84
+  },
+  "full_suite_reference_run": {
+    "commit": "a599b129bf8c28c74b65f905d689bef4252015ce",
+    "run_id": 42513387738,
+    "tests": 1052,
+    "passed": 1050,
+    "failed": 0,
+    "skipped": 2,
+    "concurrency": "Dedicated PostgreSQL sales, stock and accounting jobs passed; final PR-head checks still required."
+  },
+  "ci_build_execution_budget": {
+    "minutes": 35,
+    "reason": "Observed full isolated SQL/unit suite took 17.1 minutes before the remaining mandatory browser gates. All gates and application startup budgets are retained."
+  }
+}

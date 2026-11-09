@@ -5,6 +5,7 @@ validateManifest();
 // The owned CRDT entry is canonical source too; keep the local vendor bundle,
 // license and integrity reproducible on every normal build.
 execFileSync(process.execPath,[path.join(root,'scripts/build-workhub-vendor.cjs')],{cwd:root,stdio:'inherit'});
+execFileSync(process.execPath,[path.join(root,'scripts/build-quote-documents-vendor.cjs')],{cwd:root,stdio:'inherit'});
 execFileSync('python3',[path.join(root,'scripts/build-i18n.py'),'--catalog-only'],{cwd:root,stdio:'inherit'});
 for(const {source,output} of manifest.scripts)fs.writeFileSync(path.join(root,output),runtimeScript(source));
 for(const {source,output} of manifest.styles){
@@ -30,13 +31,13 @@ const versionHtml=(html,options)=>secureHtml(html.replace(/\b(src|href)="([^"?#]
  return key+'="'+file+'?v='+hash(file)+'"';
 }),options);
 fs.writeFileSync(path.join(root,'index.html'),versionHtml(fs.readFileSync(path.join(root,'src/app/index.html'),'utf8'),{roadRoutes:true}));
-for(const file of ['gama-site.html','camera-check.html','tms-tracking.html','tms-driver.html']){
- fs.writeFileSync(path.join(root,file),versionHtml(fs.readFileSync(path.join(root,'src/app/'+file),'utf8')));
+for(const file of ['gama-site.html','camera-check.html','tms-tracking.html','tms-driver.html','coco-checkout.html']){
+ fs.writeFileSync(path.join(root,file),versionHtml(fs.readFileSync(path.join(root,'src/app/'+file),'utf8'),{pdfFrames:file==='coco-checkout.html'}));
 }
 const b2bConfig={...JSON.parse(fs.readFileSync(path.join(root,'config/storefront-runtime.json'),'utf8')),pdf_template:'gama-pdf-template.js'};
 const catalogueUrl=new URL(b2bConfig.catalogue_url);
 if(catalogueUrl.protocol!=='https:'||catalogueUrl.username||catalogueUrl.password)throw Error('Public catalogue URL must be HTTPS without credentials');
-fs.writeFileSync(path.join(root,'gama-b2b.html'),versionHtml(fs.readFileSync(path.join(root,'src/storefront/b2b.html'),'utf8').replace('__B2B_CSS__','gama-b2b.css').replace('__B2B_JS__','gama-b2b.js').replaceAll('__LOGO__','gama-logo.jpg').replaceAll('__CATALOGUE__',catalogueUrl.href).replace('__B2B_RUNTIME__',JSON.stringify(b2bConfig).replace(/</g,'\\u003c'))));
+fs.writeFileSync(path.join(root,'gama-b2b.html'),versionHtml(fs.readFileSync(path.join(root,'src/storefront/b2b.html'),'utf8').replace('__B2B_CSS__','gama-b2b.css').replace('__B2B_JS__','gama-b2b.js').replaceAll('__LOGO__','gama-logo.jpg').replaceAll('__CATALOGUE__',catalogueUrl.href).replace('__B2B_RUNTIME__',JSON.stringify(b2bConfig).replace(/</g,'\\u003c')),{supabaseUrl:b2bConfig.url}));
 const shell=['./','./index.html','./manifest.json?v=20261018-co','./coco-erp-logo.png?v=20261021-minimal','./coco-erp-icon-180.png?v=20261018-co','./coco-erp-icon-192.png?v=20261018-co','./coco-erp-icon-512.png?v=20261018-co'];
 const sw=fs.readFileSync(path.join(root,'src/app/service-worker.js'),'utf8')
  .replace('__COCO_RELEASE__',hash('architect-assets.js')+'-'+hash('index.html'))
@@ -44,7 +45,7 @@ const sw=fs.readFileSync(path.join(root,'src/app/service-worker.js'),'utf8')
 fs.writeFileSync(path.join(root,'sw.js'),sw);
 const out=path.join(root,'dist');fs.rmSync(out,{recursive:true,force:true});fs.mkdirSync(out);
 // Publish only web assets. Tests, build configuration, source code and notes are not copied.
-const publicFiles=[...runtimeFiles(),'architect-assets.js','sw.js','index.html','gama-site.html','gama-b2b.html','camera-check.html','tms-tracking.html','tms-driver.html','manifest.json',
+const publicFiles=[...runtimeFiles(),'architect-assets.js','sw.js','index.html','coco-checkout.html','gama-site.html','gama-b2b.html','camera-check.html','tms-tracking.html','tms-driver.html','manifest.json',
  ...fs.readdirSync(root).filter(f=>/\.(png|jpg|jpeg|webp|svg|ico|webmanifest)$/.test(f))];
 for(const file of publicFiles)fs.copyFileSync(path.join(root,file),path.join(out,file));
 for(const folder of ['assets','config/localizations','fonts'])if(fs.existsSync(path.join(root,folder)))fs.cpSync(path.join(root,folder),path.join(out,folder),{recursive:true});
@@ -55,3 +56,9 @@ console.log('Coco ERP: '+runtimeFiles().length+' versioned assets built from can
 const buildId=process.env.GITHUB_SHA||process.env.COCO_BUILD_ID||'unknown';
 if(buildId!=='unknown'&&!/^[a-f0-9]{40}$/.test(buildId))throw Error('Invalid build id');
 for(const file of ['index.html','tms-driver.html']){const target=path.join(out,file);fs.writeFileSync(target,fs.readFileSync(target,'utf8').replace('<html','<html data-coco-build="'+buildId+'"'));}
+
+// HTTP headers are honored by controlled hosts such as Cloudflare Pages;
+// GitHub Pages keeps the meta CSP but cannot apply this _headers artifact.
+const {erpHttpHeaders,writeReleaseManifest}=require('./lib/release.cjs');
+fs.writeFileSync(path.join(out,'_headers'),erpHttpHeaders(out));
+writeReleaseManifest({root,output:out,kind:'erp'});

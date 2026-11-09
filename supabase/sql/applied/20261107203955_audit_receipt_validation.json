@@ -1,0 +1,13 @@
+{
+  "version": "20261107203955",
+  "name": "audit_receipt_validation",
+  "sha256": "10c8353fe5be02c69094f871a74fa328332e701d257df13b2cb2bec7b055d6ca",
+  "file": "20261107195905_audit_receipt_validation.sql",
+  "statement_count": 1,
+  "bytes": 2369,
+  "source": "supabase_migrations.schema_migrations.statements[1]",
+  "project": "mknsaibrewksgomuslev",
+  "verified_on": "2026-11-07",
+  "encoding": "UTF-8",
+  "purpose": "Exact installed SQL SHA-256 verified against reviewed canonical source; schema-only migration, never replay in production."
+}

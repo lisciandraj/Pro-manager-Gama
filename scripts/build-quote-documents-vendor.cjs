@@ -1,0 +1,11 @@
+const fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypto');
+const root=path.resolve(__dirname,'..'),version=require('../node_modules/pdf-lib/package.json').version;
+if(version!=='1.17.1'||version!==require('../package.json').devDependencies['pdf-lib'])throw Error('Unpinned PDF composition dependency');
+const file='pdf-lib-'+version+'.min.js',directory=path.join(root,'assets/vendor');
+const bytes=fs.readFileSync(path.join(root,'node_modules/pdf-lib/dist/pdf-lib.min.js'));
+fs.writeFileSync(path.join(directory,file),bytes);
+fs.copyFileSync(path.join(root,'node_modules/pdf-lib/LICENSE.md'),path.join(directory,file+'.LICENSE.txt'));
+const target=path.join(directory,'manifest.json'),manifest=JSON.parse(fs.readFileSync(target,'utf8'));
+manifest[file]={source:'npm:pdf-lib@'+version,sha256:crypto.createHash('sha256').update(bytes).digest('hex'),integrity:'sha384-'+crypto.createHash('sha384').update(bytes).digest('base64')};
+fs.writeFileSync(target,JSON.stringify(manifest,null,2)+'\n');
+console.log(file+': '+bytes.length+' bytes; license and integrity recorded.');

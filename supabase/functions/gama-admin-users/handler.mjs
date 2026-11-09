@@ -1,3 +1,4 @@
+import {identityEdgeResource} from '../_shared/identity-step-up.mjs';
 import {readJsonBody,BodyError} from '../_shared/http.mjs';
 const origin='https://lisciandraj.github.io',uuid=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 export function createHandler({env,fetch:fetcher}){
@@ -25,6 +26,8 @@ export function createHandler({env,fetch:fetcher}){
    const access=await allowed();if(!access.ok||access.data!==true)return reply({error:'MODULE_OR_ACTION_NOT_ALLOWED'},403);
    const email=typeof body.email==='string'?body.email.trim().toLowerCase():'',name=typeof body.full_name==='string'?body.full_name.trim():'',password=body.password,role=body.role;
    if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)||email.length>254||!name||name.length>200||typeof password!=='string'||password.length<12||password.length>256||!['administrador','comercial','almacenero','rrhh'].includes(role))return reply({error:'INVALID_INPUT'},400);
+   const proof=await call('/rest/v1/rpc/coco_identity_admin_authorize',{method:'POST',body:{p_resource:await identityEdgeResource('create',email,role)}});
+   if(!proof.ok||proof.data!==true)return reply({error:'IDENTITY_STEP_UP_REQUIRED'},403);
    const created=await call('/auth/v1/admin/users',{method:'POST',admin:true,body:{email,password,email_confirm:true,user_metadata:{full_name:name}}});
    if(!created.ok||!uuid.test(created.data?.id||''))return reply({error:created.status===429?'USER_RATE_LIMIT':'USER_CREATE_FAILED'},created.status===429?429:400);
    const id=created.data.id,again=await allowed();

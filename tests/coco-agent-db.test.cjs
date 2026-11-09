@@ -50,6 +50,16 @@ test('Agent Coco: authenticated prepare/confirm, immutable receipts, no duplicat
   await db.query("select set_config('request.path','/rpc/coco_agent',false)");await db.query('select public.coco_agent_request_guard()');
   const delegated=await prepare();await as(admin);await assert.rejects(execute(delegated),/AGENT_COMMAND_NOT_FOUND/);
   await rpc('configure',{enabled:false,can_write:false,client_ids:[]});await as(admin,'agent-test-client');await assert.rejects(execute(delegated),/AGENT_ACCESS_DISABLED/);
-  await as(admin);await rpc('configure',config);await db.exec('reset role');await db.query("insert into auth.mfa_factors(user_id,status) values($1,'verified')",[admin]);await as(admin);await assert.rejects(rpc('stock',{product_id:product}),/AUTH_OR_MFA_REQUIRED/);
+  await as(admin);await rpc('configure',config);await db.exec('reset role');
+  const tracked=uuid(),lot=uuid();
+  await db.query("insert into products(id,name,lot_tracking,purchase_price) values($1,'Tracked approval fixture',true,2)",[tracked]);
+  await db.query('insert into stock_quants(product_id,location_id,quantity) values($1,$2,5)',[tracked,location]);
+  await db.query("insert into product_lots(id,product_id,code,created_by) values($1,$2,'LOT-REVIEW-7',$3)",[lot,tracked,admin]);
+  await db.query('insert into stock_lot_balances(lot_id,location_id,quantity) values($1,$2,5)',[lot,location]);await as(admin);
+  const specific=await prepare({product_id:tracked,lot_id:lot});assert.equal(specific.snapshot.lot_id,lot);assert.equal(specific.snapshot.lot_code,'LOT-REVIEW-7');
+  // Simulate a proposal prepared before the displayable lot binding existed.
+  await db.exec('reset role');await db.query("update private.coco_agent_commands set snapshot=snapshot-'lot_id'-'lot_code' where id=$1",[specific.id]);await as(admin);
+  await assert.rejects(execute(specific),/AGENT_REPREPARE_REQUIRED/);
+  await db.exec('reset role');await db.query("insert into auth.mfa_factors(user_id,status) values($1,'verified')",[admin]);await as(admin);await assert.rejects(rpc('stock',{product_id:product}),/AUTH_OR_MFA_REQUIRED/);
  }finally{await db.close()}
 });

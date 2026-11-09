@@ -1,5 +1,6 @@
 import {readJsonBody,BodyError} from '../_shared/http.mjs';
 import { createClient } from 'npm:@supabase/supabase-js@2.115.0';
+import {getCocoAuthUser} from '../_shared/coco-auth-user.mjs';
 const headers={'content-type':'application/json','access-control-allow-origin':'*','cache-control':'no-store','x-content-type-options':'nosniff'};
 const reply=(body:unknown,status=200)=>new Response(JSON.stringify(body),{status,headers});
 Deno.serve(async request=>{
@@ -8,7 +9,9 @@ Deno.serve(async request=>{
  const bearer=request.headers.get('Authorization')||'';
  if(!bearer.startsWith('Bearer '))return reply({error:'AUTH_REQUIRED'},401);
  const url=Deno.env.get('SUPABASE_URL')!,client=createClient(url,Deno.env.get('SUPABASE_ANON_KEY')!,{global:{headers:{Authorization:bearer}}});
- const user=await client.auth.getUser(bearer.slice(7));if(user.error||!user.data.user)return reply({error:'AUTH_REQUIRED'},401);
+ const token=bearer.slice(7),user=await getCocoAuthUser({env:name=>Deno.env.get(name),fetcher:fetch,token,local:async()=>{
+  const {data,error}=await client.auth.getUser(token);return error?null:data.user;
+ }});if(!user)return reply({error:'AUTH_REQUIRED'},401);
  const access=await client.rpc('gama_sri_access');if(access.error||access.data?.validate!==true)return reply({error:'ROLE_NOT_ALLOWED'},403);
  let input:{xml_base64:string};try{input=await readJsonBody(request,1450000) as typeof input}catch(error){return reply({error:error instanceof BodyError?error.message:'INVALID_JSON'},error instanceof BodyError?error.status:400)}
  if(!input||typeof input.xml_base64!=='string'||input.xml_base64.length>1400000)return reply({error:'INVALID_REQUEST'},400);
@@ -27,14 +30,19 @@ Deno.serve(async request=>{
  if(!/^[0-9]{13}$/.test(inspected.issuer_ruc)||!Array.isArray(inspected.sources)||inspected.sources.length<1||inspected.sources.length>50)throw Error('SRI_RECEIVED_FIELDS_INVALID');
  const invoices=[];
  for(const number of inspected.sources){const m=await client.rpc('gama_ec_received_match',{p_ruc:inspected.issuer_ruc,p_number:number});if(m.error)throw m.error;invoices.push(m.data)}
+ if(typeof inspected.access_key!=='string'||!/^[0-9]{49}$/.test(inspected.access_key)||invoices.some(i=>!['pruebas','produccion'].includes(i?.environment)||inspected.access_key[23]!== (i.environment==='pruebas'?'1':'2')))throw Error('SRI_RECEIVED_ENVIRONMENT_MISMATCH');
  const verified=await worker('verify_received_batch',{invoices});if(!Array.isArray(verified.rows)||verified.rows.length!==invoices.length||new Set(verified.rows.map((r:{invoice_id:string})=>r.invoice_id)).size!==invoices.length||verified.rows.some((r:{invoice_id:string})=>!invoices.some(i=>i.id===r.invoice_id)))throw Error('SRI_RECEIVED_FIELDS_INVALID');
  const admin=createClient(url,Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!),rows=[];
  for(const result of verified.rows){
   const invoice=invoices.find(i=>i.id===result.invoice_id);
   if(!invoice||!/^[0-9]{49}$/.test(result.access_key)||result.access_key!==inspected.access_key||result.issuer_ruc!==invoice.customer_identification||!Array.isArray(result.lines)||!result.authorized_at||typeof result.authorized_xml!=='string'||result.authorized_xml.length>1048576)throw Error('SRI_RECEIVED_FIELDS_INVALID');
+  // Legacy workers encode the environment in the authorized access key. If a
+  // worker also returns the explicit field, require both representations to agree.
+  const keyEnvironment=result.access_key[23]==='1'?'pruebas':'produccion';
+  if(keyEnvironment!==invoice.environment||(result.environment!==undefined&&result.environment!==keyEnvironment))throw Error('SRI_RECEIVED_ENVIRONMENT_MISMATCH');
   const raw=new TextEncoder().encode(result.authorized_xml),hash=[...new Uint8Array(await crypto.subtle.digest('SHA-256',raw))].map(v=>v.toString(16).padStart(2,'0')).join('');const path='received/'+result.access_key+'/'+hash+'.xml';
   const saved=await admin.storage.from('sri-documents').upload(path,raw,{contentType:'application/xml',upsert:false});if(saved.error&&!saved.error.message.includes('already exists'))throw Error('SRI_ARCHIVE_FAILED');
-  const row={invoice_id:invoice.id,access_key:result.access_key,issuer_ruc:result.issuer_ruc,number:result.number,issued_on:result.issued_on,amount:result.amount,lines:result.lines,authorized_at:result.authorized_at,xml_path:path,xml_sha256:hash,verified_by:user.data.user.id};
+  const row={invoice_id:invoice.id,access_key:result.access_key,issuer_ruc:result.issuer_ruc,number:result.number,issued_on:result.issued_on,amount:result.amount,lines:result.lines,authorized_at:result.authorized_at,xml_path:path,xml_sha256:hash,verified_by:user.id};
   const written=await admin.from('accounting_received_sri').upsert(row,{onConflict:'access_key,invoice_id',ignoreDuplicates:true});if(written.error)throw Error('SRI_RECEIVED_ARCHIVE_FAILED');
   const r=await client.from('accounting_received_sri').select('id,amount,number,withholding_id,xml_sha256').eq('access_key',result.access_key).eq('invoice_id',invoice.id).single();if(r.error||r.data.xml_sha256!==hash)throw Error('SRI_RECEIVED_ARCHIVE_CONFLICT');
   rows.push({id:r.data.id,number:r.data.number,amount:r.data.amount,withholding_id:r.data.withholding_id,invoice_id:invoice.id,invoice_number:invoice.number});

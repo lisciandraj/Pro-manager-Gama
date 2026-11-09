@@ -548,6 +548,61 @@
         return chain;
       },
       rpc: async (fn, args) => {
+        if(fn==='coco_early_discounts'&&args?.p_action==='creation_context')return {data:{rights:{edit:true},accounts:(window.__DB.accounting_accounts||[]).filter(a=>a.active!==false&&a.type===(args.p_data?.side==='customer'?'expense':'income')).map(a=>({id:a.id,code:a.code,name:a.name}))}};
+        // Legacy UI fixtures now request the shared tax preview. Keep their
+        // original percentage arithmetic coherent; named/fixed/compound rules
+        // are verified by real PostgreSQL fixtures, never approximated here.
+        if(fn==='coco_tax_engine'){
+          const action=args?.p_action,data=args?.p_data||{},round=n=>Math.round((Number(n)+Number.EPSILON)*100)/100;
+          if(action==='context')return {data:{positions:[],taxes:[],rounding:'line',accounts:[],assignments:[]}};
+          const calculate=lines=>{
+            if(lines.some(l=>Array.isArray(l.tax_ids)&&l.tax_ids.length))throw Error('LEGACY_FIXTURE_REQUIRES_REAL_NAMED_TAX_ENGINE');
+            const computed=lines.map((l,i)=>{const subtotal=round(Number(l.quantity)*Number(l.unit_price)*(1-Number(l.discount||0)/100)),rate=Number(l.tax_rate||0),base=round(subtotal*Number(l.tax_base_factor??1)),tax=round(base*rate/100);return {...l,key:l.key||String(i),subtotal,tax,total:round(subtotal+tax),taxes:[{id:null,code:'LEGACY-'+rate,name:'IVA '+rate+'%',rate,base,amount:tax}],rules:[]}}),taxes=[];
+            for(const line of computed)for(const tax of line.taxes){const old=taxes.find(t=>t.code===tax.code);if(old){old.base=round(old.base+tax.base);old.amount=round(old.amount+tax.amount)}else taxes.push({...tax})}
+            const subtotal=round(computed.reduce((n,l)=>n+l.subtotal,0)),tax=round(computed.reduce((n,l)=>n+l.tax,0));return {schema:'coco.tax.v1',rounding:data.rounding||'line',fiscal_position_id:null,lines:computed,taxes,subtotal,tax,total:round(subtotal+tax)};
+          };
+          if(action==='preview')return {data:calculate(data.lines||[])};
+          if(action==='invoice_preview'){
+            const client=await window.GamaCloud.db(),preview=await client.rpc('gama_sales_workspace',{p_action:'invoice_preview',p_data:data});
+            if(preview.error)return preview;if(!Array.isArray(preview.data))return {error:{message:'LEGACY_TAX_FIXTURE_REQUIRES_INVOICE_LINES'}};
+            const rows=preview.data.filter(l=>!Array.isArray(data.lines)||data.lines.some(x=>x.line_id===l.line_id&&Number(x.quantity)>0)),calculation=calculate(rows.map(l=>({key:l.line_id,product_id:l.product_id,quantity:Array.isArray(data.lines)?Number(data.lines.find(x=>x.line_id===l.line_id).quantity):Number(l.quantity),unit_price:Number(l.unit_price),discount:0,tax_rate:Number(l.tax_rate||0)})));
+            return {data:{items:rows,calculation,previous_calculation:calculation,tax_rules_changed:false,confirmation_key:'legacy-percentage-preview'}};
+          }
+          return {error:{message:'UNSUPPORTED_LEGACY_TAX_FIXTURE_ACTION'}};
+        }
+
+        // Opt-in server directory fixture: older suites continue to exercise
+        // the module's legacy-data fallback. SQL tests own access enforcement.
+        if(window.__CONTACT_DIRECTORY&&['coco_contact_directory','coco_contact_hub'].includes(fn)){
+          const db=window.__DB,profiles=window.__CONTACT_PROFILES||{},versions=window.__CONTACT_VERSIONS||{};
+          const all=[...['customers','suppliers','crm_leads','crm_contacts'].flatMap(table=>(db[table]||[]).map(record=>{
+            const kind=({customers:'clients',suppliers:'suppliers',crm_leads:'leads'})[table]||(record.customer_id?'people':'prospects');
+            const entity_id=record.contact_entity_id||record.id,profile=profiles[entity_id]||{};
+            return {kind,id:record.id,entity_id,name:record.name||record.company||[record.first_name,record.last_name].filter(Boolean).join(' ')||record.email||'—',
+              nature:profile.nature??(['people','prospects'].includes(kind)?'person':null),active:record.active!==false,
+              ref:record.identification||record.tax_id||'',detail:record.job_title||'',phone:record.phone,email:record.email,city:record.city,record:{...record}};
+          }))];
+          const summary=r=>r?{entity_id:r.entity_id,kind:r.kind,id:r.id,name:r.name}:null;
+          for(const r of all){
+            const profile=profiles[r.entity_id]||{};
+            const parent=['people','prospects'].includes(r.kind)?all.find(p=>p.kind===(r.record.customer_id?'clients':'leads')&&p.id===(r.record.customer_id||r.record.lead_id)):all.find(p=>p.entity_id===profile.parent_id);
+            r.company=summary(parent);r.roles=all.filter(p=>p.entity_id===r.entity_id).map(p=>({kind:p.kind,id:p.id,name:p.name,active:p.active}));
+            if(parent&&['people','prospects'].includes(r.kind)){r.ref=parent.name;if(r.record.address_mode!=='own')r.city=parent.city;}
+          }
+          if(fn==='coco_contact_hub'){
+            const row=all.find(r=>r.kind===args.p_kind&&r.id===args.p_id);if(!row)return {error:{message:'CONTACT_NOT_FOUND'}};
+            return {data:{profile:{id:row.entity_id,version:versions[row.entity_id]||1,tags:[],alignment_conflicts:{},...profiles[row.entity_id]},roles:row.roles,company:row.company,
+              related_contacts:all.filter(r=>profiles[r.entity_id]?.parent_id===row.entity_id).map(r=>({...summary(r),nature:r.nature,active:r.active}))}};
+          }
+          const p=args.p_data||{},page=Number(p.page||0),pageSize=Number(p.pageSize||20),norm=v=>String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+          let rows=all.filter(r=>r.kind!=='leads'&&(!p.kind||r.roles.some(role=>role.kind===p.kind))&&(!p.nature||r.nature===p.nature));
+          const active_total=rows.filter(r=>r.active).length,archived_total=rows.length-active_total;
+          rows=rows.filter(r=>r.active!==!!p.archived&&(!p.quality||(p.quality==='email'?!r.email:!r.phone))&&norm(p.search).split(/\s+/).filter(Boolean).every(term=>norm([r.name,r.ref,r.phone,r.email,r.city,r.company?.name,({clients:'Cliente',suppliers:'Proveedor',people:'Contacto de cliente',prospects:'Contacto de prospecto'})[r.kind]].join(' ')).includes(term)));
+          rows.sort((a,b)=>String(a[p.sort||'name']??'').localeCompare(String(b[p.sort||'name']??''))*(p.ascending===false?-1:1));
+          return {data:{version:1,items:rows.slice(page*pageSize,(page+1)*pageSize),total:rows.length,active_total,archived_total,page,pageSize}};
+        }
+        if(window.__CONTACT_DIRECTORY&&fn==='coco_contact_activities')return {data:[]};
+        if(window.__CONTACT_DIRECTORY&&fn==='gama_partner_context')return {data:{entity:(window.__DB[args.p_kind==='customer'?'customers':'suppliers']||[]).find(r=>r.id===args.p_id),history:[]}};
         if(['coco_contact_record','coco_contact_save'].includes(fn)){
   const db=window.__DB,table={clients:'customers',suppliers:'suppliers',people:'crm_contacts',prospects:'crm_contacts',leads:'crm_leads'}[args.p_kind];
   const versions=window.__CONTACT_VERSIONS||(window.__CONTACT_VERSIONS={});
@@ -562,7 +617,7 @@
    if(!row){row={id:crypto.randomUUID(),active:true,...(table==='customers'?{category:'A'}:{}),...(table==='crm_contacts'?{address_mode:'parent'}:{})};(db[table]||(db[table]=[])).push(row)}
    const {odoo,...native}=args.p_data;
    Object.assign(row,native);const eid=row.contact_entity_id||row.id;versions[eid]=(versions[eid]||1)+1;
-   if(odoo)profiles[eid]={...(profiles[eid]||{}),...odoo,tags:Object.hasOwn(odoo,'tags')?(odoo.tags||[]):profiles[eid]?.tags||[]};
+   if(odoo){profiles[eid]={...(profiles[eid]||{}),...odoo,tags:Object.hasOwn(odoo,'tags')?(odoo.tags||[]):profiles[eid]?.tags||[]};if(Object.hasOwn(odoo,'parent_id'))profiles[eid].relation=odoo.parent_id?'employee':null;}
    if(row.contact_entity_id)for(const t of ['customers','suppliers','crm_leads'])for(const peer of db[t]||[])if(peer!==row&&peer.contact_entity_id===row.contact_entity_id){for(const k of ['email','phone','phone2','address','city','province','postal_code','country','lat','lng','website','industry','language'])if(Object.hasOwn(args.p_data,k))peer[k]=args.p_data[k];}
   }
   if(!row)return {error:{message:'CONTACT_NOT_FOUND'}};
@@ -572,6 +627,7 @@
   return {data:{record:{...row},profile:{id:row.contact_entity_id||row.id,version,tags:[],website:row.website||null,industry:row.industry||null,language:row.language||null,alignment_conflicts:{},...profiles[row.contact_entity_id||row.id]},version,inherited_address:inherited}};
         }
         if(fn==='coco_offline_key')return {data:{actor_id:window.__DB._profile.id,key:'ab'.repeat(32)}};
+        if(fn==='coco_identity_policy')return {data:{authorized:true,administrator:false,policy_active:false,required:false,verified_factor:false}};
         if(fn==='coco_security_enrollment')return {data:{administrator:false,verified_factor:false,enforced:false}};
         if(fn==='gama_sales_invoice_balances')return {data:(window.__DB.external_invoices||[]).filter(i=>args.p_ids.includes(i.id)).map(i=>{const paid=(window.__DB.external_invoice_payments||[]).filter(p=>p.invoice_id===i.id&&p.status==='confirmed').reduce((a,p)=>a+Number(p.amount),0),credit=(window.__DB.return_credits||[]).filter(c=>c.invoice_id===i.id).reduce((a,c)=>a+Number(c.amount),0),withheld=(window.__DB.accounting_withholdings||[]).filter(w=>w.invoice_id===i.id&&w.status==='posted').reduce((a,w)=>a+Number(w.total),0),balance=i.fiscal_status==='cancelled'?0:Math.max(0,Number(i.total)-paid-credit-withheld);return {id:i.id,paid,balance,due_date:i.due_date,payment_status:i.fiscal_status==='cancelled'?'cancelled':balance===0?'paid':i.due_date&&i.due_date<new Date().toISOString().slice(0,10)?'overdue':balance<Number(i.total)?'partial':'pending'}})};
         if(fn==='gama_customer_credit_status')return {data:{customer_id:args.p_customer,credit_limit:null,hold_reason:null,receivable:0,commitment:0,exposure:0,overdue:[],blocked:false}};

@@ -1,4 +1,7 @@
 import {readJsonBody,BodyError} from '../_shared/http.mjs';
+import {decryptAiKey} from '../_shared/ai-keyring.mjs';
+import {createProviderBudget,ProviderBudgetError} from '../_shared/ai-provider-budget.mjs';
+import {getCocoAuthUser} from '../_shared/coco-auth-user.mjs';
 const nullable={type:['string','null']};
 const lineProperties={reference:nullable,description:nullable,quantity:nullable,unit_price:nullable,discount:nullable,tax_rate:nullable,total:nullable};
 const fields={supplier_name:nullable,supplier_tax_id:nullable,buyer_tax_id:nullable,number:nullable,issue_date:nullable,due_date:nullable,currency:nullable,subtotal:nullable,tax:nullable,total:nullable,purchase_reference:nullable,lines:{type:'array',items:{type:'object',properties:lineProperties,required:Object.keys(lineProperties),additionalProperties:false}},warnings:{type:'array',items:{type:'string'}}};
@@ -15,6 +18,8 @@ export function validateExtraction(x){
 class Failure extends Error{constructor(code,status=400){super(code);this.status=status;}}
 export function createHandler({env,fetch:fetcher}){
  const root=env('SUPABASE_URL'),anon=env('SUPABASE_ANON_KEY'),service=env('SUPABASE_SERVICE_ROLE_KEY'),origin='https://lisciandraj.github.io';
+ const sharedIdentity=Boolean(env('COCO_AUTHORITY_URL')||env('COCO_AUTHORITY_PUBLISHABLE_KEY'));
+ const providerBudget=createProviderBudget({root,service,fetcher});
  return async req=>{
   const headers={'Content-Type':'application/json','Cache-Control':'no-store','X-Content-Type-Options':'nosniff','Access-Control-Allow-Origin':origin,'Access-Control-Allow-Headers':'authorization,apikey,content-type,x-client-info','Access-Control-Allow-Methods':'POST,OPTIONS','Vary':'Origin'};
   const reply=(body,status=200)=>new Response(JSON.stringify(body),{status,headers});
@@ -24,19 +29,26 @@ export function createHandler({env,fetch:fetcher}){
   async function rpc(action,data){const r=await fetcher(root+'/rest/v1/rpc/gama_supplier_ocr',{method:'POST',headers:{apikey:anon,Authorization:'Bearer '+token,'Content-Type':'application/json'},body:JSON.stringify({p_action:action,p_data:data}),signal:AbortSignal.timeout(20000)});const x=await r.json().catch(()=>null);if(!r.ok)throw new Failure(/^[A-Z0-9_]{3,80}$/.test(x?.message||'')?x.message:'OCR_DATA_UNAVAILABLE',r.status===401?401:r.status===403?403:409);return x;}
   try{
    token=req.headers.get('Authorization')?.match(/^Bearer (\S+)$/i)?.[1];if(!token)throw new Failure('AUTH_REQUIRED',401);
-   // Caller-bound RPC enforces live account, MFA and accounting scope before any key read or AI request.
-   const file=await readJsonBody(req,7200000);claim=await rpc('begin',file);if(claim.existing)return reply(claim);
+   const authorize=async()=>{const user=await getCocoAuthUser({env,fetcher,token});if(!user)throw new Failure('AUTH_REQUIRED',401);return user;};
+   const file=await readJsonBody(req,7200000);
+   // In shared mode, verify the source session before the caller-bound RPC can write.
+   const sharedUser=sharedIdentity?await authorize():null;
+   claim=await rpc('begin',file);if(claim.existing)return reply(claim);
+   const user=sharedUser??await authorize();
    const r=await fetcher(root+'/rest/v1/gama_ai_settings?select=encrypted_key,model&id=eq.true',{headers:{apikey:service,Authorization:'Bearer '+service},signal:AbortSignal.timeout(10000)});
    if(!r.ok)throw new Failure('OCR_CONFIGURATION_REQUIRED',503);const cfg=(await r.json())[0];let key=env('OPENAI_API_KEY'),model=env('OPENAI_MODEL')||'gpt-4.1-mini';
-   if(cfg?.encrypted_key){try{const raw=env('GAMA_AI_ENCRYPTION_KEY')||service;const k=await crypto.subtle.importKey('raw',await crypto.subtle.digest('SHA-256',new TextEncoder().encode('gama-assistant-ia-v1:'+raw)),{name:'AES-GCM'},false,['decrypt']);const [iv,bytes]=cfg.encrypted_key.split('.').map(s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0)));key=new TextDecoder().decode(await crypto.subtle.decrypt({name:'AES-GCM',iv},k,bytes));model=cfg.model;}catch{throw new Failure('AI_KEY_RECONNECT',503);}}
+   if(cfg?.encrypted_key){key=await decryptAiKey(cfg.encrypted_key,env);model=cfg.model;}
    if(!key)throw new Failure('OCR_CONFIGURATION_REQUIRED',503);
-   let ai;try{ai=await fetcher('https://api.openai.com/v1/responses',{method:'POST',headers:{Authorization:'Bearer '+key,'Content-Type':'application/json'},body:JSON.stringify(extractionInput(file,model)),signal:AbortSignal.timeout(80000)});}catch{throw new Failure('OCR_TIMEOUT',504);}
-   if(!ai.ok)throw new Failure(ai.status===429?'AI_QUOTA':ai.status===401?'AI_KEY_INVALID':'OCR_PROVIDER_UNAVAILABLE',503);
-   const out=await ai.json();if(out.status==='incomplete'||out.error)throw new Failure('OCR_RESPONSE_INVALID',502);
+   const payload=extractionInput(file,model);
+   const out=await providerBudget({operation:'ocr',actorId:user.id,requestId:claim.id,body:payload,document:true},async()=>{
+    let ai;try{ai=await fetcher('https://api.openai.com/v1/responses',{method:'POST',headers:{Authorization:'Bearer '+key,'Content-Type':'application/json'},body:JSON.stringify(payload),signal:AbortSignal.timeout(80000)});}catch{throw new Failure('OCR_TIMEOUT',504);}
+    if(!ai.ok)throw new Failure(ai.status===429?'AI_QUOTA':ai.status===401?'AI_KEY_INVALID':'OCR_PROVIDER_UNAVAILABLE',503);
+    const result=await ai.json();if(result.status==='incomplete'||result.error){const failure=new Failure('OCR_RESPONSE_INVALID',502);failure.usage=result.usage;throw failure;}return result;
+   });
    let extracted;try{extracted=JSON.parse((out.output||[]).flatMap(x=>x.content||[]).filter(x=>x.type==='output_text').map(x=>x.text).join(''));}catch{throw new Failure('OCR_RESPONSE_INVALID',502);}
    if(!validateExtraction(extracted))throw new Failure('OCR_RESPONSE_INVALID',502);
    return reply(await rpc('complete',{id:claim.id,lease:claim.lease,extracted}));
-  }catch(e){const code=e instanceof BodyError?'OCR_FILE_INVALID':e instanceof Failure?e.message:'OCR_FAILED';if(claim?.lease)try{await rpc('fail',{id:claim.id,lease:claim.lease,error:code});}catch{}
+  }catch(e){const code=e instanceof BodyError?'OCR_FILE_INVALID':e instanceof Failure||e instanceof ProviderBudgetError||e.message==='AI_KEY_RECONNECT'?e.message:'OCR_FAILED';if(claim?.lease)try{await rpc('fail',{id:claim.id,lease:claim.lease,error:code});}catch{}
    return reply({error:code,...(claim?.id?{id:claim.id}:{})},e.status||500);
   }
  };

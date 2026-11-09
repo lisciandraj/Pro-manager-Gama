@@ -28,7 +28,11 @@ test('reconstructed schema preserves domain dispatch results, errors and permiss
   await db.exec(`insert into auth.users(id,email) values('${admin}','admin@example.invalid'),('${client}','client@example.invalid');update profiles set active=true,role=case when id='${admin}' then 'administrador' else 'cliente' end;`);
   const probe=async(domain,action)=>{
    await db.exec('savepoint probe');
-   try{const r=await db.query(`select public.gama_${domain}_action($1,$2) as result`,[action,{}]);const result=r.rows[0].result;if(result?.checked_at)result.checked_at=!!Date.parse(result.checked_at);return{ok:true,result};}
+   // Receipt content validation is an intentional new storage boundary. Use a
+   // passive PDF signature so this parity probe still reaches the historical
+   // missing-expense constraint; invalid content has dedicated security tests.
+   const data=domain==='accounting'&&action==='expense_receipt'?{filename:'Parity fixture.pdf',mime_type:'application/pdf',data_url:'data:application/pdf;base64,'+Buffer.from('%PDF-1.7\n%%EOF').toString('base64')}:{};
+   try{const r=await db.query(`select public.gama_${domain}_action($1,$2) as result`,[action,data]);const result=r.rows[0].result;if(result?.checked_at)result.checked_at=!!Date.parse(result.checked_at);return{ok:true,result};}
    catch(e){return{ok:false,code:e.code,message:e.message};}
    finally{await db.exec('rollback to probe;release probe');}
   };
@@ -48,13 +52,39 @@ test('reconstructed schema preserves domain dispatch results, errors and permiss
    for(const item of outcomes.filter(x=>x.uid===uid)){
     // P0 refunds now require an idempotency key before validating the amount.
     const expected=uid===admin&&item.domain==='returns'&&item.action==='refund'?{ok:false,code:'P0001',message:'REQUEST_KEY_REQUIRED'}:canonicalize(item.before);
+    // Tax lifecycle validates empty input before reaching the historical NOT NULL constraint.
+    if(uid===admin&&item.domain==='accounting'&&item.action==='tax_save'){
+     assert.equal(expected.ok,false);assert.equal(expected.code,'23502');
+     Object.assign(expected,{code:'P0001',message:'TAX_NAME_INVALID'});
+    }
+    // The fiscal preprocessor rejects a missing document date before the old
+    // expense_date NOT NULL constraint. Preserve the original contract proof.
+    if(uid===admin&&item.domain==='accounting'&&item.action==='expense_save'){
+     assert.equal(expected.ok,false);assert.equal(expected.code,'23502');
+     assert.match(expected.message,/column "expense_date"/);
+     Object.assign(expected,{code:'P0001',message:'TAX_CONTEXT_INVALID'});
+    }
+    if(uid===admin&&item.domain==='accounting'&&item.action==='supplier_invoice_save'){
+     assert.equal(expected.ok,false);assert.equal(expected.code,'23502');
+     assert.match(expected.message,/column "number".*supplier_invoices/);
+     Object.assign(expected,{code:'P0001',message:'TAX_CONTEXT_INVALID'});
+    }
+    if(uid===admin&&item.domain==='returns'&&item.action==='supplier_credit'){
+     assert.deepEqual(expected,{ok:false,code:'P0001',message:'INVALID_AMOUNT'});
+     expected.message='RETURN_NOT_FOUND';
+    }
     const actual=await probe(item.domain,item.action);
     if(uid===admin&&item.domain==='accounting'&&['chart','settings'].includes(item.action)&&actual.ok){const field=item.action==='chart'?'rows':'accounts';const advance=actual.result[field].find(a=>a.code==='2090');assert.equal(advance?.type,'liability');actual.result[field]=actual.result[field].filter(a=>a.code!=='2090');}
     // Audit additions extend read metadata while preserving the historical business result.
     if(uid===admin&&item.domain==='accounting'&&actual.ok&&expected.ok){
      if(item.action==='bank_list')Object.assign(expected.result,{batches:[],offset:0,limit:50,total:0});
      if(item.action==='chart')expected.result.rows.forEach(a=>{a.cashflow_class=a.type==='equity'?'financing':'operating';a.account_type=null;});
-     if(item.action==='settings')expected.result.currency_locked=false;
+     if(item.action==='settings')Object.assign(expected.result,{currency_locked:false,tax_rounding:'line'});
+     // Dated tax configuration now exposes its end date and optimistic version.
+     if(item.action==='taxes'){
+      expected.result.rows.forEach(t=>Object.assign(t,{valid_to:null,version:1,calculation_type:'percent',fixed_amount:0,price_included:false,sequence:10,include_base_amount:false,tax_category:'vat'}));
+      expected.result.components=[];
+     }
      if(item.action==='overview'){
       assert.ok(Date.parse(actual.result.generated_at));const today=new Date(expected.result.today+'T00:00:00Z'),start=new Date(Date.UTC(today.getUTCFullYear(),today.getUTCMonth()-1,1)),last=new Date(Date.UTC(today.getUTCFullYear(),today.getUTCMonth(),0)),end=new Date(Math.min(last.getTime(),start.getTime()+(today.getUTCDate()-1)*86400000));
       Object.assign(expected.result,{basis:'ledger',generated_at:actual.result.generated_at,previous_from:start.toISOString().slice(0,10),previous_to:end.toISOString().slice(0,10),fiscal_from:expected.result.today.slice(0,4)+'-01-01'});expected.result.rights.pay=true;

@@ -88,9 +88,9 @@ async function setEnabled(id,on){
  const api=window.GamaCloud;
  if(!api)throw new Error('Sin conexión con Coco ERP.');
  const session=(await api.getSession()).data?.session;
- const r=await api.upsert('app_modules',
+ const r=await window.ArchitectIdentity.withStepUp('identity_admin','app-module:'+id,()=>api.upsert('app_modules',
    {id,enabled:!!on,updated_at:new Date().toISOString(),updated_by:session?.user?.id||null},
-   {onConflict:'id'});
+   {onConflict:'id'}));
  if(r.error)throw r.error;
  if(on)off.delete(id);else off.add(id);
  write();changed();

@@ -288,3 +288,11 @@ Validation : `commerce-compliance-db.test.cjs`, `commerce-workflows-db.test.cjs`
 et les parcours de `storefront.spec.js`. Les essais métier utilisent des bases
 isolées et des identités fictives ; aucune demande de test n'est créée en
 production.
+
+## Sécurité et conformité — 8 novembre 2026
+
+Le [rapport de livraison](audits/gama-security-ecuador-2026-11-08.md) décrit les correctifs implémentés et les preuves métier restant à réunir. La migration `20261108163242_gama_website_security_compliance.sql` remplace les propositions initiales : restrictions des favoris/photos B2B, source canonique des photos, textes retour/échange, complétude de l’information préalable et instantanés des devis. Les fonctions conservent leurs OID et droits ; les réglages et acceptations existants ne sont pas réécrits.
+
+Les nouvelles demandes commerciales exigent raison sociale, RUC, domicile, contact de confidentialité, conservation, destinataires et procédure de droits. Compléter ces valeurs réelles dans les réglages avant activation. Quand elles manquent, le catalogue reste consultable et le canal droits/réclamations reste disponible ; les nouveaux devis/commandes invités sont bloqués côté interface et serveur. Les retries de demandes déjà reçues restent idempotents.
+
+Les réponses Functions appliquent explicitement les en-têtes de sécurité ; le prix B2B expose son HT et son équivalent TTC. Les sondages chargent la notice de confidentialité avant de présenter les champs. Les actifs ERP et le catalogue sont reconstruits depuis les sources canoniques ; leur publication et l’application de la migration restent des étapes distinctes.

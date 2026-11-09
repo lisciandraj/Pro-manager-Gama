@@ -26,7 +26,8 @@ const MARK='<span class="arcLogo"><img src="coco-erp-logo.png?v=20261021-minimal
 const ICON={
  ...window.ArcUI.icons,
  close:'<path d="m6 6 12 12M18 6 6 18"/>',
- back:'<path d="m12 5-7 7 7 7M5 12h14"/>'
+ back:'<path d="m12 5-7 7 7 7M5 12h14"/>',
+ switchEnvironment:'<path d="M4 7h16m-4-4 4 4-4 4M20 17H4m4-4-4 4 4 4"/>'
 };
 // Mobile controls reuse the same solid catalogue as the module navigation.
 const NAV_ICON=Object.fromEntries(['apps','home','search','scanner','more'].map(name=>[name,ICON[name]]));
@@ -45,7 +46,7 @@ function bindTopMenu(trigger){
 }
 
 /* ------------------------------------------------------------------ nav */
-function navLink(x){return '<button type="button" class="arcButton arcNavLink" data-gama-module="'+esc(x[1])+'" data-arc-item="'+esc(x[0])+'" title="'+esc(T(x[0]))+'">'
+function navLink(x){return '<button type="button" class="arcButton arcNavLink" data-gama-module="'+esc(x[1])+'" data-arc-fam="'+esc(window.ArcModules?.get?.(x[1])?.accent||'blue')+'" data-arc-item="'+esc(x[0])+'" title="'+esc(T(x[0]))+'">'
  +(window.ArcUI.moduleIcon(x[2])||window.ArcUI.moduleIcon('home'))+'<span class="arcNavLabel">'+esc(T(x[0]))+'</span></button>'}
 function navAllowed(id){
  if(window.gamaMenuVisible)return !!window.gamaMenuVisible(id);
@@ -71,6 +72,29 @@ function navHtml(){
   html+=menu.items.filter(x=>x[3]===group).map(navLink).join('');
  });
  return html;
+}
+
+function syncEnvironmentSwitch(){
+ const group=document.querySelector('.arcEnvironment'),env=window.CocoEnvironment;
+ if(!group||!env?.enforced)return;
+ const production=env.name==='production';
+ const target=production?'development':'production';
+ const link=group.querySelector('.arcEnvironmentLink');
+ let href='';
+ // The verified profile enables the link. The destination checks its own session.
+ if(!production||env.canDevelop()){
+  try{href=env.url(target)}catch(_){/* Invalid configuration leaves the link hidden. */}
+ }
+ link.hidden=!href;
+ if(href)link.href=href;else link.removeAttribute('href');
+ link.dataset.cocoEnvironment=target;
+ link.querySelector('span').textContent=T(production?'Cambiar a desarrollo':'Cambiar a producción');
+ group.setAttribute('aria-label',T('Entornos de trabajo'));
+ group.querySelector('strong').textContent=T(production?'Producción':'Desarrollo');
+ const version=group.querySelector('small');
+ version.hidden=!/^[a-f0-9]{40}$/.test(env.version);
+ if(!version.hidden){version.textContent=T('Versión:')+' '+env.version.slice(0,8);version.title=env.version}
+ group.hidden=false;
 }
 
 /* El perfil manda: lo que el control de acceso oculta en el menú de tarjetas
@@ -173,6 +197,10 @@ function build(){
  const side=document.createElement('aside');
  side.className='arcSidebar';side.id='cocoAppMenu';side.setAttribute('aria-label',T('Navegación principal'));side.setAttribute('data-gi-aria-label','live');
  window.ArcUI.render(side,'<button type="button" class="arcButton arcDrawerClose" data-gi-aria-label="live" aria-label="'+esc(T('Cerrar'))+'">'+svg(ICON.close)+'</button><a class="arcBrand" href="#mainmenu" aria-label="COCO ERP">'+MARK+'</a>'
+  +'<div class="arcEnvironment" role="group" data-gi-ignore hidden>'
+   +'<div class="arcEnvironmentCurrent"><strong></strong><small></small></div>'
+   +'<a class="arcButton arcEnvironmentLink" hidden>'+svg(ICON.switchEnvironment)+'<span></span></a>'
+  +'</div>'
   +'<nav class="arcNav"></nav>'
   +'<div class="arcFoot">'
    +'<div class="arcFootBrand">COCO ERP</div>'
@@ -308,6 +336,8 @@ function boot(){
  /* Synchronize on application events; observe only the existing user chip
     and notification badge, never the complete document tree. */
  sync();['arc:route-change','gama:auth-change','gama:modules-change','gama:profile-ready','gama:operations-change','coco:favorites-change'].forEach(name=>window.addEventListener(name,sync));
+ syncEnvironmentSwitch();
+ ['gama:profile-ready','gama:auth-change','gama:language-change','coco:environment-access-change'].forEach(name=>window.addEventListener(name,syncEnvironmentSwitch));
  const userObserver=new MutationObserver(sync);const user=document.getElementById('gamaACLUser');if(user)userObserver.observe(user,{childList:true,subtree:true});
  const badge=document.querySelector('#arcNotify [data-go-badge]');if(badge)new MutationObserver(syncBadge).observe(badge,{childList:true,characterData:true,subtree:true});
  window.GamaCloudReady?.then(()=>{sync();setTimeout(sync,500)});

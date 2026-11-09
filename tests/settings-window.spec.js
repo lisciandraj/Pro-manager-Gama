@@ -247,10 +247,32 @@ for(const width of [390,1280])test('import, backup and access move into Configur
  await page.screenshot({path:test.info().outputPath('configuration-admin-tabs-'+width+'.png')});
 });
 
-test('backup exports and verifies files from its Configuration tab',async({page})=>{
- await boot(page);await page.evaluate(()=>{const old=GamaCloud.db;GamaCloud.db=async()=>{const c=await old();return {...c,rpc:async(fn,args)=>fn==='gama_recovery_export'?{data:{format:'architect-application-export',version:1,created_at:'2026-10-03T10:00:00Z',tables:{products:[]},counts:{products:0},storage_objects:[]}}:c.rpc(fn,args)}}});
- await page.evaluate(()=>ArcRouter.open('backup'));const downloaded=page.waitForEvent('download');await page.locator('#recoveryExport').click();const d=await downloaded;const bytes=fs.readFileSync(await d.path());await expect(page.locator('#recoveryStatus')).toContainText('Export vérifié');
- await page.locator('#recoveryFile').setInputFiles({name:'test.json',mimeType:'application/json',buffer:bytes});await page.locator('#recoveryVerify').click();await expect(page.locator('#recoveryStatus')).toContainText('Intégrité vérifiée');
+test('backup exports and verifies encrypted scoped files from its Configuration tab',async({page})=>{
+ const phrase='Synthetic recovery phrase 2026';
+ await boot(page);await page.evaluate(()=>{const old=GamaCloud.db;GamaCloud.db=async()=>{const c=await old();return {...c,rpc:async(fn,args)=>{
+  if(fn!=='gama_recovery_export')return c.rpc(fn,args);
+  window.__recoveryExportArgs=args;
+  return {data:{format:'architect-application-export',version:1,scope:'business_data_and_files',created_at:'2026-11-07T12:00:00Z',
+   tables:{'public.products':[{id:'fixture',name:'Sensitive synthetic product'}]},counts:{'public.products':1},columns:{'public.products':[{name:'id'},{name:'name'}]},
+   coverage:{mode:'business-allowlist',full_backup:false,tables:['public.products'],excluded_tables:['private.offline_proof_keys'],excluded_columns:{},redacted_json_fields:{'private.survey_responses.payload':['token']}},
+   identities:[],storage_objects:[],storage_buckets:[]}};
+ }}}});
+ await page.evaluate(()=>ArcRouter.open('backup'));
+ await page.locator('#recoveryPassphrase').fill(phrase);await page.locator('#recoveryPassphraseRepeat').fill(phrase);
+ const downloaded=page.waitForEvent('download');await page.locator('#recoveryExport').click();const d=await downloaded;const bytes=fs.readFileSync(await d.path());
+ expect(d.suggestedFilename()).toMatch(/^coco-business-export-\d{4}-\d{2}-\d{2}\.encrypted\.json$/);
+ const envelope=JSON.parse(bytes.toString('utf8'));
+ expect(envelope).toMatchObject({format:'architect-encrypted-export',version:1,algorithm:'AES-GCM',kdf:{name:'PBKDF2',hash:'SHA-256',iterations:600000}});
+ expect(typeof envelope.ciphertext).toBe('string');expect(envelope.ciphertext.length).toBeGreaterThan(16);
+ expect(bytes.toString('utf8')).not.toContain('Sensitive synthetic product');expect(bytes.toString('utf8')).not.toContain(phrase);
+ expect(await page.evaluate(()=>window.__recoveryExportArgs)).toEqual({});
+ await expect(page.locator('#recoveryStatus')).toContainText('Export métier chiffré');
+ await expect(page.locator('#recoveryPassphrase')).toHaveValue('');await expect(page.locator('#recoveryPassphraseRepeat')).toHaveValue('');
+ await page.locator('#recoveryFile').setInputFiles({name:d.suggestedFilename(),mimeType:'application/json',buffer:bytes});
+ await page.locator('#recoveryPassphrase').fill('Incorrect synthetic recovery phrase');await page.locator('#recoveryVerify').click();
+ await expect(page.locator('#recoveryStatus')).toContainText('Phrase incorrecte ou fichier modifié');
+ await page.locator('#recoveryPassphrase').fill(phrase);await page.locator('#recoveryVerify').click();await expect(page.locator('#recoveryStatus')).toContainText('Intégrité vérifiée');
+ await expect(page.locator('#recoveryPassphrase')).toHaveValue('');
 });
 
 for(const width of [390,1280])test('users work inside Configuration, refresh live and keep compatible links at '+width,async({page})=>{

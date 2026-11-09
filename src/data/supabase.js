@@ -5,9 +5,28 @@
    veces: dos clientes Supabase, dos suscripciones onAuthStateChange y una
    segunda copia de cada módulo de GamaCloudReady. Una sola capa de datos. */
 if(window.GamaCloud&&window.GamaCloudReady)return;
-const SUPABASE_URL='https://mknsaibrewksgomuslev.supabase.co';
-const SUPABASE_PUBLISHABLE_KEY='sb_publishable_4l0vZw61u5EbLkzmrqrf6Q_phOL1Be9';
-const SUPABASE_ANON_KEY=window.GAMA_SUPABASE_ANON_KEY||SUPABASE_PUBLISHABLE_KEY;
+const environment=window.CocoEnvironment;
+const SUPABASE_URL=environment?.backend.supabaseUrl||(!environment?'https://mknsaibrewksgomuslev.supabase.co':'');
+const SUPABASE_PUBLISHABLE_KEY=environment?.backend.publishableKey||(!environment?'sb_publishable_4l0vZw61u5EbLkzmrqrf6Q_phOL1Be9':'');
+const SUPABASE_ANON_KEY=environment?.enforced?SUPABASE_PUBLISHABLE_KEY:(window.GAMA_SUPABASE_ANON_KEY||SUPABASE_PUBLISHABLE_KEY);
+const identity=environment?.identity;
+let verifiedProfile=null,verifiedToken=null;
+function clearVerification(){verifiedProfile=null;verifiedToken=null;window.dispatchEvent(new CustomEvent('coco:environment-access-change'));}
+const requestUrl=input=>new URL(typeof input==='string'?input:input instanceof URL?input.href:input.url);
+async function environmentFetch(input,options){
+ const url=requestUrl(input);
+ const headers=new Headers(options?.headers||(typeof input!=='string'?input.headers:undefined));
+ const token=headers.get('Authorization')?.replace(/^Bearer /i,'');
+ const bootstrap=url.pathname.startsWith('/auth/v1/')||url.pathname==='/rest/v1/rpc/coco_environment_status'||url.pathname==='/rest/v1/rpc/coco_identity_login_status'||url.pathname==='/rest/v1/profiles';
+ if(url.origin!==SUPABASE_URL||(!bootstrap&&(!verifiedToken||token!==verifiedToken)))return denied();
+ return fetch(input,identity?{...options,redirect:'error'}:options);
+}
+function denied(){return new Response(JSON.stringify({code:'ENVIRONMENT_ACCESS_DENIED',message:'Environment access must be verified.'}),{status:403,headers:{'Content-Type':'application/json'}})}
+async function identityFetch(input,options){
+ const url=requestUrl(input);
+ if(url.origin!==identity.supabaseUrl||!url.pathname.startsWith('/auth/v1/'))return denied();
+ return fetch(input,{...options,redirect:'error'});
+}
 let client=null,initializing=null,realtime=[],profileRequest=null;
 const reads=new Set();
 /* Only reads use deadlines. Never retry or abort an in-flight business write. */
@@ -27,23 +46,76 @@ async function read(make,options={}){
 function emit(name,detail){window.dispatchEvent(new CustomEvent(name,{detail:detail||{}}));}
 function loadClient(){if(window.supabase&&window.supabase.createClient)return Promise.resolve(window.supabase);if(window.__gamaSupabaseLoader)return window.__gamaSupabaseLoader;window.__gamaSupabaseLoader=new Promise(function(resolve,reject){const s=document.createElement('script');s.src='assets/vendor/supabase-2.115.0.js';s.integrity='sha384-CLZeq1dk8+Uzrs7TVvBUdlFoV5F0DMqgRoeHa8g5wJcuPe5SkVfEvdxB0ZuzlnBQ';s.crossOrigin='anonymous';s.async=true;s.onload=()=>window.supabase&&window.supabase.createClient?resolve(window.supabase):reject(Error('Supabase JS unavailable'));s.onerror=()=>reject(Error('Unable to load Supabase JS'));document.head.appendChild(s)});return window.__gamaSupabaseLoader;}
 async function init(){
- if(!SUPABASE_ANON_KEY){emit('gama:cloud-status',{ready:false,configured:false});return null}
+ if(!SUPABASE_ANON_KEY||!SUPABASE_URL){emit('gama:cloud-status',{ready:false,configured:false});if(environment?.enforced)showEnvironmentError();return null}
  if(client)return client;if(initializing)return initializing;
- initializing=(async()=>{const sb=await loadClient();client=sb.createClient(SUPABASE_URL,SUPABASE_ANON_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});client.auth.onAuthStateChange((event,session)=>{if(event!=='TOKEN_REFRESHED')for(const controller of reads)controller.abort();emit('gama:auth-change',{event,session})});emit('gama:cloud-status',{ready:true,configured:true,url:SUPABASE_URL});return client})();
+ initializing=(async()=>{
+  const sb=await loadClient();
+  const authOptions={persistSession:true,autoRefreshToken:true,detectSessionInUrl:true};
+  if(identity)Object.assign(authOptions,{storage:identity.storage,storageKey:identity.storageKey});
+  const transport=environment?.enforced?{global:{fetch:environmentFetch}}:{};
+  if(identity&&identity.supabaseUrl!==SUPABASE_URL){
+   const auth=sb.createClient(identity.supabaseUrl,identity.publishableKey,{auth:authOptions,global:{fetch:identityFetch}}).auth;
+   const data=sb.createClient(SUPABASE_URL,SUPABASE_ANON_KEY,{
+    ...transport,accessToken:async()=>{
+     const {data:session,error}=await auth.getSession();if(error)throw error;
+     return session?.session?.access_token||null;
+    }
+   });
+   // Keep the established GamaCloud.db() contract for modules that use .auth.
+   client=new Proxy(data,{get(target,key){
+    if(key==='auth')return auth;
+    const member=Reflect.get(target,key,target);
+    return typeof member==='function'?member.bind(target):member;
+   }});
+  }else client=sb.createClient(SUPABASE_URL,SUPABASE_ANON_KEY,{auth:authOptions,...transport});
+  client.auth.onAuthStateChange((event,session)=>{
+   if(event!=='TOKEN_REFRESHED'||identity){clearVerification();for(const controller of reads)controller.abort();}
+   else if(verifiedProfile&&session?.user?.id===verifiedProfile.id)verifiedToken=session.access_token;
+   else clearVerification();
+   emit('gama:auth-change',{event,session});
+   if(identity&&event==='TOKEN_REFRESHED'&&session)setTimeout(()=>getProfile().catch(()=>{}),0);
+   if(identity&&identity.supabaseUrl!==SUPABASE_URL&&['SIGNED_IN','SIGNED_OUT','TOKEN_REFRESHED','MFA_CHALLENGE_VERIFIED'].includes(event)){
+    client.realtime.setAuth().catch(()=>{});
+   }
+  });
+  emit('gama:cloud-status',{ready:true,configured:true,url:SUPABASE_URL});
+  return client;
+ })();
  try{return await initializing}finally{initializing=null}
+}
+function showEnvironmentError(reason){
+ const show=()=>{if(document.getElementById('cocoEnvironmentError'))return;const box=document.createElement('div');box.id='cocoEnvironmentError';box.className='cocoEnvironmentError';box.style='position:fixed;inset:0;z-index:2147483647;display:grid;place-content:center;gap:1rem;padding:2rem;background:white;color:#1e293b;text-align:center';box.setAttribute('role','alert');const title=document.createElement('h1'),message=document.createElement('p'),back=document.createElement('a');
+ const locale=window.GamaI18n?.locale?.slice(0,2)||document.documentElement.lang?.slice(0,2)||'es';
+ const copy={fr:['Environnement indisponible',reason==='access'?'Cet environnement est réservé aux administrateurs ou sa configuration doit être vérifiée.':'La base de cet environnement doit être configurée avant son ouverture.','Ouvrir l’autre environnement'],en:['Environment unavailable',reason==='access'?'Administrator access or a configuration check is required.':'The database for this environment must be configured before opening it.','Open the other environment'],es:['Entorno no disponible',reason==='access'?'Se requiere acceso de administrador o verificar la configuración.':'La base de datos de este entorno debe configurarse antes de abrirlo.','Abrir el otro entorno']}[locale]||[];
+ title.textContent=copy[0];message.textContent=copy[1];back.textContent=copy[2];back.href=environment.url(environment.name==='production'?'development':'production');box.append(title,message,back);document.body.appendChild(box)};
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',show,{once:true});else show();
 }
 async function db(){const c=await init();if(!c)throw Error('Supabase public key not configured');return c}
 async function getSession(){return (await db()).auth.getSession()}
 async function signIn(email,password){return (await db()).auth.signInWithPassword({email,password})}
-async function signOut(){try{await window.ArchitectOfflineProofs?.beforeLogout?.()}catch(e){if(e.message==='LOGOUT_CANCELLED')throw e;window.CocoOfflineVault?.lock();}const c=await db();let r;try{r=await c.auth.signOut({scope:'local'})}catch(e){r={error:e}}try{Object.keys(localStorage).forEach(k=>{if(k.startsWith('sb-')&&k.includes('-auth-token'))localStorage.removeItem(k)})}catch(e){}return r}
+async function signOut(){try{await window.ArchitectOfflineProofs?.beforeLogout?.()}catch(e){if(e.message==='LOGOUT_CANCELLED')throw e;window.CocoOfflineVault?.lock();}clearVerification();const c=await db();let r;try{r=await c.auth.signOut({scope:'local'})}catch(e){r={error:e}}try{Object.keys(localStorage).forEach(k=>{if(k.startsWith('sb-')&&k.includes('-auth-token'))localStorage.removeItem(k)})}catch(e){}return r}
 async function getProfile(){
  const c=await db(),r=await c.auth.getSession(),s=r.data?.session,u=s?.user;
- if(!u)return {data:null,error:null};
+ if(!u){clearVerification();return {data:null,error:null}};
  // Share only concurrent reads for the exact authenticated session. Never
  // cache permissions across refreshes, account changes or later requests.
  const key=u.id+':'+s.access_token;
  if(profileRequest?.key===key)return profileRequest.promise;
- const job={key,promise:read(signal=>c.from('profiles').select('*').eq('id',u.id).abortSignal(signal).maybeSingle()).catch(error=>({data:null,error}))};
+ const job={key,promise:null};
+ job.promise=(async()=>{
+  const result=await read(signal=>c.from('profiles').select('*').eq('id',u.id).abortSignal(signal).maybeSingle()).catch(error=>({data:null,error}));
+  if(result.error||!result.data||result.data.id!==u.id||result.data.active!==true){clearVerification();return {data:null,error:result.error||{code:'ENVIRONMENT_ACCESS_DENIED',message:'Active account required.'}}}
+  if(environment?.enforced){
+   const status=await read(signal=>c.rpc('coco_environment_status').abortSignal(signal));
+   if(status.error||status.data?.environment!==environment.name||status.data?.allowed!==true||(identity&&status.data?.identity_issuer!==identity.issuer)||(environment.name==='development'&&(status.data?.admin!==true||result.data.role!=='administrador'))){
+    clearVerification();showEnvironmentError('access');return {data:null,error:{code:'ENVIRONMENT_ACCESS_DENIED',message:'Environment access denied or configuration mismatch.'}};
+   }
+  }
+  const current=(await c.auth.getSession()).data?.session;
+  if(current?.access_token!==s.access_token){clearVerification();return {data:null,error:{code:'AUTH_CHANGED',message:'Session changed.'}}}
+  verifiedProfile=Object.freeze({...result.data});verifiedToken=s.access_token;if(environment?.enforced)document.getElementById('cocoEnvironmentError')?.remove();window.dispatchEvent(new CustomEvent('coco:environment-access-change'));
+  return result;
+ })().catch(error=>{clearVerification();return {data:null,error}});
  profileRequest=job;
  try{return await job.promise}finally{if(profileRequest===job)profileRequest=null}
 }
@@ -86,6 +158,6 @@ async function update(table,id,row){const r=await (await db()).from(table).updat
 async function remove(table,id){const r=await (await db()).from(table).delete().eq('id',id);if(!r.error)emit('gama:data-change',{table});return r}
 async function subscribe(table,callback){const c=await db();const ch=c.channel('gama-'+table+'-'+Date.now()).on('postgres_changes',{event:'*',schema:'public',table},p=>{emit('gama:data-change',{table,payload:p});if(typeof callback==='function')callback(p)}).subscribe();realtime.push(ch);return ch}
 function unsubscribeAll(){if(!client)return;realtime.forEach(ch=>{try{client.removeChannel(ch)}catch(e){}});realtime=[]}
-window.GamaCloud={url:SUPABASE_URL,init,db,read,getSession,signIn,signOut,getProfile,list,insert,upsert,update,remove,subscribe,unsubscribeAll,tables:{profiles:'profiles',products:'products',suppliers:'suppliers',customers:'customers',stockMovements:'stock_movements',invoices:'invoices',invoiceLines:'invoice_lines',commercialMatrix:'commercial_matrix',tmsDeliveries:'tms_deliveries',tmsRoutes:'tms_routes',tmsProofs:'tms_proofs',tmsEvents:'tms_events',tmsSettings:'tms_settings'}};
-window.GamaCloudReady=init().then(function(){if(window.GAMA_STANDALONE_WEBSITE)return window.GamaCloud;['gama-cloud-products.js?v=20260913-i18n1','gama-cloud-auth.js?v=20260918-architect1','gama-cloud-users.js?v=20260918-architect1','gama-purchases-supplier-bridge.js?v=20260913-i18n1','gama-invoice-archive.js?v=20260918-architect1'].forEach(function(src){const s=document.createElement('script');s.src=window.ArcAssets?.[src.split('?')[0]]||src;s.async=true;document.head.appendChild(s)});return window.GamaCloud});
+window.GamaCloud={get verifiedProfile(){return verifiedProfile},url:SUPABASE_URL,init,db,read,getSession,signIn,signOut,getProfile,list,insert,upsert,update,remove,subscribe,unsubscribeAll,tables:{profiles:'profiles',products:'products',suppliers:'suppliers',customers:'customers',stockMovements:'stock_movements',invoices:'invoices',invoiceLines:'invoice_lines',commercialMatrix:'commercial_matrix',tmsDeliveries:'tms_deliveries',tmsRoutes:'tms_routes',tmsProofs:'tms_proofs',tmsEvents:'tms_events',tmsSettings:'tms_settings'}};
+window.GamaCloudReady=init().then(async function(){if(environment?.enforced&&client){const current=await getSession();if(current.data?.session)await getProfile();}if(window.GAMA_STANDALONE_WEBSITE)return window.GamaCloud;['gama-cloud-products.js?v=20260913-i18n1','gama-cloud-auth.js?v=20260918-architect1','gama-cloud-users.js?v=20260918-architect1','gama-purchases-supplier-bridge.js?v=20260913-i18n1','gama-invoice-archive.js?v=20260918-architect1'].forEach(function(src){const s=document.createElement('script');s.src=window.ArcAssets?.[src.split('?')[0]]||src;s.async=true;document.head.appendChild(s)});return window.GamaCloud});
 })();
